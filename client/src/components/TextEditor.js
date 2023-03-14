@@ -1,11 +1,17 @@
 import React from "react";
-import "./TextEditor.css";
+import "./componentsCSS/TextEditor.css";
 
-const TextEditor = ({ placeholder }) => {
+const TextEditor = ({ placeholder, transcript, handler }) => {
   return (
-    <div>
-      <textarea rows="10" cols="50" placeholder={placeholder} />
-    </div>
+    <>
+      <textarea
+        rows="15"
+        cols="50"
+        placeholder={placeholder}
+        value={transcript}
+        onChange={handler}
+      />
+    </>
   );
 };
 

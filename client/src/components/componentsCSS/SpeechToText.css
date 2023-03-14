@@ -1,0 +1,61 @@
+/**** Speech-to-Text Control Buttons ****/
+/* Containers */
+.stt-buttons-container {
+  display: flex;
+  flex-direction: column;
+  width: auto;
+  align-items: center;
+}
+
+.stt-controls-container {
+  margin: 10px 0px;
+}
+/* End Containers */
+
+/* Header */
+.feature-title {
+  font-size: 16px;
+  font-weight: bold;
+}
+/* End of Header */
+
+/* Buttons */
+.stt-controls-container button,
+.stt-controls-container button:hover {
+  font-size: 16px;
+  padding: 10px;
+  margin: 0 5px;
+  width: 40px;
+  border-radius: 10px;
+  -webkit-border-radius: 10px;
+  -moz-border-radius: 10px;
+  -ms-border-radius: 10px;
+  -o-border-radius: 10px;
+  border: 0px;
+}
+
+.stt-controls-container button {
+  background-color: #252424;
+  color: #f5f5f5;
+}
+
+.stt-controls-container button:hover,
+.stt-import-container button:hover {
+  background-color: #504d4d;
+  color: #f5f5f5;
+}
+
+.stt-import-container button {
+  background-color: #252424;
+  color: #f5f5f5;
+  border: 0px;
+  padding: 10px;
+  border-radius: 3px;
+  -webkit-border-radius: 3px;
+  -moz-border-radius: 3px;
+  -ms-border-radius: 3px;
+  -o-border-radius: 3px;
+}
+/* End Buttons */
+
+/**** End of Speech-to-text Control Buttons ****/

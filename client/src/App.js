@@ -1,32 +1,23 @@
 import React from "react";
-import "./App.css";
-import SpeechToText from "./components/SpeechToText";
-import TextEditor from "./components/TextEditor";
-import TextToSpeech from "./components/TextToSpeech";
+import { Routes, Route } from "react-router-dom";
+import STTPage from "./pages/STTPage";
+import TTSPage from "./pages/TTSPage";
+import LoginPage from "./pages/LoginPage";
+import PageNotFound from "./pages/PageNotFound";
+import MainLayout from "./layouts/MainLayout";
+import HomePage from "./pages/HomePage";
 
 function App() {
   return (
-    <div className="App">
-      <header>
-        <h1>Descriptify App</h1>
-      </header>
-      <main>
-        <section>
-          <div className="stt-container">
-            <h2>Speech to Text</h2>
-            <TextEditor placeholder="This is where the transcription will be displayed" />
-            <SpeechToText />
-          </div>
-        </section>
-        <section>
-          <div className="tts-container">
-            <h2>Text to Speech</h2>
-            <TextEditor placeholder="Type text here" />
-            <TextToSpeech />
-          </div>
-        </section>
-      </main>
-    </div>
+    <MainLayout>
+      <Routes>
+        <Route index element={<HomePage />} />
+        <Route path="/speechtotext" element={<STTPage />} />
+        <Route path="/texttospeech" element={<TTSPage />} />
+        <Route path="/login" element={<LoginPage />} />
+        <Route path="*" element={<PageNotFound />} />
+      </Routes>
+    </MainLayout>
   );
 }
 

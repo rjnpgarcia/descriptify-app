@@ -1,0 +1,33 @@
+/******* BODY ******/
+main {
+  display: flex;
+  width: auto;
+  height: 100vh;
+}
+
+header {
+  border-bottom: 1px solid #6e6e6e;
+  margin: 0;
+  font-family: "Numans", sans-serif;
+}
+
+.main-container {
+  margin: 0;
+  width: 100%;
+}
+
+.navbar-brand {
+  margin-left: 30px;
+}
+
+.nav-container {
+  height: 100vh;
+  border-right: 1px solid #6e6e6e;
+  background-color: #1a1a1a;
+}
+
+.content-container {
+  margin: 50px 0px 0px 10px;
+}
+
+/******* End of BODY *******/
