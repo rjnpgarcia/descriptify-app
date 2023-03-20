@@ -1,64 +1,84 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useEffect, useRef, useState } from "react";
 // Components
-import DownloadFile from "../components/DownloadFile.js";
 import Container from "react-bootstrap/esm/Container";
 import Row from "react-bootstrap/esm/Row";
 import "./componentsCSS/SpeechToText.css";
 import TextEditor from "./TextEditor.js";
 
 const SpeechToText = () => {
-  const [isRecording, setIsRecording] = useState(false);
+  const mediaRecorder = useRef(null);
+  const [isRecording, setIsRecording] = useState("inactive");
+  // const [stream, setStream] = useState(null);
+  const [audioChunks, setAudioChunks] = useState([]);
+  const [audio, setAudio] = useState(null);
   const [transcript, setTranscript] = useState("");
-  const [interim, setInterim] = useState("");
-  const recognition = useRef(null);
-  // const mediaRecorder = useRef();
-  // const playAudioSrc = useRef(null);
 
-  useEffect(() => {
-    // Initialize recognition instance
-    recognition.current = new window.webkitSpeechRecognition();
-    recognition.current.continuous = true;
-    recognition.current.interimResults = true;
-    recognition.current.lang = "en-US";
+  const mimeType = "audio/mp3";
 
-    recognition.current.onresult = (e) => {
-      let interimTranscript = "";
-      let finalTranscript = "";
-      for (let i = e.resultIndex; i < e.results.length; i++) {
-        const transcript = e.results[i][0].transcript;
-        if (e.results[i].isFinal) {
-          finalTranscript += transcript;
-        } else {
-          interimTranscript += transcript;
-        }
+  const handleStartRecording = async () => {
+    try {
+      setIsRecording("recording");
+      console.log("Start Recording");
+      if ("MediaRecorder" in window) {
+        const streamData = await navigator.mediaDevices.getUserMedia({
+          audio: true,
+          video: false,
+        });
+        // setStream(streamData);
+
+        const media = new MediaRecorder(streamData, { type: mimeType });
+        mediaRecorder.current = media;
+        mediaRecorder.current.start();
+        let localAudioChunks = [];
+        mediaRecorder.current.ondataavailable = (e) => {
+          if (typeof e.data === "undefined") return;
+          if (e.data.size === 0) return;
+          localAudioChunks.push(e.data);
+        };
+        setAudioChunks(localAudioChunks);
+      } else {
+        alert("The MediaRecorder API is not supported in your browser");
       }
-      setInterim(interimTranscript);
-      setTranscript(finalTranscript);
-    };
-    recognition.current.onend = () => {
-      setIsRecording(false);
-    };
-
-    recognition.current.onerror = (e) => {
-      console.log(e.error);
-      setIsRecording(false);
-    };
-  }, []);
-
-  const handleStartRecording = () => {
-    setIsRecording(true);
-
-    recognition.current.start();
+    } catch (err) {
+      console.error(err.message);
+    }
   };
 
   const handleStopRecording = () => {
-    setIsRecording(false);
-
-    recognition.current.stop();
+    setIsRecording("inactive");
+    console.log("Stop Recording");
+    mediaRecorder.current.stop();
+    mediaRecorder.current.onstop = () => {
+      const audioBlob = new Blob(audioChunks, { type: mimeType });
+      const audioUrl = URL.createObjectURL(audioBlob);
+      console.log(audioUrl);
+      setAudio(audioUrl);
+      setAudioChunks([]);
+    };
   };
 
-  const handleClearTranscript = () => {
-    setTranscript("");
+  const handleTranscribe = async (e) => {
+    e.preventDefault();
+    console.log("Transcribing Audio");
+    console.log(audio);
+    const formData = new FormData();
+    const audioBlobUrl = await fetch(audio).then((res) => res.blob());
+    console.log(audioBlobUrl);
+    formData.append("audioFile", audioBlobUrl);
+    const response = await fetch("http://localhost:8000/api/transcribestt", {
+      method: "POST",
+      body: formData,
+    });
+    const data = await response.json();
+    console.log(data);
+    setTranscript(data.monologues[0].elements.map((e) => e.value).join(" "));
+  };
+
+  // Play recorded audio using button tag
+  const handlePlayAudio = () => {
+    console.log("Pressed Play Audio");
+    const audioFile = new Audio(audio);
+    audioFile.play();
   };
 
   const handleChange = (e) => {
@@ -68,42 +88,42 @@ const SpeechToText = () => {
   return (
     <Container>
       <h3 className="feature-title">
-        <i class="fa-solid fa-microphone"></i> Speech to Text
+        <i className="fa-solid fa-microphone"></i> Speech to Text
       </h3>
-      <Row>
-        <DownloadFile />
-      </Row>
       <Row className="justify-content-center mt-3">
         <TextEditor
-          transcript={isRecording ? interim : transcript}
+          transcript={transcript}
           handler={handleChange}
-          placeholder="This is where the transcription will be displayed"
+          placeholder="This is where the transcription will be stored"
         />
       </Row>
       <Row className="justify-content-center">
         <div className="stt-buttons-container">
           <div className="stt-controls-container">
-            <button className="stt-play-button">
+            <button className="stt-play-button" onClick={handlePlayAudio}>
               <i className="fa-solid fa-play" style={{ color: "#05a705" }}></i>
             </button>
-            {isRecording ? (
-              <button onClick={handleStopRecording}>
-                <i className="fa-solid fa-stop"></i>
-              </button>
-            ) : (
-              <button onClick={handleStartRecording} className="record-button">
-                <i
-                  className="fa-solid fa-microphone"
-                  style={{ color: "#e20808" }}
-                ></i>
-              </button>
-            )}
+            {/* {isRecording ? ( */}
+            <button>
+              <i className="fa-solid fa-stop" onClick={handleStopRecording}></i>
+            </button>
+            {/* ) : ( */}
+            <button className="record-button" onClick={handleStartRecording}>
+              <i
+                className="fa-solid fa-microphone"
+                style={{ color: "#e20808" }}
+              ></i>
+            </button>
+            {/* )} */}
             <button>
               <i className="fa-solid fa-rotate"></i>
             </button>
-            <button onClick={handleClearTranscript}>
+            <button>
               <i className="fa-solid fa-delete-left"></i>
             </button>
+          </div>
+          <div className="stt-import-container">
+            <button onClick={handleTranscribe}>Transcribe</button>
           </div>
           <div className="stt-import-container">
             <button>Import Audio</button>

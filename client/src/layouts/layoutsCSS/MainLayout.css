@@ -11,9 +11,26 @@ header {
   font-family: "Numans", sans-serif;
 }
 
+.App {
+  display: flex;
+  justify-content: center;
+  flex-flow: column;
+}
+
 .main-container {
-  margin: 0;
-  width: 100%;
+  align-self: center;
+  margin-top: 50px;
+  width: 80%;
+  height: 80vh;
+  /* height: 80vh; */
+  background-color: #252424;
+  border: 1px solid #b1b1b1;
+  border-radius: 10px;
+  -webkit-border-radius: 10px;
+  -moz-border-radius: 10px;
+  -ms-border-radius: 10px;
+  -o-border-radius: 10px;
+  box-shadow: 5px 5px 30px rgb(41, 41, 41);
 }
 
 .navbar-brand {
@@ -21,13 +38,19 @@ header {
 }
 
 .nav-container {
-  height: 100vh;
-  border-right: 1px solid #6e6e6e;
+  /*height: 70vh;
+  */
   background-color: #1a1a1a;
+  border-radius: 10px;
+  -webkit-border-radius: 10px;
+  -moz-border-radius: 10px;
+  -ms-border-radius: 10px;
+  -o-border-radius: 10px;
 }
 
-.content-container {
-  margin: 50px 0px 0px 10px;
+.content-row {
+  height: 90%;
+  align-items: center;
 }
 
 /******* End of BODY *******/

@@ -28,13 +28,13 @@ const MainLayout = ({ children }) => {
         </Navbar>
       </header>
       <Container className="main-container">
-        <Row>
-          <Col xs md="2" className="nav-container">
+        <Row className="d-flex">
+          <Col xs className="nav-container">
             <MainNavigation />
           </Col>
-          <Col xs md="10">
-            <div className="content-container">{children}</div>
-          </Col>
+        </Row>
+        <Row className="content-row">
+          <Col xs>{children}</Col>
         </Row>
       </Container>
     </div>

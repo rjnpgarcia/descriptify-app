@@ -1,35 +1,43 @@
-import React, { useRef } from "react";
+// import React, { useRef, useState } from "react";
+// import Button from "react-bootstrap/Button";
 
-const AudioRecorder = ({ setIsRecording }) => {
-  const mediaRecorder = useRef(null);
-  const [audioSrc, setAudioSrc] = useState(null);
+// const AudioRecorder = ({ setIsRecording }) => {
+//   const [isRecordingAudio, setIsRecordingAudio] = useState(false);
+//   const [recordedBlob, setRecordedBlob] = useState(null);
+//   const mediaRecorder = useRef(null);
 
-  useEffect(() => {
-    navigator.mediaDevices
-      .getUserMedia({ audio: true })
-      .then((mediaStreamObj) => {
-        let dataArray = [];
-        mediaRecorder.current = new MediaRecorder(mediaStreamObj);
-        mediaRecorder.current.ondataavailable = function (ev) {
-          dataArray.push(ev.data);
-        };
-        mediaRecorder.current.onstop = function () {
-          let audioData = new Blob(dataArray, { type: "audio/mp3;" });
-          let audioSrc = window.URL.createObjectURL(audioData);
-          setAudioSrc(audioSrc);
-          setIsRecording(false);
-          dataArray = [];
-        };
-      });
-  }, [setIsRecording]);
+//   const startRecording = () => {
+//     setIsRecordingAudio(true);
+//     const mediaStream = navigator.mediaDevices.getUserMedia({ audio: true });
+//     mediaStream.then((stream) => {
+//       mediaRecorder.current = new MediaRecorder(stream);
+//       mediaRecorder.current.start();
+//       const chunks = [];
+//       mediaRecorder.current.addEventListener("dataavailable", (e) => {
+//         chunks.push(e.data);
+//       });
+//       mediaRecorder.current.addEventListener("stop", () => {
+//         setIsRecordingAudio(false);
+//         const blob = new Blob(chunks, { type: "audio/wav" });
+//         setRecordedBlob(blob);
+//       });
+//     });
+//   };
 
-  const startrecording = () => {
-    setIsRecording(true);
-    mediaRecorder.current.start();
-  };
+//   const stopRecording = () => {
+//     mediaRecorder.current.stop();
+//   };
 
-  const stopRecording = () => {
-    setIsRecording(false);
-    mediaRecorder.current.stop();
-  };
-};
+//   return (
+//     <>
+//       <Button
+//         onClick={isRecordingAudio ? stopRecording : startRecording}
+//         variant={isRecordingAudio ? "danger" : "success"}
+//       >
+//         {isRecordingAudio ? "Stop Recording" : "Start Recording"}
+//       </Button>
+//     </>
+//   );
+// };
+
+export default AudioRecorder;

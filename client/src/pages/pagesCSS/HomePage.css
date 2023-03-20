@@ -2,7 +2,7 @@
 .home-container {
   display: flex;
   justify-content: center;
-  margin: 220px 0 0 70px;
+  align-self: center;
 }
 
 .home-logo {
