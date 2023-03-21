@@ -71,28 +71,12 @@ const routes = (app) => {
 
       // Get transcription by object
       const transcriptObject = await client.getTranscriptObject(job.id);
-      console.log(JSON.stringify(transcriptObject));
+      console.log(transcriptObject);
       res.json(transcriptObject);
 
       // Delete audio file after transcription
       fs.unlinkSync(filePath);
       console.log("Success! Transcription is complete!");
-
-      // // Get transcription by text
-      // const transcriptText = await client.getTranscriptText(job.id);
-
-      // // Send transcript text to client
-      // res.json(transcriptText);
-
-      // // Write output file
-      // fs.writeFile(
-      //   "../outputs/output_transcript.txt",
-      //   transcriptText,
-      //   (err) => {
-      //     if (err) throw err;
-      //     console.log("Success transcription to text file!");
-      //   }
-      // );
     });
 
   app

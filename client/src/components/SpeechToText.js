@@ -5,6 +5,7 @@ import Row from "react-bootstrap/esm/Row";
 import "./componentsCSS/SpeechToText.css";
 import TextEditor from "./TextEditor.js";
 import RecordModal from "../layouts/RecordModal.js";
+import LoadingTranscript from "../layouts/LoadingTranscript.js";
 
 const SpeechToText = () => {
   const mediaRecorder = useRef(null);
@@ -112,6 +113,16 @@ const SpeechToText = () => {
     setTranscript(e.target.value);
   };
 
+  // Handle Remove/Replace recorded audio
+  const handleRemoveAudioText = () => {
+    setAudio(null);
+    setTranscript("");
+  };
+  const handleReplaceAudio = () => {
+    setAudio(null);
+    setShowModal(true);
+  };
+
   return (
     <>
       <Container>
@@ -155,11 +166,15 @@ const SpeechToText = () => {
                   style={{ color: "#e20808" }}
                 ></i>
               </button>
-              <button>
-                <i className="fa-solid fa-rotate"></i>
-              </button>
-              <button>
+              <button onClick={handleRemoveAudioText}>
                 <i className="fa-solid fa-delete-left"></i>
+              </button>
+              <button
+                className="replace-button"
+                onClick={handleReplaceAudio}
+                disabled={!audio}
+              >
+                <i className="fa-solid fa-rotate"></i>
               </button>
               <button style={{ width: "auto" }}>Import</button>
             </div>
@@ -173,15 +188,7 @@ const SpeechToText = () => {
                   Transcribe
                 </button>
               ) : (
-                <button className="loading-transcription" disabled>
-                  <div class="lds-ring">
-                    <div></div>
-                    <div></div>
-                    <div></div>
-                    <div></div>
-                  </div>
-                  <span>Transcribing. . . . .</span>
-                </button>
+                <LoadingTranscript />
               )}
             </div>
           </div>

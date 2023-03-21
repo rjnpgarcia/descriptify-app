@@ -64,7 +64,8 @@
 .stt-play-button:disabled,
 .stt-play-button:hover:disabled,
 .stt-transcribe-button:hover:disabled,
-.stt-transcribe-button:disabled {
+.stt-transcribe-button:disabled,
+.replace-button:disabled {
   color: #999090;
 }
 
@@ -73,8 +74,5 @@
 .audio-player {
   height: 30px;
 }
-
-/***** Note *****/
-/* See Loading animation CSS styles in index.css */
 
 /**** End of Speech-to-text Control Buttons ****/
