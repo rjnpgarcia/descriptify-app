@@ -26,11 +26,11 @@
   padding: 10px;
   margin: 0 5px;
   width: 40px;
-  border-radius: 10px;
-  -webkit-border-radius: 10px;
-  -moz-border-radius: 10px;
-  -ms-border-radius: 10px;
-  -o-border-radius: 10px;
+  border-radius: 3px;
+  -webkit-border-radius: 3px;
+  -moz-border-radius: 3px;
+  -ms-border-radius: 3px;
+  -o-border-radius: 3px;
   border: 0px;
 }
 
@@ -56,6 +56,22 @@
   -ms-border-radius: 3px;
   -o-border-radius: 3px;
 }
+
+.stt-play-button {
+  background: #8a93e2;
+}
+
+.stt-play-button:disabled,
+.stt-play-button:hover:disabled,
+.transcribe-button:hover:disabled,
+.transcribe-button:disabled {
+  color: #999090;
+}
+
 /* End Buttons */
+
+.audio-player {
+  height: 30px;
+}
 
 /**** End of Speech-to-text Control Buttons ****/

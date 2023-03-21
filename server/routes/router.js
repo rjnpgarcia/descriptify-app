@@ -8,7 +8,7 @@ const ACCESS_TOKEN = process.env.REVAI_API_KEY;
 const client = new revai.RevAiApiClient(ACCESS_TOKEN);
 
 // Create a directory for storing the uploaded files
-const uploadDirectory = path.join(__dirname, "uploads");
+const uploadDirectory = path.join(__dirname, "../uploads");
 if (!fs.existsSync(uploadDirectory)) {
   fs.mkdirSync(uploadDirectory);
 }
@@ -19,7 +19,10 @@ const storage = multer.diskStorage({
     cb(null, uploadDirectory);
   },
   filename: function (req, file, cb) {
-    cb(null, file.originalname);
+    cb(
+      null,
+      file.fieldname + "-" + Date.now() + path.extname(file.originalname)
+    );
   },
 });
 
@@ -42,31 +45,54 @@ const routes = (app) => {
         skip_diarization: false,
         skip_punctuation: false,
         language: "en",
+        mediaFormat: "mp3",
         // test_mode: true,
       };
+
+      let job;
       try {
-        const job = await client.submitJobLocalFile(filePath, jobOptions);
+        job = await client.submitJobLocalFile(filePath, jobOptions);
 
         console.log(`Job Id: ${job.id}`);
         console.log(`Status: ${job.status}`);
         console.log(`Created On: ${job.created_on}`);
-
-        let jobDetails = await client.getJobDetails(job.id);
-
-        while (jobDetails.status == revai.JobStatus.InProgress) {
-          console.log(`Job ${job.id} is ${JSON.stringify(jobDetails)}`);
-          await new Promise((resolve) => setTimeout(resolve, 5000));
-        }
-
-        const transcriptObject = await client.getTranscriptObject(job.id);
-        console.log(transcriptObject);
-        res.send(
-          transcriptObject.monologues[0].elements.map((e) => e.value).join(" ")
-        );
-        fs.unlinkSync(filePath);
       } catch (error) {
         console.error(error);
       }
+      let jobDetails = await client.getJobDetails(job.id);
+      console.log(`Job ${job.id} is ${jobDetails.status}`);
+
+      // Checking: Poll job status
+      while (jobDetails.status == revai.JobStatus.InProgress) {
+        await new Promise((resolve) => setTimeout(resolve, 5000));
+        jobDetails = await client.getJobDetails(job.id);
+        console.log(`Job ${job.id} is ${jobDetails.status}`);
+      }
+
+      // Get transcription by object
+      const transcriptObject = await client.getTranscriptObject(job.id);
+      console.log(JSON.stringify(transcriptObject));
+      res.json(transcriptObject);
+
+      // Delete audio file after transcription
+      fs.unlinkSync(filePath);
+      console.log("Success! Transcription is complete!");
+
+      // // Get transcription by text
+      // const transcriptText = await client.getTranscriptText(job.id);
+
+      // // Send transcript text to client
+      // res.json(transcriptText);
+
+      // // Write output file
+      // fs.writeFile(
+      //   "../outputs/output_transcript.txt",
+      //   transcriptText,
+      //   (err) => {
+      //     if (err) throw err;
+      //     console.log("Success transcription to text file!");
+      //   }
+      // );
     });
 
   app

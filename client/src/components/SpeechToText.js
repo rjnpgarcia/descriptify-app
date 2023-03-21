@@ -1,30 +1,37 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useRef, useState } from "react";
 // Components
 import Container from "react-bootstrap/esm/Container";
 import Row from "react-bootstrap/esm/Row";
 import "./componentsCSS/SpeechToText.css";
 import TextEditor from "./TextEditor.js";
+import RecordModal from "../layouts/RecordModal.js";
 
 const SpeechToText = () => {
   const mediaRecorder = useRef(null);
-  const [isRecording, setIsRecording] = useState("inactive");
-  // const [stream, setStream] = useState(null);
+  const [isRecording, setIsRecording] = useState(false);
   const [audioChunks, setAudioChunks] = useState([]);
   const [audio, setAudio] = useState(null);
   const [transcript, setTranscript] = useState("");
+  const [showModal, setShowModal] = useState(false);
+  const [isPlaying, setIsPlaying] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
 
   const mimeType = "audio/mp3";
 
+  // Handle Modal pop-up for recording audio
+  const handleClose = () => setShowModal(false);
+  const handleShow = () => setShowModal(true);
+
+  // Set MediaRecorder API then start recording
   const handleStartRecording = async () => {
     try {
-      setIsRecording("recording");
+      setIsRecording(true);
       console.log("Start Recording");
       if ("MediaRecorder" in window) {
         const streamData = await navigator.mediaDevices.getUserMedia({
           audio: true,
           video: false,
         });
-        // setStream(streamData);
 
         const media = new MediaRecorder(streamData, { type: mimeType });
         mediaRecorder.current = media;
@@ -44,8 +51,9 @@ const SpeechToText = () => {
     }
   };
 
+  // Stop recording set Blob URL
   const handleStopRecording = () => {
-    setIsRecording("inactive");
+    setIsRecording(false);
     console.log("Stop Recording");
     mediaRecorder.current.stop();
     mediaRecorder.current.onstop = () => {
@@ -54,83 +62,128 @@ const SpeechToText = () => {
       console.log(audioUrl);
       setAudio(audioUrl);
       setAudioChunks([]);
+      handleClose();
     };
   };
 
+  // Handle Transcription to server
   const handleTranscribe = async (e) => {
     e.preventDefault();
     console.log("Transcribing Audio");
     console.log(audio);
-    const formData = new FormData();
-    const audioBlobUrl = await fetch(audio).then((res) => res.blob());
-    console.log(audioBlobUrl);
-    formData.append("audioFile", audioBlobUrl);
-    const response = await fetch("http://localhost:8000/api/transcribestt", {
-      method: "POST",
-      body: formData,
-    });
-    const data = await response.json();
-    console.log(data);
-    setTranscript(data.monologues[0].elements.map((e) => e.value).join(" "));
+    try {
+      setIsLoading(true);
+      const formData = new FormData();
+      const res = await fetch(audio);
+      const audioBlob = await res.blob();
+      console.log(audioBlob);
+      formData.append("audioFile", audioBlob, "audio.mp3");
+      const response = await fetch("http://localhost:8000/api/transcribestt", {
+        method: "POST",
+        body: formData,
+      });
+      const data = await response.json();
+      console.log(data);
+      setIsLoading(false);
+      // Transcription received by object
+      setTranscript(data.monologues[0].elements.map((e) => e.value).join(" "));
+    } catch (error) {
+      setIsLoading(false);
+      console.error(error.message);
+    }
   };
 
-  // Play recorded audio using button tag
+  // Handle audio player controls
+  const audioPlayer = document.getElementById("stt-audio-player");
   const handlePlayAudio = () => {
     console.log("Pressed Play Audio");
-    const audioFile = new Audio(audio);
-    audioFile.play();
+    audioPlayer.play();
+    setIsPlaying(true);
+  };
+  const handlePauseAudio = () => {
+    console.log("Paused Audio");
+    if (isPlaying) {
+      audioPlayer.pause();
+      setIsPlaying(false);
+    }
   };
 
+  // Handle onChange for textEditor
   const handleChange = (e) => {
     setTranscript(e.target.value);
   };
 
   return (
-    <Container>
-      <h3 className="feature-title">
-        <i className="fa-solid fa-microphone"></i> Speech to Text
-      </h3>
-      <Row className="justify-content-center mt-3">
-        <TextEditor
-          transcript={transcript}
-          handler={handleChange}
-          placeholder="This is where the transcription will be stored"
-        />
-      </Row>
-      <Row className="justify-content-center">
-        <div className="stt-buttons-container">
-          <div className="stt-controls-container">
-            <button className="stt-play-button" onClick={handlePlayAudio}>
-              <i className="fa-solid fa-play" style={{ color: "#05a705" }}></i>
-            </button>
-            {/* {isRecording ? ( */}
-            <button>
-              <i className="fa-solid fa-stop" onClick={handleStopRecording}></i>
-            </button>
-            {/* ) : ( */}
-            <button className="record-button" onClick={handleStartRecording}>
-              <i
-                className="fa-solid fa-microphone"
-                style={{ color: "#e20808" }}
-              ></i>
-            </button>
-            {/* )} */}
-            <button>
-              <i className="fa-solid fa-rotate"></i>
-            </button>
-            <button>
-              <i className="fa-solid fa-delete-left"></i>
-            </button>
+    <>
+      <Container>
+        <h3 className="feature-title">
+          <i className="fa-solid fa-microphone"></i> Speech to Text
+        </h3>
+        <Row className="justify-content-center mt-3">
+          <TextEditor
+            transcript={transcript}
+            handler={handleChange}
+            placeholder="This is where the transcription will be stored"
+          />
+        </Row>
+        <Row className="justify-content-center">
+          <div className="stt-buttons-container">
+            {isLoading ? "LOADING......" : ""}
+            <audio id="stt-audio-player" src={audio}></audio>
+            <div className="stt-controls-container">
+              {!isPlaying ? (
+                <button
+                  className="stt-play-button"
+                  onClick={handlePlayAudio}
+                  disabled={!audio}
+                >
+                  {audio ? (
+                    <i
+                      className="fa-solid fa-play"
+                      style={{ color: "#8a93e2" }}
+                    ></i>
+                  ) : (
+                    <i className="fa-solid fa-play"></i>
+                  )}
+                </button>
+              ) : (
+                <button className="stt-pause-button" onClick={handlePauseAudio}>
+                  Pause
+                </button>
+              )}
+              <button className="record-button" onClick={handleShow}>
+                <i
+                  className="fa-solid fa-microphone"
+                  style={{ color: "#e20808" }}
+                ></i>
+              </button>
+              <button>
+                <i className="fa-solid fa-rotate"></i>
+              </button>
+              <button>
+                <i className="fa-solid fa-delete-left"></i>
+              </button>
+            </div>
+            <div className="stt-import-container">
+              <button
+                className="transcribe-button"
+                onClick={handleTranscribe}
+                disabled={!audio}
+              >
+                Transcribe
+              </button>
+            </div>
           </div>
-          <div className="stt-import-container">
-            <button onClick={handleTranscribe}>Transcribe</button>
-          </div>
-          <div className="stt-import-container">
-            <button>Import Audio</button>
-          </div>
-        </div>
-      </Row>
-    </Container>
+        </Row>
+      </Container>
+      <RecordModal
+        show={showModal}
+        onHide={handleClose}
+        stopRecording={handleStopRecording}
+        startRecording={handleStartRecording}
+        isRecording={isRecording}
+      />
+    </>
   );
 };
 

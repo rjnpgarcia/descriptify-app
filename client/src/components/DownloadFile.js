@@ -1,10 +1,10 @@
 import React from "react";
 import "./componentsCSS/DownloadFile.css";
 
-const DownloadFile = ({ fileType }) => {
+const DownloadFile = () => {
   return (
     <div className="export-button">
-      <button>Export {fileType}</button>
+      <button>Export</button>
     </div>
   );
 };

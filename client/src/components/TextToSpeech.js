@@ -28,7 +28,7 @@ const TextToSpeech = () => {
             </button>
           </div>
           <div className="tts-import-container">
-            <button>Import Text File</button>
+            <button>Transcribe</button>
           </div>
         </div>
       </Row>
