@@ -26,9 +26,10 @@ const TextToSpeech = () => {
             <button>
               <i className="fa-solid fa-delete-left"></i>
             </button>
+            <button style={{ width: "auto" }}>Import</button>
           </div>
-          <div className="tts-import-container">
-            <button>Transcribe</button>
+          <div className="tts-transcribe-container">
+            <button className="tts-transcribe-button">Transcribe</button>
           </div>
         </div>
       </Row>

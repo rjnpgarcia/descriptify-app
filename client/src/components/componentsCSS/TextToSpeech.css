@@ -33,12 +33,12 @@
 }
 
 .tts-controls-container button:hover,
-.tts-import-container button:hover {
+.tts-transcribe-container button:hover {
   background-color: #504d4d;
   color: #f5f5f5;
 }
 
-.tts-import-container button {
+.tts-transcribe-container button {
   background-color: #252424;
   color: #f5f5f5;
   border: 0px;
@@ -48,6 +48,13 @@
   -moz-border-radius: 3px;
   -ms-border-radius: 3px;
   -o-border-radius: 3px;
+}
+
+.tts-play-button:disabled,
+.tts-play-button:hover:disabled,
+.tts-transcribe-button:hover:disabled,
+.tts-transcribe-button:disabled {
+  color: #999090;
 }
 /* End Buttons */
 

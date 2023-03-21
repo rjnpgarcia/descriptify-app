@@ -1,10 +1,9 @@
-import React, { useState } from "react";
+import React from "react";
 // React-bootstrap
 import Modal from "react-bootstrap/Modal";
 import Button from "react-bootstrap/Button";
 // CSS
 import "./layoutsCSS/RecordModal.css";
-import Container from "react-bootstrap/esm/Container";
 
 const RecordModal = ({
   show,

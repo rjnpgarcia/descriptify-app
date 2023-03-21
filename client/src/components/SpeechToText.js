@@ -15,7 +15,6 @@ const SpeechToText = () => {
   const [showModal, setShowModal] = useState(false);
   const [isPlaying, setIsPlaying] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-
   const mimeType = "audio/mp3";
 
   // Handle Modal pop-up for recording audio
@@ -27,12 +26,12 @@ const SpeechToText = () => {
     try {
       setIsRecording(true);
       console.log("Start Recording");
+      // To check if MediaRecorder is supported by browser
       if ("MediaRecorder" in window) {
         const streamData = await navigator.mediaDevices.getUserMedia({
           audio: true,
           video: false,
         });
-
         const media = new MediaRecorder(streamData, { type: mimeType });
         mediaRecorder.current = media;
         mediaRecorder.current.start();
@@ -51,7 +50,7 @@ const SpeechToText = () => {
     }
   };
 
-  // Stop recording set Blob URL
+  // Stop recording and set Blob URL
   const handleStopRecording = () => {
     setIsRecording(false);
     console.log("Stop Recording");
@@ -86,7 +85,7 @@ const SpeechToText = () => {
       console.log(data);
       setIsLoading(false);
       // Transcription received by object
-      setTranscript(data.monologues[0].elements.map((e) => e.value).join(" "));
+      setTranscript(data.monologues[0].elements.map((e) => e.value).join(""));
     } catch (error) {
       setIsLoading(false);
       console.error(error.message);
@@ -128,7 +127,6 @@ const SpeechToText = () => {
         </Row>
         <Row className="justify-content-center">
           <div className="stt-buttons-container">
-            {isLoading ? "LOADING......" : ""}
             <audio id="stt-audio-player" src={audio}></audio>
             <div className="stt-controls-container">
               {!isPlaying ? (
@@ -148,7 +146,7 @@ const SpeechToText = () => {
                 </button>
               ) : (
                 <button className="stt-pause-button" onClick={handlePauseAudio}>
-                  Pause
+                  <i class="fa-solid fa-pause"></i>
                 </button>
               )}
               <button className="record-button" onClick={handleShow}>
@@ -163,15 +161,28 @@ const SpeechToText = () => {
               <button>
                 <i className="fa-solid fa-delete-left"></i>
               </button>
+              <button style={{ width: "auto" }}>Import</button>
             </div>
-            <div className="stt-import-container">
-              <button
-                className="transcribe-button"
-                onClick={handleTranscribe}
-                disabled={!audio}
-              >
-                Transcribe
-              </button>
+            <div className="stt-transcribe-container">
+              {!isLoading ? (
+                <button
+                  className="stt-transcribe-button"
+                  onClick={handleTranscribe}
+                  disabled={!audio}
+                >
+                  Transcribe
+                </button>
+              ) : (
+                <button className="loading-transcription" disabled>
+                  <div class="lds-ring">
+                    <div></div>
+                    <div></div>
+                    <div></div>
+                    <div></div>
+                  </div>
+                  <span>Transcribing. . . . .</span>
+                </button>
+              )}
             </div>
           </div>
         </Row>
