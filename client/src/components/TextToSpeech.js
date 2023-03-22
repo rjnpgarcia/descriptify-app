@@ -4,6 +4,9 @@ import Row from "react-bootstrap/esm/Row";
 import "./componentsCSS/TextToSpeech.css";
 // Components
 import TextEditor from "./TextEditor";
+// Handlers
+import { PlayPauseButton } from "./handlers/playerHandler.js";
+import { TranscribeButton } from "./handlers/transcriptHandler";
 
 const TextToSpeech = () => {
   return (
@@ -17,20 +20,13 @@ const TextToSpeech = () => {
       <Row className="justify-content-center">
         <div className="tts-buttons-container">
           <div className="tts-controls-container">
-            <button>
-              <i className="fa-solid fa-stop"></i>
-            </button>
-            <button className="tts-play-button">
-              <i className="fa-solid fa-play" style={{ color: "#05a705" }}></i>
-            </button>
+            <PlayPauseButton />
             <button>
               <i className="fa-solid fa-delete-left"></i>
             </button>
             <button style={{ width: "auto" }}>Import</button>
           </div>
-          <div className="tts-transcribe-container">
-            <button className="tts-transcribe-button">Transcribe</button>
-          </div>
+          <TranscribeButton />
         </div>
       </Row>
     </Container>

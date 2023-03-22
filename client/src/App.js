@@ -6,6 +6,7 @@ import LoginPage from "./pages/LoginPage";
 import PageNotFound from "./pages/PageNotFound";
 import MainLayout from "./layouts/MainLayout";
 import HomePage from "./pages/HomePage";
+import RegisterPage from "./pages/RegisterPage";
 
 function App() {
   return (
@@ -15,6 +16,7 @@ function App() {
         <Route path="/speechtotext" element={<STTPage />} />
         <Route path="/texttospeech" element={<TTSPage />} />
         <Route path="/login" element={<LoginPage />} />
+        <Route path="/register" element={<RegisterPage />} />
         <Route path="*" element={<PageNotFound />} />
       </Routes>
     </MainLayout>

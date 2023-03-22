@@ -1,3 +1,27 @@
+/* Transcript Button Styles */
+.transcribe-button {
+  background-color: #252424;
+  color: #f5f5f5;
+  border: 0px;
+  padding: 10px;
+  border-radius: 3px;
+  -webkit-border-radius: 3px;
+  -moz-border-radius: 3px;
+  -ms-border-radius: 3px;
+  -o-border-radius: 3px;
+}
+
+.transcribe-button:hover {
+  background-color: #504d4d;
+  color: #f5f5f5;
+}
+
+.transcribe-button:hover:disabled,
+.transcribe-button:disabled {
+  color: #999090;
+}
+/* End of Transcript Button Styles */
+
 /* Loading Animation */
 .lds-ring {
   display: inline-block;

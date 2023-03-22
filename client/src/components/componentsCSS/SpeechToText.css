@@ -39,32 +39,11 @@
   color: #f5f5f5;
 }
 
-.stt-controls-container button:hover,
-.stt-transcribe-container button:hover {
+.stt-controls-container button:hover {
   background-color: #504d4d;
   color: #f5f5f5;
 }
 
-.stt-transcribe-button {
-  background-color: #252424;
-  color: #f5f5f5;
-  border: 0px;
-  padding: 10px;
-  border-radius: 3px;
-  -webkit-border-radius: 3px;
-  -moz-border-radius: 3px;
-  -ms-border-radius: 3px;
-  -o-border-radius: 3px;
-}
-
-.stt-play-button {
-  background: #8a93e2;
-}
-
-.stt-play-button:disabled,
-.stt-play-button:hover:disabled,
-.stt-transcribe-button:hover:disabled,
-.stt-transcribe-button:disabled,
 .replace-button:disabled {
   color: #999090;
 }

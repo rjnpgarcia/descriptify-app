@@ -27,7 +27,7 @@ const MainLayout = ({ children }) => {
           </Navbar.Brand>
         </Navbar>
       </header>
-      <Container className="main-container">
+      {/* <Container className="main-container">
         <Row className="d-flex">
           <Col xs className="nav-container">
             <MainNavigation />
@@ -36,7 +36,8 @@ const MainLayout = ({ children }) => {
         <Row className="content-row">
           <Col xs>{children}</Col>
         </Row>
-      </Container>
+      </Container> */}
+      {children}
     </div>
   );
 };

@@ -5,10 +5,19 @@ import Row from "react-bootstrap/esm/Row";
 import "./componentsCSS/SpeechToText.css";
 import TextEditor from "./TextEditor.js";
 import RecordModal from "../layouts/RecordModal.js";
-import LoadingTranscript from "../layouts/LoadingTranscript.js";
+// Handlers
+import { startRecording, stopRecording } from "./handlers/audioHandler.js";
+import {
+  TranscribeButton,
+  transcribeSTT,
+} from "./handlers/transcriptHandler.js";
+import {
+  PlayPauseButton,
+  playAudio,
+  pauseAudio,
+} from "./handlers/playerHandler.js";
 
 const SpeechToText = () => {
-  const mediaRecorder = useRef(null);
   const [isRecording, setIsRecording] = useState(false);
   const [audioChunks, setAudioChunks] = useState([]);
   const [audio, setAudio] = useState(null);
@@ -16,6 +25,7 @@ const SpeechToText = () => {
   const [showModal, setShowModal] = useState(false);
   const [isPlaying, setIsPlaying] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const mediaRecorder = useRef(null);
   const mimeType = "audio/mp3";
 
   // Handle Modal pop-up for recording audio
@@ -24,88 +34,36 @@ const SpeechToText = () => {
 
   // Set MediaRecorder API then start recording
   const handleStartRecording = async () => {
-    try {
-      setIsRecording(true);
-      console.log("Start Recording");
-      // To check if MediaRecorder is supported by browser
-      if ("MediaRecorder" in window) {
-        const streamData = await navigator.mediaDevices.getUserMedia({
-          audio: true,
-          video: false,
-        });
-        const media = new MediaRecorder(streamData, { type: mimeType });
-        mediaRecorder.current = media;
-        mediaRecorder.current.start();
-        let localAudioChunks = [];
-        mediaRecorder.current.ondataavailable = (e) => {
-          if (typeof e.data === "undefined") return;
-          if (e.data.size === 0) return;
-          localAudioChunks.push(e.data);
-        };
-        setAudioChunks(localAudioChunks);
-      } else {
-        alert("The MediaRecorder API is not supported in your browser");
-      }
-    } catch (err) {
-      console.error(err.message);
-    }
+    setIsRecording(true);
+    startRecording(mediaRecorder, setAudioChunks, mimeType);
   };
 
   // Stop recording and set Blob URL
   const handleStopRecording = () => {
     setIsRecording(false);
-    console.log("Stop Recording");
-    mediaRecorder.current.stop();
-    mediaRecorder.current.onstop = () => {
-      const audioBlob = new Blob(audioChunks, { type: mimeType });
-      const audioUrl = URL.createObjectURL(audioBlob);
-      console.log(audioUrl);
-      setAudio(audioUrl);
-      setAudioChunks([]);
-      handleClose();
-    };
+    stopRecording(
+      mediaRecorder,
+      audioChunks,
+      setAudio,
+      setAudioChunks,
+      mimeType
+    );
+    handleClose();
   };
 
-  // Handle Transcription to server
+  // Handle STT Transcription to server
   const handleTranscribe = async (e) => {
     e.preventDefault();
-    console.log("Transcribing Audio");
-    console.log(audio);
-    try {
-      setIsLoading(true);
-      const formData = new FormData();
-      const res = await fetch(audio);
-      const audioBlob = await res.blob();
-      console.log(audioBlob);
-      formData.append("audioFile", audioBlob, "audio.mp3");
-      const response = await fetch("http://localhost:8000/api/transcribestt", {
-        method: "POST",
-        body: formData,
-      });
-      const data = await response.json();
-      console.log(data);
-      setIsLoading(false);
-      // Transcription received by object
-      setTranscript(data.monologues[0].elements.map((e) => e.value).join(""));
-    } catch (error) {
-      setIsLoading(false);
-      console.error(error.message);
-    }
+    transcribeSTT(audio, setIsLoading, setTranscript);
   };
 
   // Handle audio player controls
   const audioPlayer = document.getElementById("stt-audio-player");
   const handlePlayAudio = () => {
-    console.log("Pressed Play Audio");
-    audioPlayer.play();
-    setIsPlaying(true);
+    playAudio(audioPlayer, setIsPlaying);
   };
   const handlePauseAudio = () => {
-    console.log("Paused Audio");
-    if (isPlaying) {
-      audioPlayer.pause();
-      setIsPlaying(false);
-    }
+    pauseAudio(audioPlayer, isPlaying, setIsPlaying);
   };
 
   // Handle onChange for textEditor
@@ -117,10 +75,12 @@ const SpeechToText = () => {
   const handleRemoveAudioText = () => {
     setAudio(null);
     setTranscript("");
+    console.log("Removed Audio and Transcript");
   };
   const handleReplaceAudio = () => {
     setAudio(null);
     setShowModal(true);
+    console.log("Removed Audio and start recording again");
   };
 
   return (
@@ -140,26 +100,12 @@ const SpeechToText = () => {
           <div className="stt-buttons-container">
             <audio id="stt-audio-player" src={audio}></audio>
             <div className="stt-controls-container">
-              {!isPlaying ? (
-                <button
-                  className="stt-play-button"
-                  onClick={handlePlayAudio}
-                  disabled={!audio}
-                >
-                  {audio ? (
-                    <i
-                      className="fa-solid fa-play"
-                      style={{ color: "#8a93e2" }}
-                    ></i>
-                  ) : (
-                    <i className="fa-solid fa-play"></i>
-                  )}
-                </button>
-              ) : (
-                <button className="stt-pause-button" onClick={handlePauseAudio}>
-                  <i class="fa-solid fa-pause"></i>
-                </button>
-              )}
+              <PlayPauseButton
+                isPlaying={isPlaying}
+                audio={audio}
+                play={handlePlayAudio}
+                pause={handlePauseAudio}
+              />
               <button className="record-button" onClick={handleShow}>
                 <i
                   className="fa-solid fa-microphone"
@@ -178,19 +124,11 @@ const SpeechToText = () => {
               </button>
               <button style={{ width: "auto" }}>Import</button>
             </div>
-            <div className="stt-transcribe-container">
-              {!isLoading ? (
-                <button
-                  className="stt-transcribe-button"
-                  onClick={handleTranscribe}
-                  disabled={!audio}
-                >
-                  Transcribe
-                </button>
-              ) : (
-                <LoadingTranscript />
-              )}
-            </div>
+            <TranscribeButton
+              isLoading={isLoading}
+              transcribe={handleTranscribe}
+              data={audio}
+            />
           </div>
         </Row>
       </Container>

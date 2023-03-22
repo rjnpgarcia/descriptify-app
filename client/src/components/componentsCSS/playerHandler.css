@@ -1,0 +1,8 @@
+.play-button {
+  background: #8a93e2;
+}
+
+.play-button:disabled,
+.play-button:hover:disabled {
+  color: #999090;
+}
