@@ -1,5 +1,5 @@
-/* Register Page Styles */
-.auth-container {
+/* Main containers for Pages */
+.main-container {
   align-self: center;
   margin-top: 50px;
   width: 80%;
@@ -15,7 +15,7 @@
   box-shadow: 5px 5px 30px rgb(41, 41, 41);
 }
 
-.sub-nav-container {
+.nav-container {
   background-color: #1a1a1a;
   border-radius: 10px;
   -webkit-border-radius: 10px;
@@ -24,8 +24,8 @@
   -o-border-radius: 10px;
 }
 
-.register-form-row {
+.content-row {
   height: 90%;
   align-items: center;
 }
-/* End of Register Page Styles */
+/* End of Main containers for Pages */

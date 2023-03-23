@@ -1,0 +1,9 @@
+/* Sub Navigation Stylings */
+.sub-navigation-container {
+  border-bottom: 1px solid #6e6e6e;
+}
+
+.sub-navigation {
+  border: 0;
+  justify-content: center;
+}

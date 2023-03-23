@@ -13,10 +13,22 @@ function App() {
   return (
     <MainLayout>
       <Routes>
-        <Route index element={<HomePage />} />
-        <Route path="/speechtotext" element={<STTPage />} />
-        <Route path="/texttospeech" element={<TTSPage />} />
-        <Route path="/login" element={<LoginPage />} />
+        <Route
+          index
+          element={isAuthenticated ? <HomePage /> : <Navigate to="/login" />}
+        />
+        <Route
+          path="/speechtotext"
+          element={isAuthenticated ? <STTPage /> : <Navigate to="/login" />}
+        />
+        <Route
+          path="/texttospeech"
+          element={isAuthenticated ? <TTSPage /> : <Navigate to="/login" />}
+        />
+        <Route
+          path="/login"
+          element={<LoginPage auth={setIsAuthenticated} />}
+        />
         <Route path="/register" element={<RegisterPage />} />
         <Route path="*" element={<PageNotFound />} />
       </Routes>

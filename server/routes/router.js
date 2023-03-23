@@ -29,7 +29,7 @@ const routes = (app) => {
 
   // User Login and Registration endpoints
   app
-    .route("/login")
+    .route("/api/login")
     // Login Endpoint
     .post(async (req, res) => {
       const { email, password } = req.body;
@@ -50,7 +50,7 @@ const routes = (app) => {
     });
 
   app
-    .route("/register")
+    .route("/api/register")
     // Register Endpoint
     .post(async (req, res) => {
       const { name, email, password } = req.body;
@@ -59,13 +59,12 @@ const routes = (app) => {
         // Check if user email exists
         const userExists = await User.findOne({ email });
         if (userExists) {
-          return res.status(409).json({ message: "Email already exists" });
+          return res.status(409).json({ error: "Email already exists" });
         }
 
         // Hash Password
-        // const saltRounds = 10;
-        // const salt = await bcrypt.genSalt(saltRounds);
-        const hashedPassword = await bcrypt.hash(password, 10);
+        const saltRounds = 10;
+        const hashedPassword = await bcrypt.hash(password, saltRounds);
 
         // Create new user
         const user = new User({
@@ -75,10 +74,12 @@ const routes = (app) => {
         });
 
         await user.save();
-        res.send("User Successfully Registered");
+        res
+          .status(200)
+          .json({ success: `User ${name} successfully registered!` });
       } catch (err) {
         console.error(err);
-        res.status(500).send("Registration failed");
+        res.status(500).json({ error: "Registration Failed. Server issue." });
       }
     });
 };
