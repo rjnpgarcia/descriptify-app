@@ -14,7 +14,7 @@ const dbUser = process.env.DB_USER;
 const dbPass = process.env.DB_PASS;
 mongoose
   .connect(
-    `mongodb+srv://${dbUser}:${dbPass}@cluster0.fxildye.mongodb.net/?retryWrites=true&w=majority`,
+    `mongodb+srv://${dbUser}:${dbPass}@cluster0.fxildye.mongodb.net/descriptify-app?retryWrites=true&w=majority`,
     {
       useNewUrlParser: true,
       useUnifiedTopology: true,
