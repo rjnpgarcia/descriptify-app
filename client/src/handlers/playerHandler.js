@@ -1,5 +1,5 @@
 import React from "react";
-import "../componentsCSS/playerHandler.css";
+import "./handlersCSS/playerHandler.css";
 
 // Play audio
 export const playAudio = (audioPlayer, setIsPlaying) => {

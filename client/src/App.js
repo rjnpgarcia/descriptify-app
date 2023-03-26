@@ -10,8 +10,14 @@ import RegisterPage from "./pages/RegisterPage";
 
 function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const tokenName = "loggedInUser";
+
   return (
-    <MainLayout>
+    <MainLayout
+      auth={setIsAuthenticated}
+      isAuthenticated={isAuthenticated}
+      tokenName={tokenName}
+    >
       <Routes>
         <Route
           index
@@ -27,21 +33,32 @@ function App() {
         />
         <Route
           path="/login"
-          element={<LoginPage auth={setIsAuthenticated} />}
+          element={
+            <LoginPage
+              auth={setIsAuthenticated}
+              isAuthenticated={isAuthenticated}
+              tokenName={tokenName}
+            />
+          }
         />
         <Route path="/register" element={<RegisterPage />} />
         <Route path="*" element={<PageNotFound />} />
       </Routes>
     </MainLayout>
+    // <MainLayout>
+    //   <Routes>
+    //     <Route index element={<HomePage />} />
+    //     <Route path="/speechtotext" element={<STTPage />} />
+    //     <Route path="/texttospeech" element={<TTSPage />} />
+    //     <Route
+    //       path="/login"
+    //       element={<LoginPage auth={setIsAuthenticated} />}
+    //     />
+    //     <Route path="/register" element={<RegisterPage />} />
+    //     <Route path="*" element={<PageNotFound />} />
+    //   </Routes>
+    // </MainLayout>
   );
 }
 
 export default App;
-
-// for Login
-{
-  /* <Route index element={ isAuthenticated? <HomePage /> : <Navigate to="/login" />} />
-        <Route path="/speechtotext" element={isAuthenticated? <STTPage /> : <Navigate to="/login" />} />
-        <Route path="/texttospeech" element={isAuthenticated ? <TTSPage /> : <Navigate to="/login" />} />
-        <Route path="/login" element={<LoginPage auth={setIsAuthenticated}/>} /> */
-}

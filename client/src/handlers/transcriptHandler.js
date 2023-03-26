@@ -1,5 +1,5 @@
 import React from "react";
-import "../componentsCSS/transcriptHandler.css";
+import "./handlersCSS/transcriptHandler.css";
 
 // Handle Speech-to-text Transcription to Server
 export const transcribeSTT = async (audio, setIsLoading, setTranscript) => {

@@ -6,16 +6,16 @@ import "./componentsCSS/SpeechToText.css";
 import TextEditor from "./TextEditor.js";
 import RecordModal from "../layouts/RecordModal.js";
 // Handlers
-import { startRecording, stopRecording } from "./handlers/audioHandler.js";
+import { startRecording, stopRecording } from "../handlers/audioHandler.js";
 import {
   TranscribeButton,
   transcribeSTT,
-} from "./handlers/transcriptHandler.js";
+} from "../handlers/transcriptHandler.js";
 import {
   PlayPauseButton,
   playAudio,
   pauseAudio,
-} from "./handlers/playerHandler.js";
+} from "../handlers/playerHandler.js";
 
 const SpeechToText = () => {
   const [isRecording, setIsRecording] = useState(false);

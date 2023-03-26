@@ -5,8 +5,8 @@ import "./componentsCSS/TextToSpeech.css";
 // Components
 import TextEditor from "./TextEditor";
 // Handlers
-import { PlayPauseButton } from "./handlers/playerHandler.js";
-import { TranscribeButton } from "./handlers/transcriptHandler";
+import { PlayPauseButton } from "../handlers/playerHandler.js";
+import { TranscribeButton } from "../handlers/transcriptHandler";
 
 const TextToSpeech = () => {
   return (

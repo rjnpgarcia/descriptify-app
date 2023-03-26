@@ -7,6 +7,7 @@ import Col from "react-bootstrap/esm/Col";
 import Row from "react-bootstrap/esm/Row";
 import Form from "react-bootstrap/Form";
 import FloatingLabel from "react-bootstrap/esm/FloatingLabel.js";
+import Spinner from "react-bootstrap/Spinner";
 
 const RegisterPage = () => {
   const [name, setName] = useState("");
@@ -14,6 +15,7 @@ const RegisterPage = () => {
   const [password, setPassword] = useState("");
   const [errorMessage, setErrorMessage] = useState(null);
   const [successMessage, setSuccessMessage] = useState(null);
+  const [isLoading, setIsLoading] = useState("");
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -32,6 +34,7 @@ const RegisterPage = () => {
       password,
     };
     try {
+      setIsLoading(true);
       // Send data for registration
       const response = await fetch("http://localhost:8000/api/register", {
         method: "POST",
@@ -40,16 +43,20 @@ const RegisterPage = () => {
         },
         body: JSON.stringify(registerData),
       });
-
+      // Handling data
       const data = await response.json();
       if (data.error) {
         setErrorMessage(data.error);
       } else if (data.success) {
         setSuccessMessage(data.success);
+      } else {
+        setErrorMessage("Something went wrong, Please try again");
       }
+      setIsLoading(false);
     } catch (error) {
       console.log(error);
       setErrorMessage("Something went wrong. Please try again.");
+      setIsLoading(false);
     }
   };
 
@@ -77,7 +84,6 @@ const RegisterPage = () => {
             <FloatingLabel label="Name" className="text-secondary m-3">
               <Form.Control
                 type="name"
-                placeholder="Enter your name here"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
               />
@@ -85,7 +91,6 @@ const RegisterPage = () => {
             <FloatingLabel label="Email" className="text-secondary m-3">
               <Form.Control
                 type="email"
-                placeholder="Enter your email here"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
               />
@@ -93,7 +98,6 @@ const RegisterPage = () => {
             <FloatingLabel label="Password" className="text-secondary m-3">
               <Form.Control
                 type="password"
-                placeholder="Enter your password here"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 autoComplete="true"
@@ -109,7 +113,11 @@ const RegisterPage = () => {
         </Row>
         <Row>
           <button className="auth-button" type="submit">
-            <i className="fa-solid fa-circle-chevron-right" />
+            {isLoading ? (
+              <Spinner animation="border" variant="light" />
+            ) : (
+              <i className="fa-solid fa-circle-chevron-right" />
+            )}
           </button>
         </Row>
       </Form>
