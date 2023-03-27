@@ -58,12 +58,12 @@ const SpeechToText = () => {
   };
 
   // Handle audio player controls
-  const audioPlayer = document.getElementById("stt-audio-player");
+  const audioPlayerSTT = document.getElementById("stt-audio-player");
   const handlePlayAudio = () => {
-    playAudio(audioPlayer, setIsPlaying);
+    playAudio(audioPlayerSTT, setIsPlaying);
   };
   const handlePauseAudio = () => {
-    pauseAudio(audioPlayer, isPlaying, setIsPlaying);
+    pauseAudio(audioPlayerSTT, isPlaying, setIsPlaying);
   };
 
   // Handle onChange for textEditor

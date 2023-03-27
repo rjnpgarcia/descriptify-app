@@ -12,7 +12,7 @@ export const transcribeSTT = async (audio, setIsLoading, setTranscript) => {
     const audioBlob = await res.blob();
     console.log(audioBlob);
     formData.append("audioFile", audioBlob, "audio.mp3");
-    const response = await fetch("http://localhost:8000/api/transcribestt", {
+    const response = await fetch("http://localhost:8000/api/speechtotext", {
       method: "POST",
       body: formData,
     });
@@ -27,6 +27,30 @@ export const transcribeSTT = async (audio, setIsLoading, setTranscript) => {
     console.error(error.message);
   }
 };
+
+// Handle Text-to-Speech Transcription to Server
+// export const transcribeTTS = async (text, setAudio, setIsLoading) => {
+//   try {
+//     setIsLoading(true);
+//     console.log(text);
+//     const response = await fetch("http://localhost:8000/api/texttospeech", {
+//       method: "POST",
+//       headers: {
+//         "Content-type": "text/plain",
+//       },
+//       body: text,
+//     });
+
+//     const audioBlob = await response.blob();
+//     const audioUrl = URL.createObjectURL(audioBlob);
+//     console.log(audioBlob);
+//     setAudio(audioUrl);
+//     setIsLoading(false);
+//   } catch (error) {
+//     console.log(error);
+//     setIsLoading(false);
+//   }
+// };
 
 export const TranscribeButton = ({ isLoading, transcribe, data }) => {
   return (

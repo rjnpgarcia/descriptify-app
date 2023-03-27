@@ -28,4 +28,11 @@
   height: 90%;
   align-items: center;
 }
+
+/* Responsive */
+@media screen and (max-width: 767px) {
+  .main-container {
+    height: 88vh;
+  }
+}
 /* End of Main containers for Pages */

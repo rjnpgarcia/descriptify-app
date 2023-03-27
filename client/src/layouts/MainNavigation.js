@@ -36,7 +36,7 @@ const MainNavigation = () => {
             />{" "}
           </Navbar.Brand>
         </Col>
-        <Col>
+        <Col sm="6">
           <Nav
             className="main-navigation justify-content-center"
             variant="tabs"

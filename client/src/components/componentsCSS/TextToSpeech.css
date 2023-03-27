@@ -58,4 +58,8 @@
 }
 /* End Buttons */
 
+.highlighted {
+  background-color: yellow;
+}
+
 /**** End of Text-to-Speech Control Buttons ****/

@@ -1,4 +1,7 @@
+// Speech-to-Text API
 const revai = require("revai-node-sdk");
+// Text-to-Speech API
+const say = require("say");
 const multer = require("multer");
 const fs = require("fs");
 const path = require("path");
@@ -28,7 +31,8 @@ const storage = multer.diskStorage({
 });
 const uploadAudio = multer({ storage: storage }).single("audioFile");
 
-const transcribeAudio = async (req, res) => {
+// Speech-to-Text Controller
+const speechToTextController = async (req, res) => {
   uploadAudio(req, res, async (err) => {
     if (err) {
       return res.status(500).json({ message: "Error uploading file" });
@@ -40,11 +44,11 @@ const transcribeAudio = async (req, res) => {
       skip_punctuation: false,
       language: "en",
       mediaFormat: "mp3",
-      // test_mode: true,
     };
 
     let job;
     try {
+      // REV AI API Local file Handler
       job = await client.submitJobLocalFile(filePath, jobOptions);
 
       console.log(`Job Id: ${job.id}`);
@@ -74,4 +78,28 @@ const transcribeAudio = async (req, res) => {
   });
 };
 
-module.exports = { transcribeAudio };
+// // Text-to-Speech Controller
+// const textToSpeechController = (req, res) => {
+//   try {
+//     const filePath = path.join(__dirname, "../uploads/tts.mp3");
+//     const text = req.body;
+//     console.log(text);
+//     // Voice is null to automatically set default voice as user's OS
+//     say.export(text, null, 1, filePath, (err) => {
+//       if (err) {
+//         return console.error(err);
+//       }
+//       res.set({
+//         "Content-Type": "audio/mpeg",
+//       });
+//       res.sendFile(filePath);
+//       console.log("Text Successfully transcribed!");
+//     });
+//     // .json({ success: "Transcription complete. Ready to play audio." });
+//   } catch (error) {
+//     console.log(error);
+//     res.status(500).json({ error: "Transcription failed. Server issue." });
+//   }
+// };
+
+module.exports = { speechToTextController };
