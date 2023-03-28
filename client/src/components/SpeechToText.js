@@ -3,7 +3,6 @@ import React, { useRef, useState } from "react";
 import Container from "react-bootstrap/esm/Container";
 import Row from "react-bootstrap/esm/Row";
 import "./componentsCSS/SpeechToText.css";
-import TextEditor from "./TextEditor.js";
 import RecordModal from "../layouts/RecordModal.js";
 // Handlers
 import { startRecording, stopRecording } from "../handlers/audioHandler.js";
@@ -90,10 +89,13 @@ const SpeechToText = () => {
           <i className="fa-solid fa-microphone"></i> Speech to Text
         </h3>
         <Row className="justify-content-center mt-3">
-          <TextEditor
-            transcript={transcript}
-            handler={handleChange}
+          <textarea
+            className="stt-textarea"
+            rows="13"
+            cols="50"
             placeholder="This is where the transcription will be stored"
+            value={transcript}
+            onChange={handleChange}
           />
         </Row>
         <Row className="justify-content-center">

@@ -50,8 +50,21 @@
 
 /***** End Buttons *****/
 
-.audio-player {
-  height: 30px;
+/* Transcript Area */
+.stt-textarea {
+  font-size: 24px;
+  background-color: #1a1a1a;
+  border-right: 1px solid #b1b1b1;
+  border-left: 1px solid #b1b1b1;
+  border-bottom: 1px solid #b1b1b1;
+  border-top: 0;
+  border-radius: 5px;
+  -webkit-border-radius: 5px;
+  -moz-border-radius: 5px;
+  -ms-border-radius: 5px;
+  -o-border-radius: 5px;
+  color: #8a93e2;
 }
+/* End of Transcript Area */
 
 /**** End of Speech-to-text Control Buttons ****/
