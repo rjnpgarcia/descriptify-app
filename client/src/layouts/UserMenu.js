@@ -1,12 +1,23 @@
-import React from "react";
+import React, { useState } from "react";
+import Cookies from "js-cookie";
 // Bootstrap
 import Navbar from "react-bootstrap/Navbar";
 import Dropdown from "react-bootstrap/Dropdown";
 // CSS
 import "./layoutsCSS/UserMenu.css";
+import ProfileModal from "./ProfileModal";
 
-const UserMenu = ({ handleShowLogout, handleShowProfile, tokenName }) => {
-  const userData = JSON.parse(localStorage.getItem(tokenName));
+const UserMenu = ({ handleShowLogout, tokenName }) => {
+  const userData = JSON.parse(Cookies.get(tokenName));
+  const [showProfile, setShowProfile] = useState(false);
+
+  // Profile Modal Handlers
+  const handleShowProfile = () => {
+    setShowProfile(true);
+  };
+  const handleCloseProfile = () => {
+    setShowProfile(false);
+  };
 
   return (
     <>
@@ -23,6 +34,12 @@ const UserMenu = ({ handleShowLogout, handleShowProfile, tokenName }) => {
           </Dropdown.Menu>
         </Dropdown>
       </Navbar.Collapse>
+      <ProfileModal
+        show={showProfile}
+        onHide={handleCloseProfile}
+        tokenName={tokenName}
+        userData={userData}
+      />
     </>
   );
 };

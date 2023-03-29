@@ -6,11 +6,9 @@ import Navbar from "react-bootstrap/Navbar";
 import "./layoutsCSS/MainLayout.css";
 import LogoutModal from "./LogoutModal";
 import UserMenu from "./UserMenu";
-import ProfileModal from "./ProfileModal";
 
 const MainLayout = ({ children, auth, isAuthenticated, tokenName }) => {
   const [showLogout, setShowLogout] = useState(false);
-  const [showProfile, setShowProfile] = useState(false);
 
   // Logout Modal handlers
   const handleShowLogout = () => {
@@ -18,13 +16,6 @@ const MainLayout = ({ children, auth, isAuthenticated, tokenName }) => {
   };
   const handleCloseLogout = () => {
     setShowLogout(false);
-  };
-  // Profile Modal Handlers
-  const handleShowProfile = () => {
-    setShowProfile(true);
-  };
-  const handleCloseProfile = () => {
-    setShowProfile(false);
   };
 
   return (
@@ -45,7 +36,6 @@ const MainLayout = ({ children, auth, isAuthenticated, tokenName }) => {
             {isAuthenticated ? (
               <UserMenu
                 handleShowLogout={handleShowLogout}
-                handleShowProfile={handleShowProfile}
                 tokenName={tokenName}
               />
             ) : (
@@ -60,11 +50,6 @@ const MainLayout = ({ children, auth, isAuthenticated, tokenName }) => {
         onHide={handleCloseLogout}
         tokenName={tokenName}
         auth={auth}
-      />
-      <ProfileModal
-        show={showProfile}
-        onHide={handleCloseProfile}
-        tokenName={tokenName}
       />
     </>
   );

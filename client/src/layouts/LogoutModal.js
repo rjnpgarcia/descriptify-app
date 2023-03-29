@@ -1,17 +1,15 @@
 import React from "react";
-import { useNavigate } from "react-router-dom";
 import Button from "react-bootstrap/Button";
 import Modal from "react-bootstrap/Modal";
+import Cookies from "js-cookie";
 
 function LogoutModal({ show, onHide, auth, tokenName }) {
-  const navigate = useNavigate();
-
   // Logout User
   const handleLogout = () => {
-    localStorage.removeItem(tokenName);
+    Cookies.remove(tokenName);
     auth(false);
     onHide();
-    navigate("/login");
+    window.location.href = "/login";
   };
 
   return (

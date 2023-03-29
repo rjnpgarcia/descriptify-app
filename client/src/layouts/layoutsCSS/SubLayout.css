@@ -29,6 +29,15 @@
   align-items: center;
 }
 
+/* Input file for import */
+.import-file-input {
+  width: 250px;
+  background: #252424;
+  color: #f5f5f5;
+  border: 1px solid #b1b1b1;
+}
+/* End of Input file for import */
+
 /* Responsive */
 @media screen and (max-width: 767px) {
   .main-container {

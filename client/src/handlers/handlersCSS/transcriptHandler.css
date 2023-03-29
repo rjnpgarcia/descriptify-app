@@ -9,6 +9,7 @@
   -moz-border-radius: 3px;
   -ms-border-radius: 3px;
   -o-border-radius: 3px;
+  margin-top: 10px;
 }
 
 .transcribe-button:hover {
@@ -70,6 +71,7 @@
   -moz-border-radius: 3px;
   -ms-border-radius: 3px;
   -o-border-radius: 3px;
+  margin-top: 10px;
 }
 
 /* End of Loading Animation */

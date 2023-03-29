@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate, NavLink } from "react-router-dom";
+import Cookies from "js-cookie";
 // Components
 import AuthLayout from "../layouts/AuthLayout.js";
 // Bootstrap
@@ -17,7 +18,8 @@ const LoginPage = ({ auth, tokenName }) => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    const userData = JSON.parse(localStorage.getItem(tokenName));
+    // const userData = JSON.parse(localStorage.getItem(tokenName));
+    const userData = Cookies.get(tokenName);
     if (userData) {
       console.log(userData);
       auth(true);
@@ -58,7 +60,8 @@ const LoginPage = ({ auth, tokenName }) => {
       } else if (data.success) {
         console.log(data.success);
         auth(true);
-        localStorage.setItem(tokenName, JSON.stringify(data.success));
+        // localStorage.setItem(tokenName, JSON.stringify(data.success));
+        Cookies.set(tokenName, JSON.stringify(data.success), { expires: 5 });
         navigate("/");
       } else {
         setErrorMessage("Something went wrong, Please try again");

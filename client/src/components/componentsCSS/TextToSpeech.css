@@ -9,11 +9,12 @@
 }
 
 .tts-controls-container {
-  margin: 10px 0px;
+  margin: 8px 0px 5px 0;
 }
 /* End Containers */
 
 /* Buttons */
+
 .tts-controls-container button,
 .tts-controls-container button:hover {
   padding: 10px;
@@ -27,13 +28,27 @@
   border: 0px;
 }
 
-.tts-controls-container button {
+.undo-redo-button {
+  padding: 5px;
+  margin: 0;
+  width: 40px;
+  border-radius: 3px;
+  -webkit-border-radius: 3px;
+  -moz-border-radius: 3px;
+  -ms-border-radius: 3px;
+  -o-border-radius: 3px;
+  border: 0px;
+}
+
+.tts-controls-container button,
+.undo-redo-button {
   background-color: #252424;
   color: #f5f5f5;
 }
 
 .tts-controls-container button:hover,
-.tts-transcribe-container button:hover {
+.tts-transcribe-container button:hover,
+.undo-redo-button:hover {
   background-color: #504d4d;
   color: #f5f5f5;
 }
@@ -56,6 +71,7 @@
 .tts-transcribe-button:disabled {
   color: #999090;
 }
+
 /* End Buttons */
 
 .highlighted {
@@ -114,5 +130,7 @@
   color: #000000;
 }
 /* End of TTS Output area */
+
+/* Import file area */
 
 /**** End of Text-to-Speech Control Buttons ****/

@@ -1,4 +1,6 @@
 import React, { useState } from "react";
+import Cookies from "js-cookie";
+// Bootstrap
 import Modal from "react-bootstrap/Modal";
 import Form from "react-bootstrap/Form";
 import FloatingLabel from "react-bootstrap/esm/FloatingLabel.js";
@@ -6,18 +8,18 @@ import Button from "react-bootstrap/esm/Button";
 // CSS
 import "./layoutsCSS/ProfileModal.css";
 
-const ProfileModal = ({ show, onHide, tokenName }) => {
+const ProfileModal = ({ show, onHide, tokenName, userData }) => {
   const [newName, setNewName] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [errorMessage, setErrorMessage] = useState(null);
   const [successMessage, setSuccessMessage] = useState(null);
-  const userData = JSON.parse(localStorage.getItem(tokenName));
 
   const handleSubmitUpdate = async (e) => {
     e.preventDefault();
     setErrorMessage("");
     setSuccessMessage("");
-    const { _id, name } = userData;
+
+    const { id, name } = userData;
     const updatedData = {};
 
     if (newName === "" && newPassword === "") {
@@ -41,7 +43,7 @@ const ProfileModal = ({ show, onHide, tokenName }) => {
     }
 
     try {
-      const response = await fetch(`http://localhost:8000/api/user/${_id}`, {
+      const response = await fetch(`http://localhost:8000/api/user/${id}`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
@@ -55,8 +57,8 @@ const ProfileModal = ({ show, onHide, tokenName }) => {
       }
       if (data.success) {
         setSuccessMessage(data.success);
-        localStorage.removeItem(tokenName);
-        localStorage.setItem(tokenName, JSON.stringify(data.user));
+        Cookies.remove(tokenName);
+        Cookies.set(tokenName, JSON.stringify(data.user), { expires: 5 });
       } else {
         setErrorMessage("Something went wrong. Please try again.");
       }
@@ -66,7 +68,7 @@ const ProfileModal = ({ show, onHide, tokenName }) => {
   };
 
   const handleDelete = async () => {
-    const { _id } = userData;
+    const { id } = userData;
     try {
       const confirmed = window.confirm(
         "Are you sure you want to delete account?"
@@ -75,7 +77,7 @@ const ProfileModal = ({ show, onHide, tokenName }) => {
         return;
       }
 
-      const response = await fetch(`http://localhost:8000/api/user/${_id}`, {
+      const response = await fetch(`http://localhost:8000/api/user/${id}`, {
         method: "DELETE",
         headers: {
           "Content-Type": "application/json",
@@ -83,7 +85,7 @@ const ProfileModal = ({ show, onHide, tokenName }) => {
       });
       const data = await response.json();
       if (data.success) {
-        localStorage.removeItem(tokenName);
+        Cookies.remove(tokenName);
         window.location.href = "/login";
       } else if (data.error) {
         setErrorMessage(data.error);

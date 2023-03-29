@@ -3,20 +3,20 @@ import Container from "react-bootstrap/esm/Container";
 import Row from "react-bootstrap/esm/Row";
 import Col from "react-bootstrap/Col";
 import "./componentsCSS/TextToSpeech.css";
-// Handlers
-import {
-  PlayPauseButton,
-  playAudio,
-  pauseAudio,
-} from "../handlers/playerHandler.js";
-import { transcribeTTS, TranscribeButton } from "../handlers/transcriptHandler";
+import { TranscribeButton } from "../handlers/transcriptHandler";
+import useUndo from "use-undo";
 
 const TextToSpeech = () => {
-  const [text, setText] = useState("");
   const [audio, setAudio] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
   const [isPlaying, setIsPlaying] = useState(false);
   const words = useRef([]);
+  const text = useRef("");
+  // Handles the undo and redo function for the text
+  const [
+    newText,
+    { set: setNewText, undo: handleUndo, redo: handleRedo, canUndo, canRedo },
+  ] = useUndo("");
 
   const handleTranscribe = async (e) => {
     e.preventDefault();
@@ -24,13 +24,14 @@ const TextToSpeech = () => {
     try {
       setIsLoading(true);
       words.current = [];
+      text.current = newText.present;
       console.log(text);
       const response = await fetch("http://localhost:8000/api/texttospeech", {
         method: "POST",
         headers: {
           "Content-type": "text/plain",
         },
-        body: text,
+        body: text.current,
       });
 
       const audioBlob = await response.blob();
@@ -45,24 +46,18 @@ const TextToSpeech = () => {
     }
   };
 
-  // Handle audio player controls
+  // Handle audio player controls and output
   const audioPlayerTTS = document.getElementById("tts-audio-player");
-  const handlePlayAudio = () => {
-    // playAudio(audioPlayerTTS, setIsPlaying);
-    console.log("Pressed Play Audio");
-    audioPlayerTTS.play();
-    setIsPlaying(true);
-
+  const handlePlayOutput = () => {
     // Split the text into an array of words
-    words.current = text.split(" ");
-    // setWords(text.split(" "));
+    words.current = text.current.split(" ");
 
     // Iterate over each word
     words.current.forEach((word, index) => {
       // Calculate the duration of the word
       // Adjust time to sync with the spoken words
       const durationPerWord = word.length * 100;
-      const durationToNextWord = 300;
+      const durationToNextWord = 400;
 
       // Highlight the word after a delay
       setTimeout(() => {
@@ -77,41 +72,64 @@ const TextToSpeech = () => {
       }, index * durationToNextWord + durationPerWord);
     });
 
+    // Play audio handler
+    console.log("Pressed Play Audio");
+    audioPlayerTTS.play();
+    setIsPlaying(true);
     audioPlayerTTS.onended = () => {
       setIsPlaying(false);
-      setText(text);
     };
   };
 
-  const handlePauseAudio = () => {
-    pauseAudio(audioPlayerTTS, isPlaying, setIsPlaying);
-  };
-
-  // Handle onChange for textEditor
-  const handleChange = (e) => {
-    setText(e.target.value);
+  // Text file import to speech
+  const handleTextImport = (e) => {
+    const file = e.target.files[0];
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      setNewText(e.target.result);
+    };
+    reader.readAsText(file);
   };
 
   return (
     <Container>
-      <h3 className="feature-title">
-        <i className="fa-solid fa-feather-pointed"></i> Text to Speech
-      </h3>
-      <Row className="justify-content-center mt-3">
+      <Row>
+        <Col xs="5" className="align-self-end">
+          <h3 className="feature-title">
+            <i className="fa-solid fa-feather-pointed"></i> Text to Speech
+          </h3>
+        </Col>
+        <Col xs="2">
+          <button
+            className="undo-redo-button"
+            onClick={handleUndo}
+            disabled={!canUndo}
+          >
+            <i className="fa-sharp fa-solid fa-rotate-left"></i>
+          </button>
+          <button
+            className="undo-redo-button"
+            onClick={handleRedo}
+            disabled={!canRedo}
+          >
+            <i className="fa-solid fa-rotate-right"></i>
+          </button>
+        </Col>
+      </Row>
+      <Row className="justify-content-center mt-1">
         <Col xs="6">
           <textarea
             className="tts-textarea"
             rows="13"
             cols="42"
             placeholder="Enter text here for transcription"
-            value={text}
-            onChange={handleChange}
+            value={newText.present}
+            onChange={(e) => setNewText(e.target.value)}
           />
         </Col>
         <Col xs="6">
           <div className="tts-output">
             <p className="tts-text-output">
-              {/* word <span className="word-highlight">highlight</span> text here */}
               {words.current.map((word, index) => (
                 <span key={index} data-index={index}>
                   {word}{" "}
@@ -126,21 +144,34 @@ const TextToSpeech = () => {
         <div className="tts-buttons-container">
           <audio id="tts-audio-player" src={audio}></audio>
           <div className="tts-controls-container">
-            <PlayPauseButton
-              isPlaying={isPlaying}
-              audio={audio}
-              play={handlePlayAudio}
-              pause={handlePauseAudio}
-            />
+            <button
+              className="play-button"
+              onClick={handlePlayOutput}
+              disabled={!audio || isPlaying}
+            >
+              {!isPlaying && audio ? (
+                <i
+                  className="fa-solid fa-play"
+                  style={{ color: "#8a93e2" }}
+                ></i>
+              ) : (
+                <i className="fa-solid fa-play"></i>
+              )}
+            </button>
             <button>
               <i className="fa-solid fa-delete-left"></i>
             </button>
-            <button style={{ width: "auto" }}>Import</button>
           </div>
+          <input
+            className="form-control form-control-sm import-file-input"
+            type="file"
+            accept="text/plain"
+            onChange={handleTextImport}
+          />
           <TranscribeButton
             isLoading={isLoading}
             transcribe={handleTranscribe}
-            data={text}
+            data={newText}
           />
         </div>
       </Row>

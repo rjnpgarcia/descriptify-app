@@ -42,8 +42,14 @@ const loginController = async (req, res) => {
       return res.status(401).json({ error: "Invalid Email or Password" });
     }
 
+    const token = {
+      id: user._id,
+      name: user.name,
+      email: user.email,
+    };
+
     // User is authenticated. Return user details
-    res.status(200).json({ success: user });
+    res.status(200).json({ success: token });
   } catch (error) {
     console.log(error);
     res.status(500).json({ error: "Login failed. Server issue." });
@@ -109,7 +115,16 @@ const updateUserController = async (req, res) => {
     }
     await user.save();
     console.log(user);
-    res.status(200).json({ success: "Profile successfully updated", user });
+
+    const token = {
+      id: user._id,
+      name: user.name,
+      email: user.email,
+    };
+
+    res
+      .status(200)
+      .json({ success: "Profile successfully updated", user: token });
   } catch (error) {
     console.log(error);
     res.status(500).json({ error: "Update failed. Server issue" });

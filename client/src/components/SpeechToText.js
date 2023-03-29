@@ -4,6 +4,7 @@ import Container from "react-bootstrap/esm/Container";
 import Row from "react-bootstrap/esm/Row";
 import "./componentsCSS/SpeechToText.css";
 import RecordModal from "../layouts/RecordModal.js";
+import DeleteModal from "../layouts/DeleteModal";
 // Handlers
 import { startRecording, stopRecording } from "../handlers/audioHandler.js";
 import {
@@ -22,6 +23,7 @@ const SpeechToText = () => {
   const [audio, setAudio] = useState(null);
   const [transcript, setTranscript] = useState("");
   const [showModal, setShowModal] = useState(false);
+  const [showRemove, setShowRemove] = useState(false);
   const [isPlaying, setIsPlaying] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const mediaRecorder = useRef(null);
@@ -30,6 +32,9 @@ const SpeechToText = () => {
   // Handle Modal pop-up for recording audio
   const handleClose = () => setShowModal(false);
   const handleShow = () => setShowModal(true);
+  // Handle Modal pop-up for remove audio and text
+  const handleCloseRemove = () => setShowRemove(false);
+  const handleShowRemove = () => setShowRemove(true);
 
   // Set MediaRecorder API then start recording
   const handleStartRecording = async () => {
@@ -74,12 +79,18 @@ const SpeechToText = () => {
   const handleRemoveAudioText = () => {
     setAudio(null);
     setTranscript("");
+    setShowRemove(false);
     console.log("Removed Audio and Transcript");
   };
   const handleReplaceAudio = () => {
     setAudio(null);
     setShowModal(true);
     console.log("Removed Audio and start recording again");
+  };
+
+  const handleAudioImport = (e) => {
+    const file = e.target.files[0];
+    setAudio(URL.createObjectURL(file));
   };
 
   return (
@@ -114,7 +125,11 @@ const SpeechToText = () => {
                   style={{ color: "#e20808" }}
                 ></i>
               </button>
-              <button onClick={handleRemoveAudioText}>
+              <button
+                className="remove-button"
+                onClick={handleShowRemove}
+                disabled={!audio && !transcript}
+              >
                 <i className="fa-solid fa-delete-left"></i>
               </button>
               <button
@@ -124,8 +139,13 @@ const SpeechToText = () => {
               >
                 <i className="fa-solid fa-rotate"></i>
               </button>
-              <button style={{ width: "auto" }}>Import</button>
             </div>
+            <input
+              className="form-control form-control-sm import-file-input"
+              type="file"
+              accept="audio/mp3, audio/wav, audio/aac, audio/x-m4a"
+              onChange={handleAudioImport}
+            />
             <TranscribeButton
               isLoading={isLoading}
               transcribe={handleTranscribe}
@@ -140,6 +160,11 @@ const SpeechToText = () => {
         stopRecording={handleStopRecording}
         startRecording={handleStartRecording}
         isRecording={isRecording}
+      />
+      <DeleteModal
+        show={showRemove}
+        onHide={handleCloseRemove}
+        handleRemove={handleRemoveAudioText}
       />
     </>
   );
