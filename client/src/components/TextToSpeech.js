@@ -1,17 +1,26 @@
-import React, { useRef, useState } from "react";
+import React, { useContext, useRef, useState } from "react";
+import useUndo from "use-undo";
+// Bootstrap
 import Container from "react-bootstrap/esm/Container";
 import Row from "react-bootstrap/esm/Row";
 import Col from "react-bootstrap/Col";
-import "./componentsCSS/TextToSpeech.css";
+// Components
+import DeleteModal from "../layouts/DeleteModal";
+// Handlers
 import { TranscribeButton } from "../handlers/transcriptHandler";
-import useUndo from "use-undo";
+import { DownloadContext } from "../handlers/DownloadContext";
+// CSS
+import "./componentsCSS/TextToSpeech.css";
 
 const TextToSpeech = () => {
   const [audio, setAudio] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
   const [isPlaying, setIsPlaying] = useState(false);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
   const words = useRef([]);
   const text = useRef("");
+  // Download Audio Context
+  const { setDataAudio } = useContext(DownloadContext);
   // Handles the undo and redo function for the text
   const [
     newText,
@@ -39,6 +48,7 @@ const TextToSpeech = () => {
 
       console.log(audioBlob);
       setAudio(audioUrl);
+      setDataAudio(audioBlob);
       setIsLoading(false);
     } catch (error) {
       console.log(error);
@@ -81,6 +91,15 @@ const TextToSpeech = () => {
     };
   };
 
+  // Clear Audio transcription, Output and input text
+  const handleClear = () => {
+    setAudio(null);
+    setNewText("");
+    words.current = [];
+    setDataAudio(null);
+    setShowDeleteModal(false);
+  };
+
   // Text file import to speech
   const handleTextImport = (e) => {
     const file = e.target.files[0];
@@ -91,10 +110,18 @@ const TextToSpeech = () => {
     reader.readAsText(file);
   };
 
+  // DeleteModal handlers
+  const handleShowDelete = () => {
+    setShowDeleteModal(true);
+  };
+  const handleRemoveDelete = () => {
+    setShowDeleteModal(false);
+  };
+
   return (
     <Container>
       <Row>
-        <Col xs="5" className="align-self-end">
+        <Col xs="5" className="align-self-center">
           <h3 className="feature-title">
             <i className="fa-solid fa-feather-pointed"></i> Text to Speech
           </h3>
@@ -158,7 +185,7 @@ const TextToSpeech = () => {
                 <i className="fa-solid fa-play"></i>
               )}
             </button>
-            <button>
+            <button onClick={handleShowDelete}>
               <i className="fa-solid fa-delete-left"></i>
             </button>
           </div>
@@ -171,10 +198,15 @@ const TextToSpeech = () => {
           <TranscribeButton
             isLoading={isLoading}
             transcribe={handleTranscribe}
-            data={newText}
+            data={newText.present}
           />
         </div>
       </Row>
+      <DeleteModal
+        show={showDeleteModal}
+        onHide={handleRemoveDelete}
+        handler={handleClear}
+      />
     </Container>
   );
 };

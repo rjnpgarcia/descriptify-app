@@ -45,19 +45,6 @@ function App() {
         <Route path="*" element={<PageNotFound />} />
       </Routes>
     </MainLayout>
-    // <MainLayout>
-    //   <Routes>
-    //     <Route index element={<HomePage />} />
-    //     <Route path="/speechtotext" element={<STTPage />} />
-    //     <Route path="/texttospeech" element={<TTSPage />} />
-    //     <Route
-    //       path="/login"
-    //       element={<LoginPage auth={setIsAuthenticated} />}
-    //     />
-    //     <Route path="/register" element={<RegisterPage />} />
-    //     <Route path="*" element={<PageNotFound />} />
-    //   </Routes>
-    // </MainLayout>
   );
 }
 

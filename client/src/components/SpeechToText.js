@@ -1,4 +1,5 @@
-import React, { useRef, useState } from "react";
+import React, { useContext, useRef, useState } from "react";
+import { DownloadContext } from "../handlers/DownloadContext";
 // Components
 import Container from "react-bootstrap/esm/Container";
 import Row from "react-bootstrap/esm/Row";
@@ -28,6 +29,8 @@ const SpeechToText = () => {
   const [isLoading, setIsLoading] = useState(false);
   const mediaRecorder = useRef(null);
   const mimeType = "audio/mp3";
+  // Download Transcript Context
+  const { setDataTranscript } = useContext(DownloadContext);
 
   // Handle Modal pop-up for recording audio
   const handleClose = () => setShowModal(false);
@@ -73,6 +76,7 @@ const SpeechToText = () => {
   // Handle onChange for textEditor
   const handleChange = (e) => {
     setTranscript(e.target.value);
+    setDataTranscript(e.target.value);
   };
 
   // Handle Remove/Replace recorded audio
@@ -88,6 +92,7 @@ const SpeechToText = () => {
     console.log("Removed Audio and start recording again");
   };
 
+  // Audio file import to transcription
   const handleAudioImport = (e) => {
     const file = e.target.files[0];
     setAudio(URL.createObjectURL(file));
@@ -99,7 +104,7 @@ const SpeechToText = () => {
         <h3 className="feature-title">
           <i className="fa-solid fa-microphone"></i> Speech to Text
         </h3>
-        <Row className="justify-content-center mt-3">
+        <Row className="justify-content-center mt-2">
           <textarea
             className="stt-textarea"
             rows="13"
@@ -164,7 +169,7 @@ const SpeechToText = () => {
       <DeleteModal
         show={showRemove}
         onHide={handleCloseRemove}
-        handleRemove={handleRemoveAudioText}
+        handler={handleRemoveAudioText}
       />
     </>
   );
