@@ -2,7 +2,12 @@ import React from "react";
 import "./handlersCSS/transcriptHandler.css";
 
 // Handle Speech-to-text Transcription to Server
-export const transcribeSTT = async (audio, setIsLoading, setTranscript) => {
+export const transcribeSTT = async (
+  audio,
+  setIsLoading,
+  setTranscript,
+  setDataTranscript
+) => {
   console.log(audio);
   console.log("Transcribing Audio");
   try {
@@ -21,6 +26,7 @@ export const transcribeSTT = async (audio, setIsLoading, setTranscript) => {
     setIsLoading(false);
     // Transcription received by object
     setTranscript(data.monologues[0].elements.map((e) => e.value).join(""));
+    setDataTranscript(data.monologues[0].elements.map((e) => e.value).join(""));
     console.log("Successful! Transcribed Audio");
   } catch (error) {
     setIsLoading(false);
@@ -29,28 +35,39 @@ export const transcribeSTT = async (audio, setIsLoading, setTranscript) => {
 };
 
 // Handle Text-to-Speech Transcription to Server
-// export const transcribeTTS = async (text, setAudio, setIsLoading) => {
-//   try {
-//     setIsLoading(true);
-//     console.log(text);
-//     const response = await fetch("http://localhost:8000/api/texttospeech", {
-//       method: "POST",
-//       headers: {
-//         "Content-type": "text/plain",
-//       },
-//       body: text,
-//     });
+export const transcribeTTS = async (
+  text,
+  words,
+  newText,
+  setAudio,
+  setIsLoading,
+  setDataAudio
+) => {
+  try {
+    setIsLoading(true);
+    words.current = [];
+    text.current = newText.present;
+    console.log(text);
+    const response = await fetch("http://localhost:8000/api/texttospeech", {
+      method: "POST",
+      headers: {
+        "Content-type": "text/plain",
+      },
+      body: text.current,
+    });
 
-//     const audioBlob = await response.blob();
-//     const audioUrl = URL.createObjectURL(audioBlob);
-//     console.log(audioBlob);
-//     setAudio(audioUrl);
-//     setIsLoading(false);
-//   } catch (error) {
-//     console.log(error);
-//     setIsLoading(false);
-//   }
-// };
+    const audioBlob = await response.blob();
+    const audioUrl = URL.createObjectURL(audioBlob);
+
+    console.log(audioBlob);
+    setAudio(audioUrl);
+    setDataAudio(audioBlob);
+    setIsLoading(false);
+  } catch (error) {
+    console.log(error);
+    setIsLoading(false);
+  }
+};
 
 export const TranscribeButton = ({ isLoading, transcribe, data }) => {
   return (

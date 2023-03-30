@@ -7,6 +7,7 @@ import FloatingLabel from "react-bootstrap/esm/FloatingLabel.js";
 import Button from "react-bootstrap/esm/Button";
 // CSS
 import "./layoutsCSS/ProfileModal.css";
+import { deleteUser, updateUser } from "../handlers/userHandler";
 
 const ProfileModal = ({ show, onHide, tokenName, userData }) => {
   const [newName, setNewName] = useState("");
@@ -42,61 +43,22 @@ const ProfileModal = ({ show, onHide, tokenName, userData }) => {
       updatedData.password = newPassword;
     }
 
-    try {
-      const response = await fetch(`http://localhost:8000/api/user/${id}`, {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(updatedData),
-      });
-
-      const data = await response.json();
-      if (data.error) {
-        setErrorMessage(data.error);
-      }
-      if (data.success) {
-        setSuccessMessage(data.success);
-        Cookies.remove(tokenName);
-        Cookies.set(tokenName, JSON.stringify(data.user), { expires: 5 });
-      } else {
-        setErrorMessage("Something went wrong. Please try again.");
-      }
-    } catch (error) {
-      setErrorMessage("Something went wrong. Please try again.");
-    }
+    // Update profile to MongoDB
+    await updateUser(
+      id,
+      updatedData,
+      tokenName,
+      setErrorMessage,
+      setSuccessMessage
+    );
   };
 
+  // Delete user from MongoDB
   const handleDelete = async () => {
     const { id } = userData;
-    try {
-      const confirmed = window.confirm(
-        "Are you sure you want to delete account?"
-      );
-      if (!confirmed) {
-        return;
-      }
-
-      const response = await fetch(`http://localhost:8000/api/user/${id}`, {
-        method: "DELETE",
-        headers: {
-          "Content-Type": "application/json",
-        },
-      });
-      const data = await response.json();
-      if (data.success) {
-        Cookies.remove(tokenName);
-        window.location.href = "/login";
-      } else if (data.error) {
-        setErrorMessage(data.error);
-      } else {
-        setErrorMessage("Something went wrong. Please try again.");
-      }
-    } catch (error) {
-      console.log(error);
-      setErrorMessage("Something went wrong. Please try again.");
-    }
+    await deleteUser(id, setErrorMessage, tokenName);
   };
+
   return (
     <Modal show={show} onHide={onHide}>
       <Modal.Header closeButton>

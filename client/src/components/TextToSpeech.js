@@ -7,7 +7,7 @@ import Col from "react-bootstrap/Col";
 // Components
 import DeleteModal from "../layouts/DeleteModal";
 // Handlers
-import { TranscribeButton } from "../handlers/transcriptHandler";
+import { transcribeTTS, TranscribeButton } from "../handlers/transcriptHandler";
 import { DownloadContext } from "../handlers/DownloadContext";
 // CSS
 import "./componentsCSS/TextToSpeech.css";
@@ -27,33 +27,10 @@ const TextToSpeech = () => {
     { set: setNewText, undo: handleUndo, redo: handleRedo, canUndo, canRedo },
   ] = useUndo("");
 
+  // Text-to-Speech Handler
   const handleTranscribe = async (e) => {
     e.preventDefault();
-    // transcribeTTS(text, setAudio, setIsLoading);
-    try {
-      setIsLoading(true);
-      words.current = [];
-      text.current = newText.present;
-      console.log(text);
-      const response = await fetch("http://localhost:8000/api/texttospeech", {
-        method: "POST",
-        headers: {
-          "Content-type": "text/plain",
-        },
-        body: text.current,
-      });
-
-      const audioBlob = await response.blob();
-      const audioUrl = URL.createObjectURL(audioBlob);
-
-      console.log(audioBlob);
-      setAudio(audioUrl);
-      setDataAudio(audioBlob);
-      setIsLoading(false);
-    } catch (error) {
-      console.log(error);
-      setIsLoading(false);
-    }
+    transcribeTTS(text, words, newText, setAudio, setIsLoading, setDataAudio);
   };
 
   // Handle audio player controls and output

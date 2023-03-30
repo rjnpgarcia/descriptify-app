@@ -54,52 +54,52 @@ const speechToTextController = async (req, res) => {
       console.log(`Job Id: ${job.id}`);
       console.log(`Status: ${job.status}`);
       console.log(`Created On: ${job.created_on}`);
+
+      let jobDetails = await client.getJobDetails(job.id);
+      console.log(`Job ${job.id} is ${jobDetails.status}`);
+
+      // Checking: Poll job status
+      while (jobDetails.status == revai.JobStatus.InProgress) {
+        await new Promise((resolve) => setTimeout(resolve, 5000));
+        jobDetails = await client.getJobDetails(job.id);
+        console.log(`Job ${job.id} is ${jobDetails.status}`);
+      }
+
+      // Get transcription by object
+      const transcriptObject = await client.getTranscriptObject(job.id);
+      console.log(transcriptObject);
+      res.json(transcriptObject);
+
+      // Delete audio file after transcription
+      fs.unlinkSync(filePath);
+      console.log("Success! Transcription is complete!");
     } catch (error) {
       console.error(error);
+      res.status(500).json({ error: "Transcription failed. Server issue." });
     }
-    let jobDetails = await client.getJobDetails(job.id);
-    console.log(`Job ${job.id} is ${jobDetails.status}`);
-
-    // Checking: Poll job status
-    while (jobDetails.status == revai.JobStatus.InProgress) {
-      await new Promise((resolve) => setTimeout(resolve, 5000));
-      jobDetails = await client.getJobDetails(job.id);
-      console.log(`Job ${job.id} is ${jobDetails.status}`);
-    }
-
-    // Get transcription by object
-    const transcriptObject = await client.getTranscriptObject(job.id);
-    console.log(transcriptObject);
-    res.json(transcriptObject);
-
-    // Delete audio file after transcription
-    fs.unlinkSync(filePath);
-    console.log("Success! Transcription is complete!");
   });
 };
 
-// // Text-to-Speech Controller
-// const textToSpeechController = (req, res) => {
-//   try {
-//     const filePath = path.join(__dirname, "../uploads/tts.mp3");
-//     const text = req.body;
-//     console.log(text);
-//     // Voice is null to automatically set default voice as user's OS
-//     say.export(text, null, 1, filePath, (err) => {
-//       if (err) {
-//         return console.error(err);
-//       }
-//       res.set({
-//         "Content-Type": "audio/mpeg",
-//       });
-//       res.sendFile(filePath);
-//       console.log("Text Successfully transcribed!");
-//     });
-//     // .json({ success: "Transcription complete. Ready to play audio." });
-//   } catch (error) {
-//     console.log(error);
-//     res.status(500).json({ error: "Transcription failed. Server issue." });
-//   }
-// };
+// Text-to-Speech Controller
+const textToSpeechController = (req, res) => {
+  try {
+    const filePath = path.join(__dirname, "../uploads/tts.mp3");
+    const text = req.body;
+    console.log(text);
+    // Voice is null to automatically set default voice as user's OS
+    say.export(text, null, 1, filePath, (err) => {
+      if (err) {
+        return console.error(err);
+      }
+      res.set({
+        "Content-Type": "audio/mpeg",
+      });
+      res.sendFile(filePath);
+      console.log("Text Successfully transcribed!");
+    });
+  } catch (error) {
+    console.log(error);
+  }
+};
 
-module.exports = { speechToTextController };
+module.exports = { speechToTextController, textToSpeechController };

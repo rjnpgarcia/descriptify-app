@@ -4,17 +4,16 @@ const User = require("../models/userModel");
 // Validator
 const { check, validationResult } = require("express-validator");
 
+// Sanitize request
 const validationRegister = [
   check("name").trim().isLength({ min: 4 }).escape(),
   check("email").trim().isEmail().normalizeEmail(),
   check("password").isLength({ min: 4 }).escape(),
 ];
-
 const validationLogin = [
   check("email").trim().isEmail().normalizeEmail(),
   check("password").escape(),
 ];
-
 const validationProfile = [
   check("name").trim().escape(),
   check("password").escape(),

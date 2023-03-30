@@ -8,6 +8,7 @@ import Row from "react-bootstrap/esm/Row";
 import Form from "react-bootstrap/Form";
 import FloatingLabel from "react-bootstrap/esm/FloatingLabel.js";
 import Spinner from "react-bootstrap/Spinner";
+import { registerUser } from "../handlers/userHandler.js";
 
 const RegisterPage = () => {
   const [name, setName] = useState("");
@@ -33,31 +34,11 @@ const RegisterPage = () => {
       email,
       password,
     };
-    try {
-      setIsLoading(true);
-      // Send data for registration
-      const response = await fetch("http://localhost:8000/api/register", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(registerData),
-      });
-      // Handling data
-      const data = await response.json();
-      if (data.error) {
-        setErrorMessage(data.error);
-      } else if (data.success) {
-        setSuccessMessage(data.success);
-      } else {
-        setErrorMessage("Something went wrong, Please try again");
-      }
-      setIsLoading(false);
-    } catch (error) {
-      console.log(error);
-      setErrorMessage("Something went wrong. Please try again.");
-      setIsLoading(false);
-    }
+
+    // Register user data to MongoDB
+    setIsLoading(true);
+    await registerUser(registerData, setErrorMessage, setSuccessMessage);
+    setIsLoading(false);
   };
 
   return (

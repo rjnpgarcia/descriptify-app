@@ -1,9 +1,7 @@
+const mimeType = "audio/mpeg";
+
 // Set MediaRecorder API then start recording
-export const startRecording = async (
-  mediaRecorder,
-  setAudioChunks,
-  mimeType
-) => {
+export const startRecording = async (mediaRecorder, setAudioChunks) => {
   console.log("Start Recording");
   try {
     // To check if MediaRecorder is supported by browser
@@ -36,8 +34,7 @@ export const stopRecording = (
   mediaRecorder,
   audioChunks,
   setAudio,
-  setAudioChunks,
-  mimeType
+  setAudioChunks
 ) => {
   mediaRecorder.current.stop();
   mediaRecorder.current.onstop = () => {

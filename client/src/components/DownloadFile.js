@@ -8,6 +8,7 @@ const DownloadFile = () => {
   const downloadHandler = () => {
     console.log(dataTranscript);
     console.log(dataAudio);
+    // Download Transcription from Speech-to-Text
     if (dataTranscript && !dataAudio) {
       const blob = new Blob([dataTranscript], { type: "text/plain" });
       const url = URL.createObjectURL(blob);
@@ -15,6 +16,7 @@ const DownloadFile = () => {
       link.download = "speech-to-text.txt";
       link.href = url;
       link.click();
+      // Download Audio Transcription from Text-to-Speech
     } else if (dataAudio && !dataTranscript) {
       const blob = new Blob([dataAudio], { type: "audio/mpeg" });
       const url = URL.createObjectURL(blob);

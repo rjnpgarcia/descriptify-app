@@ -9,6 +9,7 @@ import Row from "react-bootstrap/esm/Row";
 import Form from "react-bootstrap/Form";
 import FloatingLabel from "react-bootstrap/esm/FloatingLabel.js";
 import Spinner from "react-bootstrap/esm/Spinner.js";
+import { loginUser } from "../handlers/userHandler.js";
 
 const LoginPage = ({ auth, tokenName }) => {
   const [email, setEmail] = useState("");
@@ -18,7 +19,6 @@ const LoginPage = ({ auth, tokenName }) => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    // const userData = JSON.parse(localStorage.getItem(tokenName));
     const userData = Cookies.get(tokenName);
     if (userData) {
       console.log(userData);
@@ -43,35 +43,10 @@ const LoginPage = ({ auth, tokenName }) => {
       password,
     };
 
-    try {
-      setIsLoading(true);
-      // Send data for login
-      const response = await fetch("http://localhost:8000/api/login", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(loginData),
-      });
-      // Handling data
-      const data = await response.json();
-      if (data.error) {
-        setErrorMessage(data.error);
-      } else if (data.success) {
-        console.log(data.success);
-        auth(true);
-        // localStorage.setItem(tokenName, JSON.stringify(data.success));
-        Cookies.set(tokenName, JSON.stringify(data.success), { expires: 5 });
-        navigate("/");
-      } else {
-        setErrorMessage("Something went wrong, Please try again");
-      }
-      setIsLoading(false);
-    } catch (error) {
-      console.log(error);
-      setErrorMessage("Something went wrong. Please try again.");
-      setIsLoading(false);
-    }
+    setIsLoading(true);
+    // Send data for login
+    await loginUser(loginData, setErrorMessage, auth, tokenName, navigate);
+    setIsLoading(false);
   };
 
   return (

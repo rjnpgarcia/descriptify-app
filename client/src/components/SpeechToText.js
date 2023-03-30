@@ -28,7 +28,6 @@ const SpeechToText = () => {
   const [isPlaying, setIsPlaying] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const mediaRecorder = useRef(null);
-  const mimeType = "audio/mp3";
   // Download Transcript Context
   const { setDataTranscript } = useContext(DownloadContext);
 
@@ -42,26 +41,20 @@ const SpeechToText = () => {
   // Set MediaRecorder API then start recording
   const handleStartRecording = async () => {
     setIsRecording(true);
-    startRecording(mediaRecorder, setAudioChunks, mimeType);
+    startRecording(mediaRecorder, setAudioChunks);
   };
 
   // Stop recording and set Blob URL
   const handleStopRecording = () => {
     setIsRecording(false);
-    stopRecording(
-      mediaRecorder,
-      audioChunks,
-      setAudio,
-      setAudioChunks,
-      mimeType
-    );
+    stopRecording(mediaRecorder, audioChunks, setAudio, setAudioChunks);
     handleClose();
   };
 
   // Handle STT Transcription to server
   const handleTranscribe = async (e) => {
     e.preventDefault();
-    transcribeSTT(audio, setIsLoading, setTranscript);
+    transcribeSTT(audio, setIsLoading, setTranscript, setDataTranscript);
   };
 
   // Handle audio player controls
