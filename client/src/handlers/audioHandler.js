@@ -30,6 +30,7 @@ export const startRecording = async (mediaRecorder, setAudioChunks) => {
   }
 };
 
+// Stop voice recording and set audio for transcription
 export const stopRecording = (
   mediaRecorder,
   audioChunks,

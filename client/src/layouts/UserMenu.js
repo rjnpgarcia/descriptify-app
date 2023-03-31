@@ -5,6 +5,7 @@ import Navbar from "react-bootstrap/Navbar";
 import Dropdown from "react-bootstrap/Dropdown";
 // CSS
 import "./layoutsCSS/UserMenu.css";
+// Components
 import ProfileModal from "./ProfileModal";
 
 const UserMenu = ({ handleShowLogout, tokenName }) => {

@@ -69,6 +69,7 @@ const SpeechToText = () => {
   // Handle onChange for textEditor
   const handleChange = (e) => {
     setTranscript(e.target.value);
+    // Can download edited transcription
     setDataTranscript(e.target.value);
   };
 

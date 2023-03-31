@@ -4,6 +4,7 @@ import { NavLink } from "react-router-dom";
 import Navbar from "react-bootstrap/Navbar";
 // CSS
 import "./layoutsCSS/MainLayout.css";
+// Components
 import LogoutModal from "./LogoutModal";
 import UserMenu from "./UserMenu";
 

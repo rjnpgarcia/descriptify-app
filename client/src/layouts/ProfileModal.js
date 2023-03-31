@@ -7,6 +7,7 @@ import FloatingLabel from "react-bootstrap/esm/FloatingLabel.js";
 import Button from "react-bootstrap/esm/Button";
 // CSS
 import "./layoutsCSS/ProfileModal.css";
+// Handlers
 import { deleteUser, updateUser } from "../handlers/userHandler";
 
 const ProfileModal = ({ show, onHide, tokenName, userData }) => {

@@ -8,6 +8,7 @@ import Row from "react-bootstrap/Row";
 // CSS
 import "./layoutsCSS/MainNavigation.css";
 import Col from "react-bootstrap/esm/Col";
+// Components
 import DownloadFile from "../components/DownloadFile";
 
 const MainNavigation = () => {

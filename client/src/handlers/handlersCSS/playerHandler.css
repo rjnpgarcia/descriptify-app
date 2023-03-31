@@ -1,3 +1,4 @@
+/* Play button styles */
 .play-button {
   color: #8a93e2;
 }
@@ -6,3 +7,4 @@
 .play-button:hover:disabled {
   color: #999090;
 }
+/* End of Play button styles */

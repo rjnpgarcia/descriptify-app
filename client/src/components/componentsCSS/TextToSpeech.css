@@ -74,9 +74,11 @@
 
 /* End Buttons */
 
+/* Word Highlight */
 .highlighted {
   background-color: yellow;
 }
+/* End of Word Highlight */
 
 /* TTS Input textarea */
 .tts-textarea {
@@ -130,7 +132,5 @@
   color: #000000;
 }
 /* End of TTS Output area */
-
-/* Import file area */
 
 /**** End of Text-to-Speech Control Buttons ****/
