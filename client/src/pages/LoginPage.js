@@ -10,22 +10,24 @@ import Form from "react-bootstrap/Form";
 import FloatingLabel from "react-bootstrap/esm/FloatingLabel.js";
 import Spinner from "react-bootstrap/esm/Spinner.js";
 import { loginUser } from "../handlers/userHandler.js";
+import { useAuth } from "../contexts/AuthHandler.js";
 
-const LoginPage = ({ auth, tokenName }) => {
+const LoginPage = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [errorMessage, setErrorMessage] = useState(null);
   const [isLoading, setIsLoading] = useState("");
+  const { setIsAuthenticated, tokenName } = useAuth();
   const navigate = useNavigate();
 
   useEffect(() => {
     const userData = Cookies.get(tokenName);
     if (userData) {
       console.log(userData);
-      auth(true);
+      setIsAuthenticated(true);
       navigate("/");
     }
-  }, [auth, navigate, tokenName]);
+  }, [setIsAuthenticated, navigate, tokenName]);
 
   const handleSubmitLogin = async (e) => {
     e.preventDefault();
@@ -45,7 +47,13 @@ const LoginPage = ({ auth, tokenName }) => {
 
     setIsLoading(true);
     // Send data for login
-    await loginUser(loginData, setErrorMessage, auth, tokenName, navigate);
+    await loginUser(
+      loginData,
+      setErrorMessage,
+      setIsAuthenticated,
+      tokenName,
+      navigate
+    );
     setIsLoading(false);
   };
 

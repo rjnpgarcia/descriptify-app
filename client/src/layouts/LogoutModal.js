@@ -1,12 +1,14 @@
 import React from "react";
 import Button from "react-bootstrap/Button";
 import Modal from "react-bootstrap/Modal";
+import { useAuth } from "../contexts/AuthHandler";
 import { logoutUser } from "../handlers/userHandler";
 
-function LogoutModal({ show, onHide, auth, tokenName }) {
+function LogoutModal({ show, onHide }) {
+  const { setIsAuthenticated, tokenName } = useAuth();
   // Logout User
   const handleLogout = () => {
-    logoutUser(auth, tokenName);
+    logoutUser(setIsAuthenticated, tokenName);
     onHide();
   };
 

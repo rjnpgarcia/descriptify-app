@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { NavLink } from "react-router-dom";
+import { NavLink, useNavigate } from "react-router-dom";
 // Components
 import AuthLayout from "../layouts/AuthLayout.js";
 // Bootstrap
@@ -8,7 +8,10 @@ import Row from "react-bootstrap/esm/Row";
 import Form from "react-bootstrap/Form";
 import FloatingLabel from "react-bootstrap/esm/FloatingLabel.js";
 import Spinner from "react-bootstrap/Spinner";
+// Handler
 import { registerUser } from "../handlers/userHandler.js";
+// Context
+import { useAuth } from "../contexts/AuthHandler.js";
 
 const RegisterPage = () => {
   const [name, setName] = useState("");
@@ -17,6 +20,8 @@ const RegisterPage = () => {
   const [errorMessage, setErrorMessage] = useState(null);
   const [successMessage, setSuccessMessage] = useState(null);
   const [isLoading, setIsLoading] = useState("");
+  const { setIsAuthenticated } = useAuth();
+  const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -37,7 +42,13 @@ const RegisterPage = () => {
 
     // Register user data to MongoDB
     setIsLoading(true);
-    await registerUser(registerData, setErrorMessage, setSuccessMessage);
+    await registerUser(
+      registerData,
+      setErrorMessage,
+      setSuccessMessage,
+      setIsAuthenticated,
+      navigate
+    );
     setIsLoading(false);
   };
 

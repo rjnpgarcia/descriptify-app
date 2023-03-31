@@ -7,8 +7,10 @@ import Dropdown from "react-bootstrap/Dropdown";
 import "./layoutsCSS/UserMenu.css";
 // Components
 import ProfileModal from "./ProfileModal";
+import { useAuth } from "../contexts/AuthHandler";
 
-const UserMenu = ({ handleShowLogout, tokenName }) => {
+const UserMenu = ({ handleShowLogout }) => {
+  const { tokenName } = useAuth();
   const userData = JSON.parse(Cookies.get(tokenName));
   const [showProfile, setShowProfile] = useState(false);
 
@@ -38,7 +40,6 @@ const UserMenu = ({ handleShowLogout, tokenName }) => {
       <ProfileModal
         show={showProfile}
         onHide={handleCloseProfile}
-        tokenName={tokenName}
         userData={userData}
       />
     </>

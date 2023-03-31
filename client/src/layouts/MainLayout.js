@@ -7,9 +7,12 @@ import "./layoutsCSS/MainLayout.css";
 // Components
 import LogoutModal from "./LogoutModal";
 import UserMenu from "./UserMenu";
+// Context
+import { useAuth } from "../contexts/AuthHandler";
 
-const MainLayout = ({ children, auth, isAuthenticated, tokenName }) => {
+const MainLayout = ({ children }) => {
   const [showLogout, setShowLogout] = useState(false);
+  const { isAuthenticated } = useAuth();
 
   // Logout Modal handlers
   const handleShowLogout = () => {
@@ -35,10 +38,7 @@ const MainLayout = ({ children, auth, isAuthenticated, tokenName }) => {
               Descriptify App
             </Navbar.Brand>
             {isAuthenticated ? (
-              <UserMenu
-                handleShowLogout={handleShowLogout}
-                tokenName={tokenName}
-              />
+              <UserMenu handleShowLogout={handleShowLogout} />
             ) : (
               ""
             )}
@@ -46,12 +46,7 @@ const MainLayout = ({ children, auth, isAuthenticated, tokenName }) => {
         </header>
         {children}
       </div>
-      <LogoutModal
-        show={showLogout}
-        onHide={handleCloseLogout}
-        tokenName={tokenName}
-        auth={auth}
-      />
+      <LogoutModal show={showLogout} onHide={handleCloseLogout} />
     </>
   );
 };

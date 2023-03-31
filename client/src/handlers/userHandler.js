@@ -4,7 +4,9 @@ import Cookies from "js-cookie";
 export const registerUser = async (
   registerData,
   setErrorMessage,
-  setSuccessMessage
+  setSuccessMessage,
+  setIsAuthenticated,
+  navigate
 ) => {
   try {
     // Send data for registration
@@ -21,6 +23,8 @@ export const registerUser = async (
       setErrorMessage(data.error);
     } else if (data.success) {
       setSuccessMessage(data.success);
+      setIsAuthenticated(true);
+      navigate("/");
     } else {
       setErrorMessage("Something went wrong, Please try again");
     }
@@ -34,7 +38,7 @@ export const registerUser = async (
 export const loginUser = async (
   loginData,
   setErrorMessage,
-  auth,
+  setIsAuthenticated,
   tokenName,
   navigate
 ) => {
@@ -53,7 +57,7 @@ export const loginUser = async (
       setErrorMessage(data.error);
     } else if (data.success) {
       console.log(data.success);
-      auth(true);
+      setIsAuthenticated(true);
       // localStorage.setItem(tokenName, JSON.stringify(data.success));
       Cookies.set(tokenName, JSON.stringify(data.success), { expires: 5 });
       navigate("/");
@@ -67,9 +71,9 @@ export const loginUser = async (
 };
 
 // Logout User
-export const logoutUser = (auth, tokenName) => {
+export const logoutUser = (setIsAuthenticated, tokenName) => {
   Cookies.remove(tokenName);
-  auth(false);
+  setIsAuthenticated(false);
   window.location.href = "/login";
 };
 

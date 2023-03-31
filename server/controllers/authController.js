@@ -26,19 +26,19 @@ const loginController = async (req, res) => {
   // Check for validation
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
-    return res.status(401).json({ error: "Invalid user data input" });
+    return res.json({ error: "Invalid user data input" });
   }
   try {
     // Find user by email
     const user = await User.findOne({ email });
     if (!user) {
-      return res.status(401).json({ error: "Invalid Email or Password" });
+      return res.json({ error: "Invalid Email or Password" });
     }
 
     // Compare Password
     const passwordMatches = await bcrypt.compare(password, user.password);
     if (!passwordMatches) {
-      return res.status(401).json({ error: "Invalid Email or Password" });
+      return res.json({ error: "Invalid Email or Password" });
     }
 
     const token = {
@@ -48,10 +48,10 @@ const loginController = async (req, res) => {
     };
 
     // User is authenticated. Return user details
-    res.status(200).json({ success: token });
+    res.json({ success: token });
   } catch (error) {
     console.log(error);
-    res.status(500).json({ error: "Login failed. Server issue." });
+    res.json({ error: "Login failed. Server issue." });
   }
 };
 
@@ -63,12 +63,12 @@ const registerController = async (req, res) => {
     // Check for validation
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-      return res.status(401).json({ error: "Invalid user data input" });
+      return res.json({ error: "Invalid user data input" });
     }
     // Check if user email exists
     const userExists = await User.findOne({ email });
     if (userExists) {
-      return res.status(409).json({ error: "Email already exists" });
+      return res.json({ error: "Email already exists" });
     }
 
     // Hash Password
@@ -83,10 +83,10 @@ const registerController = async (req, res) => {
     });
 
     await user.save();
-    res.status(200).json({ success: `User ${name} successfully registered!` });
+    res.json({ success: `User ${name} successfully registered!` });
   } catch (err) {
     console.error(err);
-    res.status(500).json({ error: "Registration Failed. Server issue." });
+    res.json({ error: "Registration Failed. Server issue." });
   }
 };
 
@@ -95,14 +95,14 @@ const updateUserController = async (req, res) => {
   // Check for validation
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
-    return res.status(401).json({ error: "Invalid user data input" });
+    return res.json({ error: "Invalid user data input" });
   }
   try {
     const { name, password } = req.body;
     const user = await User.findById(req.params.id);
     // User does not exists
     if (!user) {
-      return res.status(404).json({ error: "User not found" });
+      return res.json({ error: "User not found" });
     }
 
     //Update user data
@@ -121,12 +121,10 @@ const updateUserController = async (req, res) => {
       email: user.email,
     };
 
-    res
-      .status(200)
-      .json({ success: "Profile successfully updated", user: token });
+    res.json({ success: "Profile successfully updated", user: token });
   } catch (error) {
     console.log(error);
-    res.status(500).json({ error: "Update failed. Server issue" });
+    res.json({ error: "Update failed. Server issue" });
   }
 };
 
@@ -135,9 +133,9 @@ const deleteUserController = async (req, res) => {
   try {
     await User.findByIdAndDelete(req.params.id);
     console.log(`${req.params.id} user successfully deleted`);
-    res.status(200).json({ success: "success" });
+    res.json({ success: "success" });
   } catch {
-    res.status(500).json({ error: "Delete user failed. Server issue" });
+    res.json({ error: "Delete user failed. Server issue" });
   }
 };
 

@@ -1,9 +1,9 @@
-import React, { useContext } from "react";
-import { DownloadContext } from "../handlers/DownloadContext";
+import React from "react";
+import { useDownload } from "../contexts/DownloadHandler";
 import "./componentsCSS/DownloadFile.css";
 
 const DownloadFile = () => {
-  const { dataTranscript, dataAudio } = useContext(DownloadContext);
+  const { dataTranscript, dataAudio } = useDownload();
 
   const downloadHandler = () => {
     console.log(dataTranscript);

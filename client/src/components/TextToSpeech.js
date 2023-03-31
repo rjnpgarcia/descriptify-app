@@ -1,4 +1,4 @@
-import React, { useContext, useRef, useState } from "react";
+import React, { useRef, useState } from "react";
 import useUndo from "use-undo";
 // Bootstrap
 import Container from "react-bootstrap/esm/Container";
@@ -8,7 +8,7 @@ import Col from "react-bootstrap/Col";
 import DeleteModal from "../layouts/DeleteModal";
 // Handlers
 import { transcribeTTS, TranscribeButton } from "../handlers/transcriptHandler";
-import { DownloadContext } from "../handlers/DownloadContext";
+import { useDownload } from "../contexts/DownloadHandler";
 // CSS
 import "./componentsCSS/TextToSpeech.css";
 
@@ -20,7 +20,7 @@ const TextToSpeech = () => {
   const words = useRef([]);
   const text = useRef("");
   // Download Audio Context
-  const { setDataAudio } = useContext(DownloadContext);
+  const { setDataAudio } = useDownload();
   // Handles the undo and redo function for the text
   const [
     newText,

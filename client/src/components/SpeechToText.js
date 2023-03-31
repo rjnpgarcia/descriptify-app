@@ -1,5 +1,5 @@
-import React, { useContext, useRef, useState } from "react";
-import { DownloadContext } from "../handlers/DownloadContext";
+import React, { useRef, useState } from "react";
+import { useDownload } from "../contexts/DownloadHandler";
 // Components
 import Container from "react-bootstrap/esm/Container";
 import Row from "react-bootstrap/esm/Row";
@@ -29,7 +29,7 @@ const SpeechToText = () => {
   const [isLoading, setIsLoading] = useState(false);
   const mediaRecorder = useRef(null);
   // Download Transcript Context
-  const { setDataTranscript } = useContext(DownloadContext);
+  const { setDataTranscript } = useDownload();
 
   // Handle Modal pop-up for recording audio
   const handleClose = () => setShowModal(false);

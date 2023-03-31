@@ -1,6 +1,6 @@
-import React, { useState } from "react";
+import React from "react";
 // Handlers
-import { DownloadContext } from "../handlers/DownloadContext.js";
+import { DownloadHandler } from "../contexts/DownloadHandler.js";
 // Components
 import MainNavigation from "../layouts/MainNavigation";
 // Bootstrap
@@ -11,13 +11,8 @@ import Row from "react-bootstrap/esm/Row";
 import "../layouts/layoutsCSS/SubLayout.css";
 
 const SubLayout = ({ children }) => {
-  const [dataTranscript, setDataTranscript] = useState("");
-  const [dataAudio, setDataAudio] = useState(null);
-
   return (
-    <DownloadContext.Provider
-      value={{ dataTranscript, setDataTranscript, dataAudio, setDataAudio }}
-    >
+    <DownloadHandler>
       <Container className="main-container">
         <Row className="d-flex">
           <Col xs className="nav-container">
@@ -28,7 +23,7 @@ const SubLayout = ({ children }) => {
           <Col xs>{children}</Col>
         </Row>
       </Container>
-    </DownloadContext.Provider>
+    </DownloadHandler>
   );
 };
 

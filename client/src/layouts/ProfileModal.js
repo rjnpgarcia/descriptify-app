@@ -1,5 +1,4 @@
 import React, { useState } from "react";
-import Cookies from "js-cookie";
 // Bootstrap
 import Modal from "react-bootstrap/Modal";
 import Form from "react-bootstrap/Form";
@@ -9,12 +8,15 @@ import Button from "react-bootstrap/esm/Button";
 import "./layoutsCSS/ProfileModal.css";
 // Handlers
 import { deleteUser, updateUser } from "../handlers/userHandler";
+// Context
+import { useAuth } from "../contexts/AuthHandler";
 
-const ProfileModal = ({ show, onHide, tokenName, userData }) => {
+const ProfileModal = ({ show, onHide, userData }) => {
   const [newName, setNewName] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [errorMessage, setErrorMessage] = useState(null);
   const [successMessage, setSuccessMessage] = useState(null);
+  const { tokenName } = useAuth();
 
   const handleSubmitUpdate = async (e) => {
     e.preventDefault();
