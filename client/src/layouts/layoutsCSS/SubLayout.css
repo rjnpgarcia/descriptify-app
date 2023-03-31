@@ -3,7 +3,7 @@
   align-self: center;
   margin-top: 50px;
   width: 80%;
-  height: 80vh;
+  height: 780px;
   /* height: 80vh; */
   background-color: #252424;
   border: 1px solid #b1b1b1;
@@ -39,9 +39,9 @@
 /* End of Input file for import */
 
 /* Responsive */
-@media screen and (max-width: 767px) {
+@media screen and (max-width: 842px) {
   .main-container {
-    height: 88vh;
+    height: 850px;
   }
 }
 /* End of Main containers for Pages */
