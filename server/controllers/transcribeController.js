@@ -68,7 +68,17 @@ const speechToTextController = async (req, res) => {
       // Get transcription by object
       const transcriptObject = await client.getTranscriptObject(job.id);
       console.log(transcriptObject);
-      res.json(transcriptObject);
+      // Get words with timestamps
+      const wordsWithTimestamps = transcriptObject.monologues[0].elements.map(
+        (element) => {
+          return {
+            word: element.value,
+            startTime: element.ts,
+            endTime: element.end_ts,
+          };
+        }
+      );
+      res.json(wordsWithTimestamps);
 
       // Delete audio file after transcription
       fs.unlinkSync(filePath);

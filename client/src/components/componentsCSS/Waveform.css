@@ -1,0 +1,24 @@
+/* Waveform stylings */
+.waveform-container {
+  border: 1px solid #b1b1b1;
+  border-radius: 5px;
+  margin-top: 10px;
+  -webkit-border-radius: 5px;
+  -moz-border-radius: 5px;
+  -ms-border-radius: 5px;
+  -o-border-radius: 5px;
+}
+
+.wavesurfer-region-label {
+  font-size: 12px;
+  font-weight: bold;
+  color: white;
+  background-color: black;
+  padding: 2px 5px;
+  border-radius: 5px;
+  -webkit-border-radius: 5px;
+  -moz-border-radius: 5px;
+  -ms-border-radius: 5px;
+  -o-border-radius: 5px;
+}
+/* End of Waveform stylings */
