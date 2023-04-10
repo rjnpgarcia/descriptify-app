@@ -2,6 +2,7 @@
 const {
   speechToTextController,
   textToSpeechController,
+  trimAudioController,
 } = require("../controllers/transcribeController");
 const {
   loginController,
@@ -45,6 +46,9 @@ const routes = (app) => {
     .put(validationProfile, updateUserController)
     // Delete user
     .delete(deleteUserController);
+
+  // For STT audio editing
+  app.route("/api/trimaudio").post(trimAudioController);
 };
 
 module.exports = routes;

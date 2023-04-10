@@ -1,4 +1,4 @@
-import React, { useRef, useState } from "react";
+import React, { useCallback, useRef, useState } from "react";
 import { useDownload } from "../contexts/DownloadHandler";
 // Components
 import Container from "react-bootstrap/esm/Container";
@@ -10,7 +10,7 @@ import DeleteModal from "../layouts/DeleteModal";
 import { startRecording, stopRecording } from "../handlers/audioHandler.js";
 import {
   TranscribeButton,
-  // transcribeSTT,
+  transcribeSTT,
 } from "../handlers/transcriptHandler.js";
 import {
   PlayPauseButton,
@@ -18,21 +18,23 @@ import {
   pauseAudio,
 } from "../handlers/playerHandler.js";
 import Waveform from "./Waveform";
+import OverdubModal from "../layouts/OverdubModal";
 
 const SpeechToText = () => {
   const [isRecording, setIsRecording] = useState(false);
   const [audioChunks, setAudioChunks] = useState([]);
   const [audio, setAudio] = useState(null);
-  const [transcript, setTranscript] = useState("");
   const [transcriptWithTS, setTranscriptWithTS] = useState("");
   const [showModal, setShowModal] = useState(false);
   const [showRemove, setShowRemove] = useState(false);
+  const [showOverdub, setShowOverdub] = useState(false);
   const [isPlaying, setIsPlaying] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const mediaRecorder = useRef(null);
   const { setDataTranscript } = useDownload();
   const [waveform, setWaveform] = useState(null);
   const [highlight, setHighlight] = useState("");
+  const [selectedWord, setSelectedWord] = useState("");
 
   // Handle Modal pop-up for recording audio
   const handleClose = () => setShowModal(false);
@@ -40,57 +42,40 @@ const SpeechToText = () => {
   // Handle Modal pop-up for remove audio and text
   const handleCloseRemove = () => setShowRemove(false);
   const handleShowRemove = () => setShowRemove(true);
+  // Handle Modal pop-up for Overdub
+  const handleCloseOverdub = async () => {
+    setShowOverdub(false);
+  };
+  const handleShowOverdub = useCallback((word) => {
+    setSelectedWord(word);
+    setShowOverdub(true);
+  }, []);
 
   // Set MediaRecorder API then start recording
   const handleStartRecording = async () => {
     setIsRecording(true);
-    startRecording(mediaRecorder, setAudioChunks);
+    await startRecording(mediaRecorder, setAudioChunks);
   };
 
   // Stop recording and set Blob URL
   const handleStopRecording = () => {
     setIsRecording(false);
     stopRecording(mediaRecorder, audioChunks, setAudio, setAudioChunks);
+    setTranscriptWithTS("");
     handleClose();
   };
 
   // Handle STT Transcription to server
-  const handleTranscribe = async (e) => {
-    e.preventDefault();
-    // transcribeSTT(
-    //   audio,
-    //   setIsLoading,
-    //   setTranscript,
-    //   setTranscriptWithTS,
-    //   setDataTranscript
-    // );
+  const handleTranscribe = async () => {
+    // e.preventDefault();
+    await transcribeSTT(
+      audio,
+      setIsLoading,
+      setTranscriptWithTS,
+      setDataTranscript
+    );
     console.log(audio);
     console.log("Transcribing Audio");
-    try {
-      setIsLoading(true);
-      const formData = new FormData();
-      const res = await fetch(audio);
-      const audioBlob = await res.blob();
-      console.log(audioBlob);
-      formData.append("audioFile", audioBlob, "audio.mp3");
-      const response = await fetch("http://localhost:8000/api/speechtotext", {
-        method: "POST",
-        body: formData,
-      });
-      const data = await response.json();
-      console.log(data);
-      setIsLoading(false);
-      // Transcription received by object
-      const words = data;
-      const transcriptText = words.map((w) => w.word).join("");
-      setTranscript(transcriptText);
-      setTranscriptWithTS(words);
-      setDataTranscript(transcript);
-      console.log("Successful! Transcribed Audio");
-    } catch (error) {
-      setIsLoading(false);
-      console.error(error.message);
-    }
   };
 
   // Handle audio player controls
@@ -134,6 +119,7 @@ const SpeechToText = () => {
   const handleAudioImport = (e) => {
     const file = e.target.files[0];
     setAudio(URL.createObjectURL(file));
+    setTranscriptWithTS("");
   };
 
   return (
@@ -149,9 +135,13 @@ const SpeechToText = () => {
                 {transcriptWithTS.map((word, index) => {
                   return (
                     <span
-                      onClick={() => console.log(`${word.word} is clicked`)}
+                      onClick={() => handleShowOverdub(word)}
                       key={index}
-                      className={highlight === word ? "stt-word-highlight" : ""}
+                      className={
+                        highlight === word
+                          ? "stt-word-highlight stt-word"
+                          : "stt-word"
+                      }
                     >
                       {word.word}
                     </span>
@@ -167,6 +157,7 @@ const SpeechToText = () => {
           audio={audio}
           setWaveform={setWaveform}
           transcriptWithTS={transcriptWithTS}
+          handleShowOverdub={handleShowOverdub}
         />
         <Row className="justify-content-center">
           <div className="stt-buttons-container">
@@ -187,7 +178,7 @@ const SpeechToText = () => {
               <button
                 className="remove-button"
                 onClick={handleShowRemove}
-                disabled={!audio && !transcript}
+                disabled={!audio && !transcriptWithTS}
               >
                 <i className="fa-solid fa-delete-left"></i>
               </button>
@@ -224,6 +215,15 @@ const SpeechToText = () => {
         show={showRemove}
         onHide={handleCloseRemove}
         handler={handleRemoveAudioText}
+      />
+      <OverdubModal
+        word={selectedWord}
+        show={showOverdub}
+        onHide={handleCloseOverdub}
+        audio={audio}
+        setAudio={setAudio}
+        transcriptWithTS={transcriptWithTS}
+        setTranscriptWithTS={setTranscriptWithTS}
       />
     </>
   );

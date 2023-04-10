@@ -2,37 +2,37 @@ import React from "react";
 import "./handlersCSS/transcriptHandler.css";
 
 // Handle Speech-to-text Transcription to Server
-// export const transcribeSTT = async (
-//   audio,
-//   setIsLoading,
-//   setTranscript,
-//   setDataTranscript
-// ) => {
-//   console.log(audio);
-//   console.log("Transcribing Audio");
-//   try {
-//     setIsLoading(true);
-//     const formData = new FormData();
-//     const res = await fetch(audio);
-//     const audioBlob = await res.blob();
-//     console.log(audioBlob);
-//     formData.append("audioFile", audioBlob, "audio.mp3");
-//     const response = await fetch("http://localhost:8000/api/speechtotext", {
-//       method: "POST",
-//       body: formData,
-//     });
-//     const data = await response.json();
-//     console.log(data);
-//     setIsLoading(false);
-//     // Transcription received by object
-//     setTranscript(data.monologues[0].elements.map((e) => e.value).join(""));
-//     setDataTranscript(data.monologues[0].elements.map((e) => e.value).join(""));
-//     console.log("Successful! Transcribed Audio");
-//   } catch (error) {
-//     setIsLoading(false);
-//     console.error(error.message);
-//   }
-// };
+export const transcribeSTT = async (
+  audio,
+  setIsLoading,
+  setTranscriptWithTS,
+  setDataTranscript
+) => {
+  try {
+    setIsLoading(true);
+    const formData = new FormData();
+    const res = await fetch(audio);
+    const audioBlob = await res.blob();
+    console.log(audioBlob);
+    formData.append("audioFile", audioBlob, "audio.mp3");
+    const response = await fetch("http://localhost:8000/api/speechtotext", {
+      method: "POST",
+      body: formData,
+    });
+    const data = await response.json();
+    console.log(data);
+    // Transcription received by object
+    const words = data;
+    const transcriptText = await words.map((w) => w.word).join("");
+    await setTranscriptWithTS(words);
+    await setDataTranscript(transcriptText);
+    setIsLoading(false);
+    console.log("Successful! Transcribed Audio");
+  } catch (error) {
+    setIsLoading(false);
+    console.error(error.message);
+  }
+};
 
 // Handle Text-to-Speech Transcription to Server
 export const transcribeTTS = async (

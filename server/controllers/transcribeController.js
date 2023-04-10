@@ -1,5 +1,11 @@
 // Speech-to-Text API
 const revai = require("revai-node-sdk");
+const ffmpegPath = require("@ffmpeg-installer/ffmpeg").path;
+const ffprobePath = require("@ffprobe-installer/ffprobe").path;
+const ffmpeg = require("fluent-ffmpeg");
+ffmpeg.setFfmpegPath(ffmpegPath);
+ffmpeg.setFfprobePath(ffprobePath);
+const { spawn } = require("child_process");
 // Text-to-Speech API
 const say = require("say");
 const multer = require("multer");
@@ -84,6 +90,9 @@ const speechToTextController = async (req, res) => {
       fs.unlinkSync(filePath);
       console.log("Success! Transcription is complete!");
     } catch (error) {
+      if (filePath) {
+        fs.unlinkSync(filePath);
+      }
       console.error(error);
       res.status(500).json({ error: "Transcription failed. Server issue." });
     }
@@ -112,4 +121,76 @@ const textToSpeechController = (req, res) => {
   }
 };
 
-module.exports = { speechToTextController, textToSpeechController };
+///// Trim audio controller for STT
+// Audio trimmer function
+const trimAudio = (inputFilePath, startTime, endTime, outputFile) => {
+  return new Promise((resolve, reject) => {
+    // Create a command line to trim the audio and output to temporary file
+    console.log(inputFilePath);
+    const ffmpegCommand = ffmpeg(inputFilePath)
+      .audioFilter(
+        `aselect='not(between(t,${
+          startTime - 0.2
+        },${endTime}))',asetpts=N/SR/TB`
+      )
+      .output(outputFile)
+      .on("end", () => {
+        resolve();
+      })
+      .on("error", (err) => {
+        reject(new Error(`ffmpeg error: ${err.message}`));
+      });
+
+    const ffmpegProcess = spawn(ffmpegPath, ffmpegCommand._getArguments());
+
+    ffmpegProcess.on("close", (code) => {
+      if (code !== 0) {
+        reject(new Error(`ffmpeg exited with code ${code}`));
+      } else {
+        resolve();
+      }
+    });
+  });
+};
+
+const trimAudioController = async (req, res) => {
+  uploadAudio(req, res, async (err) => {
+    if (err) {
+      return res.status(500).json({ message: "Error uploading file" });
+    }
+    const { path: filePath } = req.file;
+    const { startTime, endTime } = req.query;
+    console.log(startTime, endTime);
+    // Trim audio file using startTime and endTime values
+    try {
+      const outputFile = path.join(
+        __dirname,
+        `../uploads/temp/removed_${Date.now()}.mp3`
+      );
+      await trimAudio(filePath, startTime, endTime, outputFile);
+
+      res.set({
+        "Content-Type": "audio/mpeg",
+      });
+      res.sendFile(outputFile, () => {
+        fs.unlink(filePath, (err) => {
+          if (err)
+            console.log(`Error deleting temporary file ${filePath}: ${err}`);
+        });
+        fs.unlink(outputFile, (err) => {
+          if (err)
+            console.log(`Error deleting temporary file ${filePath}: ${err}`);
+        });
+      });
+    } catch (error) {
+      console.error(error.message);
+      res.status(500).json({ message: "Error trimming audio file" });
+    }
+  });
+};
+
+module.exports = {
+  speechToTextController,
+  textToSpeechController,
+  trimAudioController,
+};
