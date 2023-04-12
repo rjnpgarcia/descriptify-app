@@ -75,13 +75,24 @@ const speechToTextController = async (req, res) => {
       const transcriptObject = await client.getTranscriptObject(job.id);
       console.log(transcriptObject);
       // Get words with timestamps
-      const wordsWithTimestamps = transcriptObject.monologues[0].elements.map(
-        (element) => {
-          return {
-            word: element.value,
-            startTime: element.ts,
-            endTime: element.end_ts,
-          };
+      // const wordsWithTimestamps = transcriptObject.monologues[0].elements.map(
+      //   (element) => {
+      //     return {
+      //       word: element.value,
+      //       startTime: element.ts,
+      //       endTime: element.end_ts,
+      //     };
+      //   }
+      // );
+      const wordsWithTimestamps = transcriptObject.monologues.flatMap(
+        (monologue) => {
+          return monologue.elements.map((element) => {
+            return {
+              word: element.value,
+              startTime: element.ts,
+              endTime: element.end_ts,
+            };
+          });
         }
       );
       res.json(wordsWithTimestamps);
@@ -99,7 +110,7 @@ const speechToTextController = async (req, res) => {
   });
 };
 
-// Text-to-Speech Controller
+// Text-to-speech controller
 const textToSpeechController = (req, res) => {
   try {
     const filePath = path.join(__dirname, "../uploads/tts.mp3");
@@ -129,9 +140,9 @@ const trimAudio = (inputFilePath, startTime, endTime, outputFile) => {
     console.log(inputFilePath);
     const ffmpegCommand = ffmpeg(inputFilePath)
       .audioFilter(
-        `aselect='not(between(t,${
-          startTime - 0.2
-        },${endTime}))',asetpts=N/SR/TB`
+        `aselect='not(between(t,${startTime},${
+          endTime !== null ? endTime : ""
+        }))',asetpts=N/SR/TB`
       )
       .output(outputFile)
       .on("end", () => {
@@ -159,7 +170,9 @@ const trimAudioController = async (req, res) => {
       return res.status(500).json({ message: "Error uploading file" });
     }
     const { path: filePath } = req.file;
-    const { startTime, endTime } = req.query;
+    // const { startTime, endTime } = req.query;
+    const startTime = parseFloat(req.body.startTime);
+    const endTime = parseFloat(req.body.endTime);
     console.log(startTime, endTime);
     // Trim audio file using startTime and endTime values
     try {
@@ -189,8 +202,157 @@ const trimAudioController = async (req, res) => {
   });
 };
 
+///// Trim audio controller for overdub
+// Text-to-speech function
+const textToSpeech = async (text, outputFilePath) => {
+  return new Promise((resolve, reject) => {
+    say.export(text, null, 1, outputFilePath, (err) => {
+      if (err) {
+        reject(new Error(`Error exporting TTS audio ${err.message}`));
+      } else {
+        resolve();
+      }
+    });
+  });
+};
+
+// Get duration of audio
+const getAudioDuration = async (filePath) => {
+  return new Promise((resolve, reject) => {
+    const ffprobeProcess = spawn(ffprobePath, [
+      "-i",
+      filePath,
+      "-show_entries",
+      "format=duration",
+      "-v",
+      "quiet",
+      "-of",
+      "csv=p=0",
+    ]);
+
+    let duration = "";
+
+    ffprobeProcess.stdout.on("data", (data) => {
+      duration += data.toString();
+    });
+
+    ffprobeProcess.stderr.on("data", (data) => {
+      console.error(data.toString());
+      reject(new Error("Error getting audio duration"));
+    });
+
+    ffprobeProcess.on("close", (code) => {
+      if (code === 0) {
+        duration = duration.trim();
+        resolve(parseFloat(duration));
+      } else {
+        reject(new Error(`ffprobe exited with code ${code}`));
+      }
+    });
+  });
+};
+
+// Overdub Controller
+const overdubController = async (req, res) => {
+  uploadAudio(req, res, async (err) => {
+    if (err) {
+      return res.status(500).json({ message: "Error uploading file" });
+    }
+    try {
+      const { path: filePath } = req.file;
+      const startTime = parseFloat(req.body.startTime);
+      const endTime = parseFloat(req.body.endTime);
+      const overdubWord = req.body.overdubWord;
+
+      // Trim the audio file to remove the part containing the word that will be replaced
+      const trimmedFilePath = path.join(
+        __dirname,
+        "../uploads/temp/trimmed.mp3"
+      );
+      await trimAudio(filePath, startTime, endTime, trimmedFilePath);
+
+      // Convert the overdub word to an audio file using the TTS
+      const ttsFilePath = path.join(__dirname, "../uploads/temp/tts-temp.mp3");
+
+      await textToSpeech(overdubWord, ttsFilePath);
+      // Split the trimmed audio file into two parts
+      const part1FilePath = path.join(__dirname, "../uploads/temp/part1.mp3");
+      const part2FilePath = path.join(__dirname, "../uploads/temp/part2.mp3");
+      const part1Duration = startTime;
+      await trimAudio(trimmedFilePath, 0, part1Duration, part2FilePath);
+      console.log(part1Duration);
+
+      const part2Duration = await getAudioDuration(trimmedFilePath).then(
+        (duration) => duration - endTime
+      );
+      console.log(part2Duration);
+      await trimAudio(
+        trimmedFilePath,
+        startTime,
+        startTime + part2Duration,
+        part1FilePath
+      );
+      // await Promise.all([
+      // ]);
+      // await trimAudio(trimmedFilePath, 0, part1Duration, part1FilePath);
+      // await trimAudio(
+      //   trimmedFilePath,
+      //   endTime,
+      //   endTime + part2Duration,
+      //   part2FilePath
+      // );
+
+      // Merge the audio files
+      const outputFilePath = path.join(__dirname, "../uploads/temp/output.mp3");
+
+      await new Promise((resolve, reject) => {
+        const concatProcess = spawn(ffmpegPath, [
+          "-i",
+          part1FilePath,
+          "-i",
+          ttsFilePath,
+          "-i",
+          part2FilePath,
+          "-filter_complex",
+          "[0:a][1:a][2:a]concat=n=3:v=0:a=1[out]",
+          "-map",
+          "[out]",
+          "-ac",
+          "2",
+          "-ar",
+          "44100",
+          "-b:a",
+          "192k",
+          "-y",
+          outputFilePath,
+        ]);
+        concatProcess.on("error", (err) => {
+          reject(err);
+        });
+
+        concatProcess.on("exit", (code) => {
+          if (code === 0) {
+            // Send the concatenated audio file to the frontend
+            res.set({
+              "Content-Type": "audio/mpeg",
+            });
+            res.sendFile(outputFilePath);
+            resolve();
+          } else {
+            reject(new Error(`ffmpeg exited with code ${code}`));
+          }
+        });
+      });
+    } catch (err) {
+      console.log(err);
+      res.status(500).send(`Error overdubbing audio`);
+    }
+  });
+};
+
 module.exports = {
   speechToTextController,
   textToSpeechController,
   trimAudioController,
+  overdubController,
 };

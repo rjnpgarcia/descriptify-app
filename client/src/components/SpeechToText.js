@@ -1,4 +1,4 @@
-import React, { useCallback, useRef, useState } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import { useDownload } from "../contexts/DownloadHandler";
 // Components
 import Container from "react-bootstrap/esm/Container";
@@ -35,6 +35,19 @@ const SpeechToText = () => {
   const [waveform, setWaveform] = useState(null);
   const [highlight, setHighlight] = useState("");
   const [selectedWord, setSelectedWord] = useState("");
+  const [changes, setChanges] = useState(false);
+
+  useEffect(() => {
+    if (changes) {
+      transcribeSTT(
+        audio,
+        setIsLoading,
+        setTranscriptWithTS,
+        setDataTranscript
+      );
+      setChanges(false);
+    }
+  }, [changes, audio, setDataTranscript]);
 
   // Handle Modal pop-up for recording audio
   const handleClose = () => setShowModal(false);
@@ -43,11 +56,11 @@ const SpeechToText = () => {
   const handleCloseRemove = () => setShowRemove(false);
   const handleShowRemove = () => setShowRemove(true);
   // Handle Modal pop-up for Overdub
-  const handleCloseOverdub = async () => {
-    setShowOverdub(false);
-  };
+  const handleCloseOverdub = () => setShowOverdub(false);
+
   const handleShowOverdub = useCallback((word) => {
     setSelectedWord(word);
+    console.log(word);
     setShowOverdub(true);
   }, []);
 
@@ -118,8 +131,10 @@ const SpeechToText = () => {
   // Audio file import to transcription
   const handleAudioImport = (e) => {
     const file = e.target.files[0];
-    setAudio(URL.createObjectURL(file));
-    setTranscriptWithTS("");
+    if (file) {
+      setAudio(URL.createObjectURL(file));
+      setTranscriptWithTS("");
+    }
   };
 
   return (
@@ -135,7 +150,11 @@ const SpeechToText = () => {
                 {transcriptWithTS.map((word, index) => {
                   return (
                     <span
-                      onClick={() => handleShowOverdub(word)}
+                      onClick={() =>
+                        (!word.startTime && !word.endTime) || isLoading
+                          ? ""
+                          : handleShowOverdub(word)
+                      }
                       key={index}
                       className={
                         highlight === word
@@ -158,6 +177,7 @@ const SpeechToText = () => {
           setWaveform={setWaveform}
           transcriptWithTS={transcriptWithTS}
           handleShowOverdub={handleShowOverdub}
+          isLoading={isLoading}
         />
         <Row className="justify-content-center">
           <div className="stt-buttons-container">
@@ -224,6 +244,7 @@ const SpeechToText = () => {
         setAudio={setAudio}
         transcriptWithTS={transcriptWithTS}
         setTranscriptWithTS={setTranscriptWithTS}
+        setChanges={setChanges}
       />
     </>
   );
