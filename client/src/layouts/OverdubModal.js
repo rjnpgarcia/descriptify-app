@@ -4,16 +4,7 @@ import Button from "react-bootstrap/Button";
 import Modal from "react-bootstrap/Modal";
 import Form from "react-bootstrap/Form";
 
-const OverdubModal = ({
-  word,
-  show,
-  onHide,
-  audio,
-  setAudio,
-  transcriptWithTS,
-  setTranscriptWithTS,
-  setChanges,
-}) => {
+const OverdubModal = ({ word, show, onHide, audio, setAudio, setChanges }) => {
   const [overdubValue, setOverdubValue] = useState("");
 
   useEffect(() => {
@@ -36,7 +27,7 @@ const OverdubModal = ({
     // Finds the audio region with the same timestamps as the word then trim audio
     try {
       const formData = new FormData();
-      const res = await fetch(audio);
+      const res = await fetch(audio.present);
       const audioBlob = await res.blob();
       formData.append("audioFile", audioBlob, "audio.mp3");
       formData.append("startTime", word.startTime);
@@ -46,37 +37,42 @@ const OverdubModal = ({
         body: formData,
       });
       const audioData = await response.blob();
-      const audioUrl = URL.createObjectURL(audioData);
-      setAudio(audioUrl);
+      if (response.ok) {
+        const audioUrl = URL.createObjectURL(audioData);
+        setAudio(audioUrl);
 
-      // Remove the word from the transcript and adjust the timestamps of other words
-      const duration = word.endTime - word.startTime;
-      const updatedTranscript = transcriptWithTS.filter((item, index) => {
-        if (item.startTime >= word.endTime) {
-          // Adjust the start and end times of this word
-          item.startTime -= duration;
-          item.endTime -= duration;
-        }
+        // Remove the word from the transcript and adjust the timestamps of other words
+        // const duration = word.endTime - word.startTime;
+        // const updatedTranscript = transcriptWithTS.present.filter(
+        //   (item, index) => {
+        //     if (item.startTime >= word.endTime) {
+        //       // Adjust the start and end times of this word
+        //       item.startTime -= duration;
+        //       item.endTime -= duration;
+        //     }
 
-        return (
-          item !== word &&
-          (index === 0 ||
-            item.startTime !== transcriptWithTS[index - 1].endTime)
-        );
-      });
-      setTranscriptWithTS(updatedTranscript);
-      setChanges(true);
+        //     return (
+        //       item !== word &&
+        //       (index === 0 ||
+        //         item.startTime !== transcriptWithTS.present[index - 1].endTime)
+        //     );
+        //   }
+        // );
+        // // setTranscriptWithTS(updatedTranscript);
+        setChanges(true);
+        onHide();
+      }
     } catch (error) {
       console.error(error.message);
+      onHide();
     }
-    onHide();
   };
 
   const handleOverdub = async () => {
     // Finds the audio region with the same timestamps as the word then trim audio
     try {
       const formData = new FormData();
-      const res = await fetch(audio);
+      const res = await fetch(audio.present);
       const audioBlob = await res.blob();
       formData.append("audioFile", audioBlob, "audio.mp3");
       formData.append("startTime", word.startTime);
@@ -87,11 +83,12 @@ const OverdubModal = ({
         body: formData,
       });
       const audioData = await response.blob();
-      const audioUrl = URL.createObjectURL(audioData);
-      setAudio(audioUrl);
-      word.word = overdubValue;
-      setChanges(true);
-      onHide();
+      if (response.ok) {
+        const audioUrl = URL.createObjectURL(audioData);
+        setAudio(audioUrl);
+        setChanges(true);
+        onHide();
+      }
     } catch (err) {
       console.log(err);
     }

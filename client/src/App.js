@@ -9,30 +9,33 @@ import HomePage from "./pages/HomePage";
 import RegisterPage from "./pages/RegisterPage";
 // Context
 import { useAuth } from "./contexts/AuthHandler";
+import { FileHandler } from "./contexts/FileHandler";
 
 function App() {
   const { isAuthenticated } = useAuth();
 
   return (
-    <MainLayout>
-      <Routes>
-        <Route
-          index
-          element={isAuthenticated ? <HomePage /> : <Navigate to="/login" />}
-        />
-        <Route
-          path="/speechtotext"
-          element={isAuthenticated ? <STTPage /> : <Navigate to="/login" />}
-        />
-        <Route
-          path="/texttospeech"
-          element={isAuthenticated ? <TTSPage /> : <Navigate to="/login" />}
-        />
-        <Route path="/login" element={<LoginPage />} />
-        <Route path="/register" element={<RegisterPage />} />
-        <Route path="*" element={<PageNotFound />} />
-      </Routes>
-    </MainLayout>
+    <FileHandler>
+      <MainLayout>
+        <Routes>
+          <Route
+            index
+            element={isAuthenticated ? <HomePage /> : <Navigate to="/login" />}
+          />
+          <Route
+            path="/speechtotext"
+            element={isAuthenticated ? <STTPage /> : <Navigate to="/login" />}
+          />
+          <Route
+            path="/texttospeech"
+            element={isAuthenticated ? <TTSPage /> : <Navigate to="/login" />}
+          />
+          <Route path="/login" element={<LoginPage />} />
+          <Route path="/register" element={<RegisterPage />} />
+          <Route path="*" element={<PageNotFound />} />
+        </Routes>
+      </MainLayout>
+    </FileHandler>
   );
 }
 

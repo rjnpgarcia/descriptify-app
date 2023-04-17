@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 // Bootstrap
 import Modal from "react-bootstrap/Modal";
 import Form from "react-bootstrap/Form";
@@ -17,6 +17,11 @@ const ProfileModal = ({ show, onHide, userData }) => {
   const [errorMessage, setErrorMessage] = useState(null);
   const [successMessage, setSuccessMessage] = useState(null);
   const { tokenName } = useAuth();
+
+  useEffect(() => {
+    setErrorMessage("");
+    setSuccessMessage("");
+  }, [onHide]);
 
   const handleSubmitUpdate = async (e) => {
     e.preventDefault();
@@ -85,8 +90,9 @@ const ProfileModal = ({ show, onHide, userData }) => {
               className="text-secondary m-3"
             >
               <Form.Control
-                type="name"
+                type="text"
                 onChange={(e) => setNewName(e.target.value)}
+                placeholder="Name"
               />
             </FloatingLabel>
             <FloatingLabel label="Email" className="text-secondary m-3">
@@ -97,6 +103,7 @@ const ProfileModal = ({ show, onHide, userData }) => {
                 type="password"
                 onChange={(e) => setNewPassword(e.target.value)}
                 autoComplete="true"
+                placeholder="Password"
               />
             </FloatingLabel>
             <Button variant="primary" type="submit" className="m-3">

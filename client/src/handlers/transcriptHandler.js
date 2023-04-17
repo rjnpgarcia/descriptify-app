@@ -5,13 +5,12 @@ import "./handlersCSS/transcriptHandler.css";
 export const transcribeSTT = async (
   audio,
   setIsLoading,
-  setTranscriptWithTS,
-  setDataTranscript
+  setTranscriptWithTS
 ) => {
   try {
     setIsLoading(true);
     const formData = new FormData();
-    const res = await fetch(audio);
+    const res = await fetch(audio.present);
     const audioBlob = await res.blob();
     console.log(audioBlob);
     formData.append("audioFile", audioBlob, "audio.mp3");
@@ -19,13 +18,14 @@ export const transcribeSTT = async (
       method: "POST",
       body: formData,
     });
+    console.log(formData);
     const data = await response.json();
     console.log(data);
     // Transcription received by object
-    const words = data;
-    const transcriptText = await words.map((w) => w.word).join("");
-    await setTranscriptWithTS(words);
-    await setDataTranscript(transcriptText);
+    if (response.ok) {
+      const words = data;
+      await setTranscriptWithTS(words);
+    }
     setIsLoading(false);
     console.log("Successful! Transcribed Audio");
   } catch (error) {
@@ -40,8 +40,7 @@ export const transcribeTTS = async (
   words,
   newText,
   setAudio,
-  setIsLoading,
-  setDataAudio
+  setIsLoading
 ) => {
   try {
     setIsLoading(true);
@@ -57,11 +56,12 @@ export const transcribeTTS = async (
     });
 
     const audioBlob = await response.blob();
-    const audioUrl = URL.createObjectURL(audioBlob);
+    if (response.ok) {
+      const audioUrl = URL.createObjectURL(audioBlob);
 
-    console.log(audioBlob);
-    setAudio(audioUrl);
-    setDataAudio(audioBlob);
+      console.log(audioBlob);
+      setAudio(audioUrl);
+    }
     setIsLoading(false);
   } catch (error) {
     console.log(error);
@@ -76,7 +76,7 @@ export const TranscribeButton = ({ isLoading, transcribe, data }) => {
         <button
           className="transcribe-button"
           onClick={transcribe}
-          disabled={!data}
+          disabled={!data.present}
         >
           Transcribe
         </button>

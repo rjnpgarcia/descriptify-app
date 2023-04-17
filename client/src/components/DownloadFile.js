@@ -3,34 +3,33 @@ import { useDownload } from "../contexts/DownloadHandler";
 import "./componentsCSS/DownloadFile.css";
 
 const DownloadFile = () => {
-  const { dataTranscript, dataAudio } = useDownload();
+  const { dataDownload } = useDownload();
 
   const downloadHandler = () => {
-    console.log(dataTranscript);
-    console.log(dataAudio);
-    // Download Transcription from Speech-to-Text
-    if (dataTranscript && !dataAudio) {
-      const blob = new Blob([dataTranscript], { type: "text/plain" });
-      const url = URL.createObjectURL(blob);
-      const link = document.createElement("a");
-      link.download = "speech-to-text.txt";
-      link.href = url;
-      link.click();
-      // Download Audio Transcription from Text-to-Speech
-    } else if (dataAudio && !dataTranscript) {
-      const blob = new Blob([dataAudio], { type: "audio/mpeg" });
-      const url = URL.createObjectURL(blob);
-      const link = document.createElement("a");
-      link.download = "text-to-speech.mp3";
-      link.href = url;
-      link.click();
+    console.log(dataDownload.audio);
+    console.log(dataDownload.transcript);
+    // Download Transcription and Audio
+    if (dataDownload.transcript && dataDownload.audio) {
+      const blobTranscript = new Blob([dataDownload.transcript], {
+        type: "text/plain",
+      });
+      const TextUrl = URL.createObjectURL(blobTranscript);
+      const linkText = document.createElement("a");
+      linkText.download = "text-transcript.txt";
+      linkText.href = TextUrl;
+      linkText.click();
+
+      const linkAudio = document.createElement("a");
+      linkAudio.download = "audio-transcript.mp3";
+      linkAudio.href = dataDownload.audio;
+      linkAudio.click();
     }
   };
   return (
     <div className="export-button">
       <button
         onClick={downloadHandler}
-        disabled={!dataAudio && !dataTranscript}
+        disabled={!dataDownload.audio || !dataDownload.transcript}
       >
         Export
       </button>

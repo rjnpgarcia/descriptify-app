@@ -2,17 +2,29 @@ import React, { useState } from "react";
 import { NavLink } from "react-router-dom";
 // Bootstrap
 import Nav from "react-bootstrap/Nav";
-import Navbar from "react-bootstrap/Navbar";
 import Container from "react-bootstrap/esm/Container";
 import Row from "react-bootstrap/Row";
+import Dropdown from "react-bootstrap/Dropdown";
 // CSS
 import "./layoutsCSS/MainNavigation.css";
 import Col from "react-bootstrap/esm/Col";
 // Components
 import DownloadFile from "../components/DownloadFile";
+import SaveFileModal from "./SaveFileModal";
+import OpenFileModal from "./OpenFileModal";
+// Handlers
+import { useFile } from "../contexts/FileHandler";
 
 const MainNavigation = () => {
   const [active, setActive] = useState("/");
+  const [showSaveFile, setShowSaveFile] = useState(false);
+  const [showOpenFile, setShowOpenFile] = useState(false);
+  const { saveFile } = useFile();
+
+  const handleShowSaveFile = () => setShowSaveFile(true);
+  const handleCloseSaveFile = () => setShowSaveFile(false);
+  const handleShowOpenFile = () => setShowOpenFile(true);
+  const handleCloseOpenFile = () => setShowOpenFile(false);
   // Active tab styling
   const navLinkStyles = ({ isActive }) => {
     return {
@@ -24,44 +36,77 @@ const MainNavigation = () => {
   };
 
   return (
-    <Container className="main-navigation-container">
-      <Row className="align-items-center">
-        <Col>
-          <Navbar.Brand as={NavLink} to={"/"}>
-            <img
-              alt=""
-              src="images/main-logo-trans.png"
-              width="30"
-              height="30"
-              className=""
-            />{" "}
-          </Navbar.Brand>
-        </Col>
-        <Col sm="6">
-          <Nav
-            className="main-navigation justify-content-center"
-            variant="tabs"
-            defaultActiveKey="/speechtotext"
-            activeKey={active}
-            onSelect={(selectedKey) => setActive(selectedKey)}
-          >
-            <Nav.Item>
-              <Nav.Link as={NavLink} to={"/speechtotext"} style={navLinkStyles}>
-                Speech to text
-              </Nav.Link>
-            </Nav.Item>
-            <Nav.Item>
-              <Nav.Link as={NavLink} to={"/texttospeech"} style={navLinkStyles}>
-                Text to Speech
-              </Nav.Link>
-            </Nav.Item>
-          </Nav>
-        </Col>
-        <Col>
-          <DownloadFile />
-        </Col>
-      </Row>
-    </Container>
+    <>
+      <Container className="main-navigation-container">
+        <Row className="align-items-center">
+          <Col>
+            <Dropdown>
+              <Dropdown.Toggle
+                id="dropdown-button-dark-example1"
+                variant="dark"
+              >
+                <img
+                  alt=""
+                  src="images/main-logo.png"
+                  width="45"
+                  height="45"
+                  className=""
+                />
+              </Dropdown.Toggle>
+
+              <Dropdown.Menu variant="dark">
+                <Dropdown.Item onClick={handleShowOpenFile}>
+                  Open file
+                </Dropdown.Item>
+                <Dropdown.Item
+                  onClick={handleShowSaveFile}
+                  disabled={
+                    saveFile.audio === null || saveFile.transcript === ""
+                      ? true
+                      : ""
+                  }
+                >
+                  Save file as
+                </Dropdown.Item>
+              </Dropdown.Menu>
+            </Dropdown>
+          </Col>
+          <Col sm="6">
+            <Nav
+              className="main-navigation justify-content-center"
+              variant="tabs"
+              defaultActiveKey="/speechtotext"
+              activeKey={active}
+              onSelect={(selectedKey) => setActive(selectedKey)}
+            >
+              <Nav.Item>
+                <Nav.Link
+                  as={NavLink}
+                  to={"/speechtotext"}
+                  style={navLinkStyles}
+                >
+                  Speech to text
+                </Nav.Link>
+              </Nav.Item>
+              <Nav.Item>
+                <Nav.Link
+                  as={NavLink}
+                  to={"/texttospeech"}
+                  style={navLinkStyles}
+                >
+                  Text to Speech
+                </Nav.Link>
+              </Nav.Item>
+            </Nav>
+          </Col>
+          <Col>
+            <DownloadFile />
+          </Col>
+        </Row>
+      </Container>
+      <SaveFileModal show={showSaveFile} onHide={handleCloseSaveFile} />
+      <OpenFileModal show={showOpenFile} onHide={handleCloseOpenFile} />
+    </>
   );
 };
 

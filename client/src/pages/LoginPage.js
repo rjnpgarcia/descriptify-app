@@ -72,6 +72,7 @@ const LoginPage = () => {
                 type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
+                placeholder="Email"
               />
             </FloatingLabel>
             <FloatingLabel label="Password" className="text-secondary m-3">
@@ -80,6 +81,7 @@ const LoginPage = () => {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 autoComplete="true"
+                placeholder="Password"
               />
             </FloatingLabel>
             <p className="auth-redirect-link">

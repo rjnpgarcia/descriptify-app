@@ -14,7 +14,14 @@ const {
   validationLogin,
   validationProfile,
 } = require("../controllers/authController");
-
+const {
+  deleteFileController,
+  saveFileController,
+  validationFileName,
+  getFilesController,
+  getOneFileController,
+  getAudioController,
+} = require("../controllers/fileController");
 // Route end points
 const routes = (app) => {
   // Speech-to-text endpoints
@@ -53,6 +60,21 @@ const routes = (app) => {
 
   // For STT word overdub
   app.route("/api/overdub").post(overdubController);
+
+  // For files
+  app
+    .route("/api/files/:id")
+    .get(getFilesController)
+    .post(validationFileName, saveFileController);
+
+  // For user files
+  app
+    .route("/api/files/:id/:type/:fileName")
+    .get(getOneFileController)
+    .delete(deleteFileController);
+
+  // Get audio
+  app.route("/api/getaudio/:id/:type/:audio").get(getAudioController);
 };
 
 module.exports = routes;

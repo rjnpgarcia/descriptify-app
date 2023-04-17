@@ -1,5 +1,29 @@
 const mongoose = require("mongoose");
 
+const sttFileSchema = new mongoose.Schema({
+  name: {
+    type: String,
+  },
+  transcript: {
+    type: String,
+  },
+  audioFile: {
+    type: String,
+  },
+});
+
+const ttsFileSchema = new mongoose.Schema({
+  name: {
+    type: String,
+  },
+  transcript: {
+    type: String,
+  },
+  audioFile: {
+    type: String,
+  },
+});
+
 const userSchema = new mongoose.Schema({
   name: {
     type: String,
@@ -13,6 +37,8 @@ const userSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
+  sttFiles: [sttFileSchema],
+  ttsFiles: [ttsFileSchema],
 });
 
 const User = mongoose.model("User", userSchema);

@@ -7,13 +7,10 @@ export const useDownload = () => {
 };
 
 export const DownloadHandler = ({ children }) => {
-  const [dataTranscript, setDataTranscript] = useState("");
-  const [dataAudio, setDataAudio] = useState(null);
+  const [dataDownload, setDataDownload] = useState({});
 
   return (
-    <DownloadContext.Provider
-      value={{ dataTranscript, setDataTranscript, dataAudio, setDataAudio }}
-    >
+    <DownloadContext.Provider value={{ dataDownload, setDataDownload }}>
       {children}
     </DownloadContext.Provider>
   );

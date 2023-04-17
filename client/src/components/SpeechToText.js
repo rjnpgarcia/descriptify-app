@@ -1,12 +1,17 @@
 import React, { useCallback, useEffect, useRef, useState } from "react";
-import { useDownload } from "../contexts/DownloadHandler";
-// Components
+import useUndo from "use-undo";
+// Bootstrap
 import Container from "react-bootstrap/esm/Container";
 import Row from "react-bootstrap/esm/Row";
+import Col from "react-bootstrap/Col";
+// Components
 import "./componentsCSS/SpeechToText.css";
 import RecordModal from "../layouts/RecordModal.js";
 import DeleteModal from "../layouts/DeleteModal";
+import Waveform from "./Waveform";
+import OverdubModal from "../layouts/OverdubModal";
 // Handlers
+import { useDownload } from "../contexts/DownloadHandler";
 import { startRecording, stopRecording } from "../handlers/audioHandler.js";
 import {
   TranscribeButton,
@@ -17,37 +22,101 @@ import {
   playAudio,
   pauseAudio,
 } from "../handlers/playerHandler.js";
-import Waveform from "./Waveform";
-import OverdubModal from "../layouts/OverdubModal";
+import { useLoading } from "../contexts/ScreenLoaderHandler";
+import { useFile } from "../contexts/FileHandler";
 
 const SpeechToText = () => {
   const [isRecording, setIsRecording] = useState(false);
   const [audioChunks, setAudioChunks] = useState([]);
-  const [audio, setAudio] = useState(null);
-  const [transcriptWithTS, setTranscriptWithTS] = useState("");
   const [showModal, setShowModal] = useState(false);
   const [showRemove, setShowRemove] = useState(false);
   const [showOverdub, setShowOverdub] = useState(false);
   const [isPlaying, setIsPlaying] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const mediaRecorder = useRef(null);
-  const { setDataTranscript } = useDownload();
+  const { setDataDownload } = useDownload();
+  const { setLoadingScreen } = useLoading();
+  const { getFile, setSaveFile, setGetFile } = useFile();
   const [waveform, setWaveform] = useState(null);
   const [highlight, setHighlight] = useState("");
   const [selectedWord, setSelectedWord] = useState("");
   const [changes, setChanges] = useState(false);
+  const [
+    audio,
+    {
+      set: setAudio,
+      undo: handleUndoAudio,
+      redo: handleRedoAudio,
+      canUndo: canUndoAudio,
+      canRedo: canRedoAudio,
+    },
+  ] = useUndo(null);
+  const [
+    transcriptWithTS,
+    {
+      set: setTranscriptWithTS,
+      undo: handleUndoTranscript,
+      redo: handleRedoTranscript,
+      canUndo: canUndoTranscript,
+      canRedo: canRedoTranscript,
+    },
+  ] = useUndo("");
 
   useEffect(() => {
+    // For full screen loading
     if (changes) {
-      transcribeSTT(
-        audio,
-        setIsLoading,
-        setTranscriptWithTS,
-        setDataTranscript
-      );
+      setLoadingScreen(true);
+      transcribeSTT(audio, setIsLoading, setTranscriptWithTS)
+        .then(() => setChanges(false))
+        .then(() => setLoadingScreen(false));
+    } else {
+      setLoadingScreen(false);
       setChanges(false);
     }
-  }, [changes, audio, setDataTranscript]);
+  }, [changes, audio, setTranscriptWithTS, setLoadingScreen]);
+
+  useEffect(() => {
+    // For save file and download files setting
+    setSaveFile({
+      stt: true,
+      audio: audio.present,
+      transcript: transcriptWithTS.present,
+    });
+    const words = transcriptWithTS.present;
+    if (words) {
+      const transcriptText = words.map((w) => w.word).join("");
+      setDataDownload({
+        audio: audio.present,
+        transcript: transcriptText,
+      });
+    } else {
+      setDataDownload({
+        audio: audio.present,
+        transcript: "",
+      });
+    }
+  }, [audio.present, transcriptWithTS.present, setSaveFile, setDataDownload]);
+
+  useEffect(() => {
+    console.log(getFile);
+
+    if (getFile && getFile.name && getFile.id && getFile.type) {
+      const transcriptOpen = JSON.parse(getFile.transcript);
+      const getAudio = async (audioFile, setAudio, id, type) => {
+        const response = await fetch(
+          `http://localhost:8000/api/getaudio/${id}/${type}/${audioFile}`
+        );
+        const data = await response.blob();
+        if (response.ok) {
+          const audioUrl = URL.createObjectURL(data);
+          setAudio(audioUrl);
+        }
+      };
+      setTranscriptWithTS(transcriptOpen);
+      getAudio(getFile.name, setAudio, getFile.id, getFile.type);
+      setGetFile({});
+    }
+  }, [getFile, setTranscriptWithTS, setGetFile, setAudio]);
 
   // Handle Modal pop-up for recording audio
   const handleClose = () => setShowModal(false);
@@ -81,13 +150,10 @@ const SpeechToText = () => {
   // Handle STT Transcription to server
   const handleTranscribe = async () => {
     // e.preventDefault();
-    await transcribeSTT(
-      audio,
-      setIsLoading,
-      setTranscriptWithTS,
-      setDataTranscript
-    );
-    console.log(audio);
+    setLoadingScreen(true);
+    await transcribeSTT(audio, setIsLoading, setTranscriptWithTS);
+    setLoadingScreen(false);
+    console.log(audio.present);
     console.log("Transcribing Audio");
   };
 
@@ -96,16 +162,17 @@ const SpeechToText = () => {
     e.preventDefault();
     playAudio(waveform, setIsPlaying);
     // For transcription word highlights synced with audio
-    if (transcriptWithTS) {
+    if (transcriptWithTS.present) {
       waveform.on("audioprocess", () => {
         // Current playing time of wavesurfer
         const currentTime = waveform.getCurrentTime();
-        const highlightedWord = transcriptWithTS.find((word) => {
+        const highlightedWord = transcriptWithTS.present.find((word) => {
           return currentTime >= word.startTime && currentTime <= word.endTime;
         });
         setHighlight(highlightedWord ? highlightedWord : "");
       });
     }
+
     waveform.on("finish", () => {
       setIsPlaying(false);
     });
@@ -122,11 +189,6 @@ const SpeechToText = () => {
     setShowRemove(false);
     console.log("Removed Audio and Transcript");
   };
-  const handleReplaceAudio = () => {
-    setAudio(null);
-    setShowModal(true);
-    console.log("Removed Audio and start recording again");
-  };
 
   // Audio file import to transcription
   const handleAudioImport = (e) => {
@@ -137,17 +199,54 @@ const SpeechToText = () => {
     }
   };
 
+  const handleUndoSTT = () => {
+    handleUndoAudio();
+    handleUndoTranscript();
+  };
+  const handleRedoSTT = () => {
+    handleRedoAudio();
+    handleRedoTranscript();
+  };
+
   return (
     <>
       <Container>
-        <h3 className="feature-title">
-          <i className="fa-solid fa-microphone"></i> Speech to Text
-        </h3>
+        <Row>
+          <Col xs="6" className="align-self-center">
+            <h3 className="feature-title">
+              <i className="fa-solid fa-microphone"></i> Speech to Text
+            </h3>
+          </Col>
+          <Col xs="6" className="align-self-center text-end">
+            <button
+              className={
+                canUndoAudio && canUndoTranscript
+                  ? "undo-redo-button"
+                  : "undo-redo-button text-secondary"
+              }
+              onClick={handleUndoSTT}
+              disabled={!canUndoAudio || !canUndoTranscript ? true : false}
+            >
+              <i className="fa-sharp fa-solid fa-rotate-left"></i>
+            </button>
+            <button
+              className={
+                canRedoAudio && canRedoTranscript
+                  ? "undo-redo-button"
+                  : "undo-redo-button text-secondary"
+              }
+              onClick={handleRedoSTT}
+              disabled={!canRedoAudio || !canRedoTranscript ? true : false}
+            >
+              <i className="fa-solid fa-rotate-right"></i>
+            </button>
+          </Col>
+        </Row>
         <Row className="justify-content-center mt-2">
           <div id="transcription-output">
-            {transcriptWithTS ? (
+            {transcriptWithTS.present ? (
               <p className="stt-text-output">
-                {transcriptWithTS.map((word, index) => {
+                {transcriptWithTS.present.map((word, index) => {
                   return (
                     <span
                       onClick={() =>
@@ -181,7 +280,6 @@ const SpeechToText = () => {
         />
         <Row className="justify-content-center">
           <div className="stt-buttons-container">
-            {/* <audio id="stt-audio-player" src={audio} ref={audioRef}></audio> */}
             <div className="stt-controls-container">
               <PlayPauseButton
                 isPlaying={isPlaying}
@@ -198,16 +296,9 @@ const SpeechToText = () => {
               <button
                 className="remove-button"
                 onClick={handleShowRemove}
-                disabled={!audio && !transcriptWithTS}
+                disabled={!audio.present && !transcriptWithTS.present}
               >
                 <i className="fa-solid fa-delete-left"></i>
-              </button>
-              <button
-                className="replace-button"
-                onClick={handleReplaceAudio}
-                disabled={!audio}
-              >
-                <i className="fa-solid fa-rotate"></i>
               </button>
             </div>
             <input
@@ -242,8 +333,6 @@ const SpeechToText = () => {
         onHide={handleCloseOverdub}
         audio={audio}
         setAudio={setAudio}
-        transcriptWithTS={transcriptWithTS}
-        setTranscriptWithTS={setTranscriptWithTS}
         setChanges={setChanges}
       />
     </>

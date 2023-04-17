@@ -113,6 +113,7 @@
   -moz-border-radius: 5px;
   -ms-border-radius: 5px;
   -o-border-radius: 5px;
+  /* display: flexbox; */
 }
 
 .tts-text-output {
@@ -120,6 +121,7 @@
   padding: 0 0 0 10px;
   font-size: 24px;
   color: #8a93e2;
+  /* flex-wrap: wrap; */
 }
 
 .word-highlight {

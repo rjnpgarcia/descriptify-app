@@ -1,4 +1,4 @@
-import React, { useRef, useState } from "react";
+import React, { useRef, useState, useEffect } from "react";
 import useUndo from "use-undo";
 // Bootstrap
 import Container from "react-bootstrap/esm/Container";
@@ -9,6 +9,7 @@ import DeleteModal from "../layouts/DeleteModal";
 // Handlers
 import { transcribeTTS, TranscribeButton } from "../handlers/transcriptHandler";
 import { useDownload } from "../contexts/DownloadHandler";
+import { useFile } from "../contexts/FileHandler";
 // CSS
 import "./componentsCSS/TextToSpeech.css";
 
@@ -19,18 +20,51 @@ const TextToSpeech = () => {
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const words = useRef([]);
   const text = useRef("");
-  // Download Audio Context
-  const { setDataAudio } = useDownload();
-  // Handles the undo and redo function for the text
+  const { setDataDownload } = useDownload();
+  const { getFile, setSaveFile, setGetFile } = useFile();
   const [
     newText,
     { set: setNewText, undo: handleUndo, redo: handleRedo, canUndo, canRedo },
   ] = useUndo("");
 
+  useEffect(() => {
+    setSaveFile({
+      tts: true,
+      audio: audio,
+      transcript: newText.present,
+    });
+    setDataDownload({
+      audio: audio,
+      transcript: newText.present,
+    });
+  }, [audio, newText.present, setSaveFile, setDataDownload]);
+
+  useEffect(() => {
+    console.log(getFile);
+
+    if (getFile && getFile.name && getFile.id && getFile.type) {
+      const getAudio = async (audioFile, setAudio, id, type) => {
+        const response = await fetch(
+          `http://localhost:8000/api/getaudio/${id}/${type}/${audioFile}`
+        );
+        const data = await response.blob();
+        if (response.ok) {
+          const audioUrl = URL.createObjectURL(data);
+          setAudio(audioUrl);
+        }
+      };
+      setNewText(getFile.transcript);
+      words.current = [];
+      text.current = getFile.transcript;
+      getAudio(getFile.name, setAudio, getFile.id, getFile.type);
+      setGetFile({});
+    }
+  }, [getFile, setNewText, setGetFile]);
+
   // Text-to-Speech Handler
   const handleTranscribe = async (e) => {
     e.preventDefault();
-    transcribeTTS(text, words, newText, setAudio, setIsLoading, setDataAudio);
+    transcribeTTS(text, words, newText, setAudio, setIsLoading);
   };
 
   // Handle audio player controls and output
@@ -44,7 +78,7 @@ const TextToSpeech = () => {
       // Calculate the duration of the word
       // Adjust time to sync with the spoken words
       const durationPerWord = word.length * 100;
-      const durationToNextWord = 400;
+      const durationToNextWord = 300;
 
       // Highlight the word after a delay
       setTimeout(() => {
@@ -73,7 +107,6 @@ const TextToSpeech = () => {
     setAudio(null);
     setNewText("");
     words.current = [];
-    setDataAudio(null);
     setShowDeleteModal(false);
   };
 
@@ -175,7 +208,7 @@ const TextToSpeech = () => {
           <TranscribeButton
             isLoading={isLoading}
             transcribe={handleTranscribe}
-            data={newText.present}
+            data={newText}
           />
         </div>
       </Row>

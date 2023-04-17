@@ -1,0 +1,12 @@
+/* Save file modal stylings */
+.save-file-modal-body {
+  border-bottom-left-radius: 8px;
+  border-bottom-right-radius: 8px;
+}
+
+.save-file-modal-buttons {
+  display: flex;
+  justify-content: space-around;
+  margin-top: 15px;
+}
+/* End of Save file modal stylings */

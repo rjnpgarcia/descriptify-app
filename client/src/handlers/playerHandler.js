@@ -25,8 +25,12 @@ export const PlayPauseButton = ({ isPlaying, audio, play, pause }) => {
   return (
     <>
       {!isPlaying ? (
-        <button className="play-button" onClick={play} disabled={!audio}>
-          {audio ? (
+        <button
+          className="play-button"
+          onClick={play}
+          disabled={!audio.present}
+        >
+          {audio.present ? (
             <i className="fa-solid fa-play" style={{ color: "#8a93e2" }}></i>
           ) : (
             <i className="fa-solid fa-play"></i>

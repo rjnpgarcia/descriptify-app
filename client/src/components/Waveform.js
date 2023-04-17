@@ -16,20 +16,20 @@ const Waveform = ({
   useEffect(() => {
     let markerObj = [];
     let regionObj = [];
-    if (transcriptWithTS) {
-      for (let i = 0; i < transcriptWithTS.length; i++) {
-        if (transcriptWithTS[i].startTime) {
+    if (transcriptWithTS.present) {
+      for (let i = 0; i < transcriptWithTS.present.length; i++) {
+        if (transcriptWithTS.present[i].startTime) {
           markerObj.push({
-            time: transcriptWithTS[i].startTime,
-            label: transcriptWithTS[i].word,
+            time: transcriptWithTS.present[i].startTime,
+            label: transcriptWithTS.present[i].word,
             color: "gray",
             position: "top",
           });
 
           regionObj.push({
             id: i,
-            start: transcriptWithTS[i].startTime,
-            end: transcriptWithTS[i].endTime,
+            start: transcriptWithTS.present[i].startTime,
+            end: transcriptWithTS.present[i].endTime,
             drag: false,
             resize: true,
             color: "rgba(80, 80, 80, 0.2)",
@@ -54,7 +54,6 @@ const Waveform = ({
           regions: regionObj,
           dragSelection: {
             slop: 5,
-            passive: true,
           },
         }),
 
@@ -64,36 +63,48 @@ const Waveform = ({
       ],
     });
     setWaveform(wavesurfer);
-    if (audio) {
-      wavesurfer.load(audio);
+    if (audio.present) {
+      wavesurfer.load(audio.present);
       // For overdub when region is clicked
-      if (transcriptWithTS && !isLoading) {
-        wavesurfer.on("region-click", (region) => {
-          console.log(isLoading);
-          // e.stopPropagation();
-          // pass the corresponding word data to the modal component
-          const wordData = transcriptWithTS.find(
-            (word) => word.startTime === region.start
-          );
-          console.log(wordData);
-          if (wordData) {
-            handleShowOverdub(wordData);
-          } else {
-            const regionData = {
-              word: "",
-              startTime: region.start,
-              endTime: region.end,
-            };
-            handleShowOverdub(regionData);
-          }
-        });
+      if (transcriptWithTS.present && !isLoading) {
+        wavesurfer.on(
+          "region-click",
+          (region) => {
+            console.log(isLoading);
+            // e.stopPropagation();
+            // pass the corresponding word data to the modal component
+            const wordData = transcriptWithTS.present.find(
+              (word) => word.startTime === region.start
+            );
+            console.log(wordData);
+            if (wordData) {
+              handleShowOverdub(wordData);
+            } else {
+              const regionData = {
+                word: "",
+                startTime: region.start,
+                endTime: region.end,
+              };
+              handleShowOverdub(regionData);
+            }
+          },
+          { passive: true }
+        );
       }
-      wavesurfer.on("region-mouseenter", (region) => {
-        region.update({ color: "rgba(177, 177, 177, 0.2)" });
-      });
-      wavesurfer.on("region-mouseleave", (region) => {
-        region.update({ color: "rgba(80, 80, 80, 0.2)" });
-      });
+      wavesurfer.on(
+        "region-mouseenter",
+        (region) => {
+          region.update({ color: "rgba(177, 177, 177, 0.2)" });
+        },
+        { passive: true }
+      );
+      wavesurfer.on(
+        "region-mouseleave",
+        (region) => {
+          region.update({ color: "rgba(80, 80, 80, 0.2)" });
+        },
+        { passive: true }
+      );
 
       return () => wavesurfer.destroy();
     } else {

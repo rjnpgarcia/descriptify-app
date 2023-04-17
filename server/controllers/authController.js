@@ -83,7 +83,14 @@ const registerController = async (req, res) => {
     });
 
     await user.save();
-    res.json({ success: `User ${name} successfully registered!` });
+
+    const token = {
+      id: user._id,
+      name: user.name,
+      email: user.email,
+    };
+
+    res.json({ success: `User ${name} successfully registered!`, token });
   } catch (err) {
     console.error(err);
     res.json({ error: "Registration Failed. Server issue." });

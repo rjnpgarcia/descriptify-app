@@ -14,7 +14,7 @@ const AuthLayout = ({ children }) => {
       <Row>
         <Col xs className="auth-header-container">
           <img
-            src="./images/main-logo-white.png"
+            src="./images/main-logo-borderless.png"
             alt="D logo"
             className="auth-logo"
           />

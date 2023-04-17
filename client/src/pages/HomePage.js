@@ -15,7 +15,7 @@ const HomePage = () => {
         <Row>
           <Col xs>
             <img
-              src="images/main-logo-trans.png"
+              src="images/main-logo.png"
               alt="Descript large logo"
               className="home-logo"
             />

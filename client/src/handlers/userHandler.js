@@ -6,6 +6,7 @@ export const registerUser = async (
   setErrorMessage,
   setSuccessMessage,
   setIsAuthenticated,
+  tokenName,
   navigate
 ) => {
   try {
@@ -24,6 +25,7 @@ export const registerUser = async (
     } else if (data.success) {
       setSuccessMessage(data.success);
       setIsAuthenticated(true);
+      Cookies.set(tokenName, JSON.stringify(data.token), { expires: 5 });
       navigate("/");
     } else {
       setErrorMessage("Something went wrong, Please try again");
@@ -58,7 +60,7 @@ export const loginUser = async (
     } else if (data.success) {
       console.log(data.success);
       setIsAuthenticated(true);
-      // localStorage.setItem(tokenName, JSON.stringify(data.success));
+      console.log("logged in");
       Cookies.set(tokenName, JSON.stringify(data.success), { expires: 5 });
       navigate("/");
     } else {
