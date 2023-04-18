@@ -18,14 +18,20 @@ const TextToSpeech = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [isPlaying, setIsPlaying] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [fileData, setFileData] = useState({});
   const words = useRef([]);
   const text = useRef("");
+  const fileInputTTSRef = useRef(null);
   const { setDataDownload } = useDownload();
-  const { getFile, setSaveFile, setGetFile } = useFile();
+  const { getFile, setSaveFile, setGetFile, setOverwriteFile } = useFile();
   const [
     newText,
     { set: setNewText, undo: handleUndo, redo: handleRedo, canUndo, canRedo },
   ] = useUndo("");
+
+  useEffect(() => {
+    setOverwriteFile({});
+  }, [setOverwriteFile]);
 
   useEffect(() => {
     setSaveFile({
@@ -57,6 +63,7 @@ const TextToSpeech = () => {
       words.current = [];
       text.current = getFile.transcript;
       getAudio(getFile.name, setAudio, getFile.id, getFile.type);
+      setFileData({ name: getFile.name, id: getFile.id });
       setGetFile({});
     }
   }, [getFile, setNewText, setGetFile]);
@@ -65,39 +72,43 @@ const TextToSpeech = () => {
   const handleTranscribe = async (e) => {
     e.preventDefault();
     transcribeTTS(text, words, newText, setAudio, setIsLoading);
+    if (fileInputTTSRef.current) {
+      fileInputTTSRef.current.value = "";
+    }
+    if (fileData.name && fileData.id) {
+      setOverwriteFile(fileData);
+    }
   };
 
   // Handle audio player controls and output
-  const audioPlayerTTS = document.getElementById("tts-audio-player");
   const handlePlayOutput = () => {
     // Split the text into an array of words
     words.current = text.current.split(" ");
 
-    // Iterate over each word
-    words.current.forEach((word, index) => {
-      // Calculate the duration of the word
-      // Adjust time to sync with the spoken words
-      const durationPerWord = word.length * 100;
-      const durationToNextWord = 300;
+    const utterance = new SpeechSynthesisUtterance(text.current);
+    utterance.rate = 1;
 
-      // Highlight the word after a delay
-      setTimeout(() => {
-        const spans = document.querySelectorAll(`span[data-index="${index}"]`);
-        spans.forEach((span) => span.classList.add("word-highlight"));
-      }, index * durationToNextWord);
+    let currentWordIndex = 0;
+    utterance.addEventListener("boundary", (e) => {
+      if (e.name === "word") {
+        const wordIndex = currentWordIndex;
+        currentWordIndex++;
+        const span = document.querySelector(`span[data-index="${wordIndex}"]`);
+        span.classList.add("word-highlight");
 
-      // Remove the highlight after the word has finished
-      setTimeout(() => {
-        const spans = document.querySelectorAll(`span[data-index="${index}"]`);
-        spans.forEach((span) => span.classList.remove("word-highlight"));
-      }, index * durationToNextWord + durationPerWord);
+        setTimeout(() => {
+          span.classList.remove("word-highlight");
+        }, 300);
+      }
     });
 
     // Play audio handler
     console.log("Pressed Play Audio");
-    audioPlayerTTS.play();
+    // audioPlayerTTS.play();
+    window.speechSynthesis.speak(utterance);
     setIsPlaying(true);
-    audioPlayerTTS.onended = () => {
+    // audioPlayerTTS.onended = () => {
+    utterance.onend = () => {
       setIsPlaying(false);
     };
   };
@@ -107,6 +118,11 @@ const TextToSpeech = () => {
     setAudio(null);
     setNewText("");
     words.current = [];
+    if (fileInputTTSRef.current) {
+      fileInputTTSRef.current.value = "";
+    }
+    setFileData({});
+    setOverwriteFile({});
     setShowDeleteModal(false);
   };
 
@@ -181,20 +197,26 @@ const TextToSpeech = () => {
         <div className="tts-buttons-container">
           <audio id="tts-audio-player" src={audio}></audio>
           <div className="tts-controls-container">
-            <button
-              className="play-button"
-              onClick={handlePlayOutput}
-              disabled={!audio || isPlaying}
-            >
-              {!isPlaying && audio ? (
-                <i
-                  className="fa-solid fa-play"
-                  style={{ color: "#8a93e2" }}
-                ></i>
-              ) : (
-                <i className="fa-solid fa-play"></i>
-              )}
-            </button>
+            {!isPlaying ? (
+              <button
+                className="play-button"
+                onClick={handlePlayOutput}
+                disabled={!audio}
+              >
+                {audio ? (
+                  <i
+                    className="fa-solid fa-play"
+                    style={{ color: "#8a93e2" }}
+                  ></i>
+                ) : (
+                  <i className="fa-solid fa-play"></i>
+                )}
+              </button>
+            ) : (
+              <button>
+                <i className="fa-solid fa-pause"></i>
+              </button>
+            )}
             <button onClick={handleShowDelete}>
               <i className="fa-solid fa-delete-left"></i>
             </button>
@@ -204,6 +226,7 @@ const TextToSpeech = () => {
             type="file"
             accept="text/plain"
             onChange={handleTextImport}
+            ref={fileInputTTSRef}
           />
           <TranscribeButton
             isLoading={isLoading}

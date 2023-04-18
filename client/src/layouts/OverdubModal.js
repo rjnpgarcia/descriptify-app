@@ -20,10 +20,6 @@ const OverdubModal = ({ word, show, onHide, audio, setAudio, setChanges }) => {
   };
 
   const handleDeleteWord = async () => {
-    // Removes the word from the transcription
-    // const updatedTranscript = transcript.filter((item) => item !== word);
-    // setTranscriptWithTS(updatedTranscript);
-
     // Finds the audio region with the same timestamps as the word then trim audio
     try {
       const formData = new FormData();
@@ -40,25 +36,6 @@ const OverdubModal = ({ word, show, onHide, audio, setAudio, setChanges }) => {
       if (response.ok) {
         const audioUrl = URL.createObjectURL(audioData);
         setAudio(audioUrl);
-
-        // Remove the word from the transcript and adjust the timestamps of other words
-        // const duration = word.endTime - word.startTime;
-        // const updatedTranscript = transcriptWithTS.present.filter(
-        //   (item, index) => {
-        //     if (item.startTime >= word.endTime) {
-        //       // Adjust the start and end times of this word
-        //       item.startTime -= duration;
-        //       item.endTime -= duration;
-        //     }
-
-        //     return (
-        //       item !== word &&
-        //       (index === 0 ||
-        //         item.startTime !== transcriptWithTS.present[index - 1].endTime)
-        //     );
-        //   }
-        // );
-        // // setTranscriptWithTS(updatedTranscript);
         setChanges(true);
         onHide();
       }

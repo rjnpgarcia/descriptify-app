@@ -73,16 +73,7 @@ const speechToTextController = async (req, res) => {
       // Get transcription by object
       const transcriptObject = await client.getTranscriptObject(job.id);
       console.log(transcriptObject);
-      // Get words with timestamps
-      // const wordsWithTimestamps = transcriptObject.monologues[0].elements.map(
-      //   (element) => {
-      //     return {
-      //       word: element.value,
-      //       startTime: element.ts,
-      //       endTime: element.end_ts,
-      //     };
-      //   }
-      // );
+
       const wordsWithTimestamps = transcriptObject.monologues.flatMap(
         (monologue) => {
           return monologue.elements.map((element) => {
@@ -216,7 +207,7 @@ const trimAudioController = async (req, res) => {
 // Text-to-speech function
 const textToSpeech = async (text, outputFilePath) => {
   return new Promise((resolve, reject) => {
-    say.export(text, null, 0.75, outputFilePath, (err) => {
+    say.export(text, null, 1, outputFilePath, (err) => {
       if (err) {
         reject(new Error(`Error exporting TTS audio ${err.message}`));
       } else {

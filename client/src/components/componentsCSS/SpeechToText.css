@@ -82,6 +82,8 @@
   -moz-border-radius: 5px;
   -ms-border-radius: 5px;
   -o-border-radius: 5px;
+  max-height: 400px;
+  overflow-y: auto;
 }
 
 .stt-text-output {

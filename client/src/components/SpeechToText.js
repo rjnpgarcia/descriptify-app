@@ -34,9 +34,11 @@ const SpeechToText = () => {
   const [isPlaying, setIsPlaying] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const mediaRecorder = useRef(null);
+  const fileInputRef = useRef(null);
   const { setDataDownload } = useDownload();
   const { setLoadingScreen } = useLoading();
-  const { getFile, setSaveFile, setGetFile } = useFile();
+  const { getFile, setSaveFile, setGetFile, setOverwriteFile } = useFile();
+  const [fileData, setFileData] = useState({});
   const [waveform, setWaveform] = useState(null);
   const [highlight, setHighlight] = useState("");
   const [selectedWord, setSelectedWord] = useState("");
@@ -63,17 +65,31 @@ const SpeechToText = () => {
   ] = useUndo("");
 
   useEffect(() => {
+    setOverwriteFile({});
+  }, [setOverwriteFile]);
+
+  useEffect(() => {
     // For full screen loading
     if (changes) {
       setLoadingScreen(true);
       transcribeSTT(audio, setIsLoading, setTranscriptWithTS)
         .then(() => setChanges(false))
         .then(() => setLoadingScreen(false));
+      if (fileData.name && fileData.id) {
+        setOverwriteFile(fileData);
+      }
     } else {
       setLoadingScreen(false);
       setChanges(false);
     }
-  }, [changes, audio, setTranscriptWithTS, setLoadingScreen]);
+  }, [
+    changes,
+    audio,
+    setTranscriptWithTS,
+    setLoadingScreen,
+    fileData,
+    setOverwriteFile,
+  ]);
 
   useEffect(() => {
     // For save file and download files setting
@@ -114,6 +130,7 @@ const SpeechToText = () => {
       };
       setTranscriptWithTS(transcriptOpen);
       getAudio(getFile.name, setAudio, getFile.id, getFile.type);
+      setFileData({ name: getFile.name, id: getFile.id });
       setGetFile({});
     }
   }, [getFile, setTranscriptWithTS, setGetFile, setAudio]);
@@ -152,6 +169,12 @@ const SpeechToText = () => {
     // e.preventDefault();
     setLoadingScreen(true);
     await transcribeSTT(audio, setIsLoading, setTranscriptWithTS);
+    if (fileInputRef.current) {
+      fileInputRef.current.value = "";
+    }
+    if (fileData.name && fileData.id) {
+      setOverwriteFile(fileData);
+    }
     setLoadingScreen(false);
     console.log(audio.present);
     console.log("Transcribing Audio");
@@ -186,6 +209,9 @@ const SpeechToText = () => {
   const handleRemoveAudioText = () => {
     setAudio(null);
     setTranscriptWithTS("");
+    fileInputRef.current.value = "";
+    setFileData({});
+    setOverwriteFile({});
     setShowRemove(false);
     console.log("Removed Audio and Transcript");
   };
@@ -306,6 +332,7 @@ const SpeechToText = () => {
               type="file"
               accept="audio/mp3, audio/wav, audio/aac, audio/x-m4a"
               onChange={handleAudioImport}
+              ref={fileInputRef}
             />
             <TranscribeButton
               isLoading={isLoading}

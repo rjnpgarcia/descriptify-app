@@ -15,7 +15,7 @@ const SaveFileModal = ({ show, onHide }) => {
   const { tokenName } = useAuth();
   const { id } = JSON.parse(Cookies.get(tokenName));
   const [fileName, setFileName] = useState("");
-  const { saveFile } = useFile();
+  const { saveAsFile, saveFile, setOverwriteFile } = useFile();
   const [errorMessage, setErrorMessage] = useState("");
 
   useEffect(() => {
@@ -25,48 +25,8 @@ const SaveFileModal = ({ show, onHide }) => {
 
   const handleSaveFile = async (e) => {
     e.preventDefault();
-    console.log(saveFile);
-    console.log(fileName);
-    try {
-      let transciptData = "";
-      const res = await fetch(saveFile.audio);
-      const audioBlob = await res.blob();
-      console.log(audioBlob);
-      const formData = new FormData();
-      if (saveFile.stt) {
-        transciptData = JSON.stringify(saveFile.transcript);
-        formData.append("stt", saveFile.stt);
-      } else if (saveFile.tts) {
-        transciptData = saveFile.transcript;
-        formData.append("tts", saveFile.tts);
-      }
-      console.log(saveFile.tts);
-      formData.append(
-        "audioFile",
-        audioBlob,
-        `${
-          saveFile.tts ? fileName + "-tts-" + id : fileName + "-stt-" + id
-        }.mp3`
-      );
-      formData.append("name", fileName);
-      formData.append("transcript", transciptData);
-      console.log(id);
-      const response = await fetch(`http://localhost:8000/api/files/${id}`, {
-        method: "POST",
-        body: formData,
-      });
-      const data = await response.json();
-      if (data.success) {
-        console.log(data.success);
-        onHide();
-      } else {
-        console.log(data.error);
-        setErrorMessage(data.error);
-      }
-    } catch (error) {
-      console.log(error);
-      setErrorMessage("Something went wrong. Please try again.");
-    }
+    await saveAsFile(fileName, id, onHide, setErrorMessage);
+    setOverwriteFile({ name: fileName, id });
   };
 
   return (

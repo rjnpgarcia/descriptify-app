@@ -23,6 +23,7 @@ const OpenFileModal = ({ show, onHide }) => {
   useEffect(() => {
     setErrorMessage("");
     setSuccessMessage("");
+    // Get all files of user
     const fetchData = async () => {
       try {
         const response = await fetch(`http://localhost:8000/api/files/${id}`);
@@ -38,6 +39,7 @@ const OpenFileModal = ({ show, onHide }) => {
     fetchData();
   }, [show, id]);
 
+  // To open a file based on its type
   const handleOpenfile = async (fileName, type) => {
     try {
       const response = await fetch(
@@ -67,13 +69,14 @@ const OpenFileModal = ({ show, onHide }) => {
     }
   };
 
+  // To delete a file from user
   const handleDelete = async (fileName, type) => {
+    // Alert user to confirm delete
+    const confirmed = window.confirm("Are you sure you want to delete file?");
+    if (!confirmed) {
+      return;
+    }
     try {
-      // Alert user to confirm delete
-      const confirmed = window.confirm("Are you sure you want to delete file?");
-      if (!confirmed) {
-        return;
-      }
       const response = await fetch(
         `http://localhost:8000/api/files/${id}/${type}/${fileName}`,
         {
@@ -116,12 +119,13 @@ const OpenFileModal = ({ show, onHide }) => {
         ) : (
           <ul>
             {sttFiles.map((file, index) => (
-              <li
-                key={index}
-                className="file-list-item"
-                onClick={() => handleOpenfile(file.name, "stt")}
-              >
-                <span>{file.name}</span>
+              <li key={index} className="file-list-item">
+                <span
+                  className="file-name-span"
+                  onClick={() => handleOpenfile(file.name, "stt")}
+                >
+                  {file.name}
+                </span>
                 <button
                   onClick={() => handleDelete(file.name, "stt")}
                   className="delete-file-button"
@@ -138,12 +142,13 @@ const OpenFileModal = ({ show, onHide }) => {
         ) : (
           <ul>
             {ttsFiles.map((file, index) => (
-              <li
-                key={index}
-                className="file-list-item"
-                onClick={() => handleOpenfile(file.name, "tts")}
-              >
-                <span>{file.name}</span>
+              <li key={index} className="file-list-item">
+                <span
+                  className="file-name-span"
+                  onClick={() => handleOpenfile(file.name, "tts")}
+                >
+                  {file.name}
+                </span>
                 <span>
                   <button
                     onClick={() => handleDelete(file.name, "tts")}

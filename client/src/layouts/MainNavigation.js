@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { NavLink } from "react-router-dom";
 // Bootstrap
 import Nav from "react-bootstrap/Nav";
@@ -19,7 +19,7 @@ const MainNavigation = () => {
   const [active, setActive] = useState("/");
   const [showSaveFile, setShowSaveFile] = useState(false);
   const [showOpenFile, setShowOpenFile] = useState(false);
-  const { saveFile } = useFile();
+  const { saveFile, overwriteFile, saveAsFile } = useFile();
 
   const handleShowSaveFile = () => setShowSaveFile(true);
   const handleCloseSaveFile = () => setShowSaveFile(false);
@@ -33,6 +33,16 @@ const MainNavigation = () => {
       backgroundColor: isActive ? "#252424" : "",
       color: "#f5f5f5",
     };
+  };
+
+  useEffect(() => {
+    console.log(overwriteFile);
+  }, [overwriteFile]);
+
+  const handleOverwriteFile = async () => {
+    const existingFileName = overwriteFile.name;
+    const userId = overwriteFile.id;
+    await saveAsFile(existingFileName, userId);
   };
 
   return (
@@ -57,6 +67,12 @@ const MainNavigation = () => {
               <Dropdown.Menu variant="dark">
                 <Dropdown.Item onClick={handleShowOpenFile}>
                   Open file
+                </Dropdown.Item>
+                <Dropdown.Item
+                  onClick={handleOverwriteFile}
+                  disabled={!overwriteFile.name ? true : ""}
+                >
+                  Save
                 </Dropdown.Item>
                 <Dropdown.Item
                   onClick={handleShowSaveFile}
