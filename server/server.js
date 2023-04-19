@@ -3,6 +3,7 @@ const mongoose = require("mongoose");
 const bodyParser = require("body-parser");
 const cors = require("cors");
 const routes = require("./routes/router.js");
+const path = require("path");
 require("dotenv").config();
 
 // Express
@@ -34,8 +35,10 @@ app.use(cors());
 // Route end points
 routes(app);
 
-app.get("/", (req, res) => {
-  res.send(`Node and express server running on port ${PORT}`);
+const root = require("path").join(__dirname, "../", "client", "build");
+app.use(express.static(root));
+app.get("*", (req, res) => {
+  res.sendFile("index.html", { root });
 });
 
 app.listen(PORT, () => {

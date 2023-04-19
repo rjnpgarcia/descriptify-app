@@ -13,7 +13,7 @@ export const transcribeSTT = async (
     const res = await fetch(audio.present);
     const audioBlob = await res.blob();
     formData.append("audioFile", audioBlob, "audio.mp3");
-    const response = await fetch("http://localhost:8000/api/speechtotext", {
+    const response = await fetch("/api/speechtotext", {
       method: "POST",
       body: formData,
     });
@@ -41,7 +41,7 @@ export const transcribeTTS = async (
     setIsLoading(true);
     words.current = [];
     text.current = newText.present;
-    const response = await fetch("http://localhost:8000/api/texttospeech", {
+    const response = await fetch("/api/texttospeech", {
       method: "POST",
       headers: {
         "Content-type": "text/plain",

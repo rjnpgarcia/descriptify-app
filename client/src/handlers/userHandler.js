@@ -11,7 +11,7 @@ export const registerUser = async (
 ) => {
   try {
     // Send data for registration
-    const response = await fetch("http://localhost:8000/api/register", {
+    const response = await fetch("/api/register", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -45,7 +45,7 @@ export const loginUser = async (
 ) => {
   try {
     // Send data for login
-    const response = await fetch("http://localhost:8000/api/login", {
+    const response = await fetch("/api/login", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -84,7 +84,7 @@ export const updateUser = async (
   setSuccessMessage
 ) => {
   try {
-    const response = await fetch(`http://localhost:8000/api/user/${id}`, {
+    const response = await fetch(`/api/user/${id}`, {
       method: "PUT",
       headers: {
         "Content-Type": "application/json",
@@ -119,7 +119,7 @@ export const deleteUser = async (id, setErrorMessage, tokenName) => {
       return;
     }
     // Send delete endpoint to server
-    const response = await fetch(`http://localhost:8000/api/user/${id}`, {
+    const response = await fetch(`/api/user/${id}`, {
       method: "DELETE",
       headers: {
         "Content-Type": "application/json",

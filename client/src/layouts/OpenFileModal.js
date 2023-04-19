@@ -26,7 +26,7 @@ const OpenFileModal = ({ show, onHide }) => {
     // Get all files of user
     const fetchData = async () => {
       try {
-        const response = await fetch(`http://localhost:8000/api/files/${id}`);
+        const response = await fetch(`/api/files/${id}`);
         const data = await response.json();
         if (data.sttFiles || data.ttsFiles) {
           setSttFiles(data.sttFiles);
@@ -42,12 +42,9 @@ const OpenFileModal = ({ show, onHide }) => {
   // To open a file based on its type
   const handleOpenfile = async (fileName, type) => {
     try {
-      const response = await fetch(
-        `http://localhost:8000/api/files/${id}/${type}/${fileName}`,
-        {
-          method: "GET",
-        }
-      );
+      const response = await fetch(`/api/files/${id}/${type}/${fileName}`, {
+        method: "GET",
+      });
       const data = await response.json();
       const dataGet = {
         id,
@@ -75,12 +72,9 @@ const OpenFileModal = ({ show, onHide }) => {
       return;
     }
     try {
-      const response = await fetch(
-        `http://localhost:8000/api/files/${id}/${type}/${fileName}`,
-        {
-          method: "DELETE",
-        }
-      );
+      const response = await fetch(`/api/files/${id}/${type}/${fileName}`, {
+        method: "DELETE",
+      });
       const data = await response.json();
       if (data.success) {
         if (type === "stt") {

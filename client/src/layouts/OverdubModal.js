@@ -31,7 +31,7 @@ const OverdubModal = ({ word, show, onHide, audio, setAudio, setChanges }) => {
       formData.append("audioFile", audioBlob, "audio.mp3");
       formData.append("startTime", word.startTime);
       formData.append("endTime", word.endTime);
-      const response = await fetch("http://localhost:8000/api/trimaudio", {
+      const response = await fetch("/api/trimaudio", {
         method: "POST",
         body: formData,
       });
@@ -58,7 +58,7 @@ const OverdubModal = ({ word, show, onHide, audio, setAudio, setChanges }) => {
       formData.append("startTime", word.startTime);
       formData.append("endTime", word.endTime);
       formData.append("overdubWord", overdubValue);
-      const response = await fetch("http://localhost:8000/api/overdub", {
+      const response = await fetch("/api/overdub", {
         method: "POST",
         body: formData,
       });

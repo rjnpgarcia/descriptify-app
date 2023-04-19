@@ -49,7 +49,7 @@ const TextToSpeech = () => {
     if (getFile && getFile.name && getFile.id && getFile.type) {
       const getAudio = async (audioFile, setAudio, id, type) => {
         const response = await fetch(
-          `http://localhost:8000/api/getaudio/${id}/${type}/${audioFile}`
+          `/api/getaudio/${id}/${type}/${audioFile}`
         );
         const data = await response.blob();
         if (response.ok) {

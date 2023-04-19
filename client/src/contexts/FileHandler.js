@@ -38,7 +38,7 @@ export const FileHandler = ({ children }) => {
       );
       formData.append("name", fileName);
       formData.append("transcript", transciptData);
-      const response = await fetch(`http://localhost:8000/api/files/${id}`, {
+      const response = await fetch(`/api/files/${id}`, {
         method: "POST",
         body: formData,
       });
