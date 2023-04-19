@@ -3,7 +3,6 @@ import "./handlersCSS/playerHandler.css";
 
 // Play audio
 export const playAudio = (audioPlayer, setIsPlaying) => {
-  console.log("Pressed Play Audio");
   audioPlayer.play();
   setIsPlaying(true);
   audioPlayer.onended = () => {
@@ -13,7 +12,6 @@ export const playAudio = (audioPlayer, setIsPlaying) => {
 
 // Pause audio
 export const pauseAudio = (audioPlayer, isPlaying, setIsPlaying) => {
-  console.log("Paused Audio");
   if (isPlaying) {
     audioPlayer.pause();
     setIsPlaying(false);

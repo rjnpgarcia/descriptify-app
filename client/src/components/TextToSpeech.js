@@ -46,8 +46,6 @@ const TextToSpeech = () => {
   }, [audio, newText.present, setSaveFile, setDataDownload]);
 
   useEffect(() => {
-    console.log(getFile);
-
     if (getFile && getFile.name && getFile.id && getFile.type) {
       const getAudio = async (audioFile, setAudio, id, type) => {
         const response = await fetch(
@@ -101,16 +99,22 @@ const TextToSpeech = () => {
         }, 300);
       }
     });
-
     // Play audio handler
-    console.log("Pressed Play Audio");
-    // audioPlayerTTS.play();
-    window.speechSynthesis.speak(utterance);
+    if (window.speechSynthesis.paused) {
+      window.speechSynthesis.resume();
+    } else {
+      window.speechSynthesis.speak(utterance);
+    }
     setIsPlaying(true);
-    // audioPlayerTTS.onended = () => {
+
     utterance.onend = () => {
       setIsPlaying(false);
     };
+  };
+
+  const handleStop = () => {
+    window.speechSynthesis.cancel();
+    setIsPlaying(false);
   };
 
   // Clear Audio transcription, Output and input text
@@ -154,14 +158,18 @@ const TextToSpeech = () => {
         </Col>
         <Col xs="2">
           <button
-            className="undo-redo-button"
+            className={
+              canUndo ? "undo-redo-button" : "undo-redo-button text-secondary"
+            }
             onClick={handleUndo}
             disabled={!canUndo}
           >
             <i className="fa-sharp fa-solid fa-rotate-left"></i>
           </button>
           <button
-            className="undo-redo-button"
+            className={
+              canRedo ? "undo-redo-button" : "undo-redo-button text-secondary"
+            }
             onClick={handleRedo}
             disabled={!canRedo}
           >
@@ -213,8 +221,8 @@ const TextToSpeech = () => {
                 )}
               </button>
             ) : (
-              <button>
-                <i className="fa-solid fa-pause"></i>
+              <button onClick={handleStop}>
+                <i className="fa-solid fa-stop"></i>
               </button>
             )}
             <button onClick={handleShowDelete}>

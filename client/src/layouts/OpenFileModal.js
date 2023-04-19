@@ -55,7 +55,6 @@ const OpenFileModal = ({ show, onHide }) => {
         name: fileName,
         transcript: data,
       };
-      console.log(data);
       setGetFile(dataGet);
       if (type === "stt") {
         navigate("/speechtotext");
@@ -64,7 +63,6 @@ const OpenFileModal = ({ show, onHide }) => {
       }
       onHide();
     } catch (error) {
-      console.log(error);
       setGetFile({});
     }
   };
@@ -89,7 +87,6 @@ const OpenFileModal = ({ show, onHide }) => {
           setSttFiles(data.updatedUserFiles);
         } else {
           setTtsFiles(data.updatedUserFiles);
-          console.log(data.updatedUserFiles);
         }
         setSuccessMessage(data.success);
       }
@@ -97,7 +94,6 @@ const OpenFileModal = ({ show, onHide }) => {
         setErrorMessage(data.error);
       }
     } catch (error) {
-      console.log(error);
       setErrorMessage("Something went wrong. Please try again");
     }
   };

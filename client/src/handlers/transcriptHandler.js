@@ -12,25 +12,20 @@ export const transcribeSTT = async (
     const formData = new FormData();
     const res = await fetch(audio.present);
     const audioBlob = await res.blob();
-    console.log(audioBlob);
     formData.append("audioFile", audioBlob, "audio.mp3");
     const response = await fetch("http://localhost:8000/api/speechtotext", {
       method: "POST",
       body: formData,
     });
-    console.log(formData);
     const data = await response.json();
-    console.log(data);
     // Transcription received by object
     if (response.ok) {
       const words = data;
       await setTranscriptWithTS(words);
     }
     setIsLoading(false);
-    console.log("Successful! Transcribed Audio");
   } catch (error) {
     setIsLoading(false);
-    console.error(error.message);
   }
 };
 
@@ -46,7 +41,6 @@ export const transcribeTTS = async (
     setIsLoading(true);
     words.current = [];
     text.current = newText.present;
-    console.log(text);
     const response = await fetch("http://localhost:8000/api/texttospeech", {
       method: "POST",
       headers: {
@@ -59,12 +53,10 @@ export const transcribeTTS = async (
     if (response.ok) {
       const audioUrl = URL.createObjectURL(audioBlob);
 
-      console.log(audioBlob);
       setAudio(audioUrl);
     }
     setIsLoading(false);
   } catch (error) {
-    console.log(error);
     setIsLoading(false);
   }
 };

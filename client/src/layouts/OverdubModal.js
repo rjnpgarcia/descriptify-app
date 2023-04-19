@@ -3,9 +3,12 @@ import React, { useEffect, useState } from "react";
 import Button from "react-bootstrap/Button";
 import Modal from "react-bootstrap/Modal";
 import Form from "react-bootstrap/Form";
+import Spinner from "react-bootstrap/Spinner";
 
 const OverdubModal = ({ word, show, onHide, audio, setAudio, setChanges }) => {
   const [overdubValue, setOverdubValue] = useState("");
+  const [isLoadingRemove, setIsLoadingRemove] = useState(false);
+  const [isLoadingOverdub, setIsLoadingOverdub] = useState(false);
 
   useEffect(() => {
     if (word.word) {
@@ -13,15 +16,15 @@ const OverdubModal = ({ word, show, onHide, audio, setAudio, setChanges }) => {
     } else {
       setOverdubValue("");
     }
-  }, [word.word]);
+  }, [word.word, onHide]);
 
   const handleInputChange = (e) => {
     setOverdubValue(e.target.value);
   };
 
   const handleDeleteWord = async () => {
-    // Finds the audio region with the same timestamps as the word then trim audio
     try {
+      setIsLoadingRemove(true);
       const formData = new FormData();
       const res = await fetch(audio.present);
       const audioBlob = await res.blob();
@@ -37,17 +40,17 @@ const OverdubModal = ({ word, show, onHide, audio, setAudio, setChanges }) => {
         const audioUrl = URL.createObjectURL(audioData);
         setAudio(audioUrl);
         setChanges(true);
+        setIsLoadingRemove(false);
         onHide();
       }
     } catch (error) {
-      console.error(error.message);
-      onHide();
+      setIsLoadingRemove(false);
     }
   };
 
   const handleOverdub = async () => {
-    // Finds the audio region with the same timestamps as the word then trim audio
     try {
+      setIsLoadingOverdub(true);
       const formData = new FormData();
       const res = await fetch(audio.present);
       const audioBlob = await res.blob();
@@ -64,10 +67,11 @@ const OverdubModal = ({ word, show, onHide, audio, setAudio, setChanges }) => {
         const audioUrl = URL.createObjectURL(audioData);
         setAudio(audioUrl);
         setChanges(true);
+        setIsLoadingOverdub(false);
         onHide();
       }
     } catch (err) {
-      console.log(err);
+      setIsLoadingOverdub(false);
     }
   };
 
@@ -93,9 +97,31 @@ const OverdubModal = ({ word, show, onHide, audio, setAudio, setChanges }) => {
           Close
         </Button>
         <Button variant="danger" onClick={handleDeleteWord}>
+          {isLoadingRemove ? (
+            <Spinner
+              as="span"
+              animation="border"
+              size="sm"
+              role="status"
+              aria-hidden="true"
+            />
+          ) : (
+            ""
+          )}
           Remove
         </Button>
         <Button variant="primary" onClick={handleOverdub}>
+          {isLoadingOverdub ? (
+            <Spinner
+              as="span"
+              animation="border"
+              size="sm"
+              role="status"
+              aria-hidden="true"
+            />
+          ) : (
+            ""
+          )}
           Overdub
         </Button>
       </Modal.Footer>

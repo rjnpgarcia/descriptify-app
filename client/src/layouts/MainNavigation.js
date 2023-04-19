@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import { NavLink } from "react-router-dom";
 // Bootstrap
 import Nav from "react-bootstrap/Nav";
@@ -34,10 +34,6 @@ const MainNavigation = () => {
       color: "#f5f5f5",
     };
   };
-
-  useEffect(() => {
-    console.log(overwriteFile);
-  }, [overwriteFile]);
 
   const handleOverwriteFile = async () => {
     const existingFileName = overwriteFile.name;

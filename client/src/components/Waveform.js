@@ -69,12 +69,10 @@ const Waveform = ({
         wavesurfer.on(
           "region-click",
           (region) => {
-            console.log(isLoading);
             // pass the corresponding word data to the modal component
             const wordData = transcriptWithTS.present.find(
               (word) => word.startTime === region.start
             );
-            console.log(wordData);
             if (wordData) {
               handleShowOverdub(wordData);
             } else {

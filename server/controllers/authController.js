@@ -50,7 +50,6 @@ const loginController = async (req, res) => {
     // User is authenticated. Return user details
     res.json({ success: token });
   } catch (error) {
-    console.log(error);
     res.json({ error: "Login failed. Server issue." });
   }
 };
@@ -58,7 +57,6 @@ const loginController = async (req, res) => {
 // Register new user
 const registerController = async (req, res) => {
   const { name, email, password } = req.body;
-  console.log(name, email, password);
   try {
     // Check for validation
     const errors = validationResult(req);
@@ -120,7 +118,6 @@ const updateUserController = async (req, res) => {
       user.password = await bcrypt.hash(password, 10);
     }
     await user.save();
-    console.log(user);
 
     const token = {
       id: user._id,
@@ -130,7 +127,6 @@ const updateUserController = async (req, res) => {
 
     res.json({ success: "Profile successfully updated", user: token });
   } catch (error) {
-    console.log(error);
     res.json({ error: "Update failed. Server issue" });
   }
 };
@@ -139,7 +135,6 @@ const updateUserController = async (req, res) => {
 const deleteUserController = async (req, res) => {
   try {
     await User.findByIdAndDelete(req.params.id);
-    console.log(`${req.params.id} user successfully deleted`);
     res.json({ success: "success" });
   } catch {
     res.json({ error: "Delete user failed. Server issue" });

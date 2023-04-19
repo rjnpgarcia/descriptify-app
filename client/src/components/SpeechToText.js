@@ -114,8 +114,6 @@ const SpeechToText = () => {
   }, [audio.present, transcriptWithTS.present, setSaveFile, setDataDownload]);
 
   useEffect(() => {
-    console.log(getFile);
-
     if (getFile && getFile.name && getFile.id && getFile.type) {
       const transcriptOpen = JSON.parse(getFile.transcript);
       const getAudio = async (audioFile, setAudio, id, type) => {
@@ -146,7 +144,6 @@ const SpeechToText = () => {
 
   const handleShowOverdub = useCallback((word) => {
     setSelectedWord(word);
-    console.log(word);
     setShowOverdub(true);
   }, []);
 
@@ -166,7 +163,6 @@ const SpeechToText = () => {
 
   // Handle STT Transcription to server
   const handleTranscribe = async () => {
-    // e.preventDefault();
     setLoadingScreen(true);
     await transcribeSTT(audio, setIsLoading, setTranscriptWithTS);
     if (fileInputRef.current) {
@@ -176,8 +172,6 @@ const SpeechToText = () => {
       setOverwriteFile(fileData);
     }
     setLoadingScreen(false);
-    console.log(audio.present);
-    console.log("Transcribing Audio");
   };
 
   // Handle audio player controls
@@ -202,7 +196,6 @@ const SpeechToText = () => {
   };
   const handlePauseAudio = () => {
     pauseAudio(waveform, isPlaying, setIsPlaying);
-    console.log(highlight);
   };
 
   // Handle Remove/Replace recorded audio
@@ -213,7 +206,6 @@ const SpeechToText = () => {
     setFileData({});
     setOverwriteFile({});
     setShowRemove(false);
-    console.log("Removed Audio and Transcript");
   };
 
   // Audio file import to transcription

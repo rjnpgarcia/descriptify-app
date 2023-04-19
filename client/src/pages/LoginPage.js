@@ -9,6 +9,7 @@ import Row from "react-bootstrap/esm/Row";
 import Form from "react-bootstrap/Form";
 import FloatingLabel from "react-bootstrap/esm/FloatingLabel.js";
 import Spinner from "react-bootstrap/esm/Spinner.js";
+// Handlers
 import { loginUser } from "../handlers/userHandler.js";
 import { useAuth } from "../contexts/AuthHandler.js";
 
@@ -23,7 +24,6 @@ const LoginPage = () => {
   useEffect(() => {
     const userData = Cookies.get(tokenName);
     if (userData) {
-      console.log(userData);
       setIsAuthenticated(true);
       navigate("/");
     }

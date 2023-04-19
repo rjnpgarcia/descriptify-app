@@ -2,7 +2,6 @@ const mimeType = "audio/mpeg";
 
 // Set MediaRecorder API then start recording
 export const startRecording = async (mediaRecorder, setAudioChunks) => {
-  console.log("Start Recording");
   try {
     // To check if MediaRecorder is supported by browser
     if ("MediaRecorder" in window) {
@@ -26,7 +25,7 @@ export const startRecording = async (mediaRecorder, setAudioChunks) => {
       alert("The MediaRecorder API is not supported in your browser");
     }
   } catch (err) {
-    console.error(err.message);
+    alert("Something went wrong with the recording");
   }
 };
 
@@ -41,9 +40,7 @@ export const stopRecording = (
   mediaRecorder.current.onstop = () => {
     const audioBlob = new Blob(audioChunks, { type: mimeType });
     const audioUrl = URL.createObjectURL(audioBlob);
-    console.log(audioUrl);
     setAudio(audioUrl);
     setAudioChunks([]);
-    console.log("Stop Recording");
   };
 };

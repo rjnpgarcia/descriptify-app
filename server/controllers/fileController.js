@@ -27,7 +27,6 @@ const uploadFile = multer({ storage: storage }).single("audioFile");
 // Save file to user
 const saveFileController = async (req, res) => {
   const { id } = req.params;
-  console.log(id);
 
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
@@ -36,13 +35,11 @@ const saveFileController = async (req, res) => {
 
   uploadFile(req, res, async (err) => {
     if (err) {
-      console.log(err);
       return res.json({ error: `Error uploading file. Please try again.` });
     }
 
     try {
       const { path: filePath } = req.file;
-      console.log(filePath);
       const user = await User.findById(id);
       if (!user) {
         return res.json({ error: "User not found. Please login." });
@@ -122,8 +119,6 @@ const getFilesController = async (req, res) => {
 // Delete a saved file
 const deleteFileController = async (req, res) => {
   const { id, type, fileName } = req.params;
-  console.log(id, type);
-  console.log(fileName);
   try {
     const user = await User.findById(id);
     if (!user) {
@@ -135,10 +130,7 @@ const deleteFileController = async (req, res) => {
     if (fileIndex === -1) {
       return res.json({ error: `${fileName} not found` });
     }
-    console.log(fileList);
-    console.log(fileIndex);
     const fileToDelete = fileList[fileIndex];
-    console.log(fileToDelete);
     fs.unlink(fileToDelete.audioFile, (err) => {
       if (err) {
         console.error(err);
@@ -147,7 +139,6 @@ const deleteFileController = async (req, res) => {
       fileList.splice(fileIndex, 1);
       user.save().then(() => {
         const updatedUserFiles = type === "stt" ? user.sttFiles : user.ttsFiles;
-        console.log("Delete file success");
         return res.json({
           success: `File "${fileName}" successfully deleted`,
           updatedUserFiles,
@@ -162,8 +153,6 @@ const deleteFileController = async (req, res) => {
 
 const getOneFileController = async (req, res) => {
   const { id, type, fileName } = req.params;
-  console.log(id, type);
-  console.log(fileName);
   try {
     const user = await User.findById(id);
     if (!user) {
@@ -173,7 +162,6 @@ const getOneFileController = async (req, res) => {
     const fileList = type === "stt" ? user.sttFiles : user.ttsFiles;
 
     const files = fileList.find((file) => file.name === fileName);
-    console.log(files);
 
     res.json(files.transcript);
   } catch (error) {

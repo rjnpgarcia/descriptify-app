@@ -31,7 +31,6 @@ export const registerUser = async (
       setErrorMessage("Something went wrong, Please try again");
     }
   } catch (error) {
-    console.log(error);
     setErrorMessage("Something went wrong. Please try again.");
   }
 };
@@ -58,16 +57,13 @@ export const loginUser = async (
     if (data.error) {
       setErrorMessage(data.error);
     } else if (data.success) {
-      console.log(data.success);
       setIsAuthenticated(true);
-      console.log("logged in");
       Cookies.set(tokenName, JSON.stringify(data.success), { expires: 5 });
       navigate("/");
     } else {
       setErrorMessage("Something went wrong, Please try again");
     }
   } catch (error) {
-    console.log(error);
     setErrorMessage("Something went wrong. Please try again.");
   }
 };
@@ -139,7 +135,6 @@ export const deleteUser = async (id, setErrorMessage, tokenName) => {
       setErrorMessage("Something went wrong. Please try again.");
     }
   } catch (error) {
-    console.log(error);
     setErrorMessage("Something went wrong. Please try again.");
   }
 };

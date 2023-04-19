@@ -6,8 +6,6 @@ const DownloadFile = () => {
   const { dataDownload } = useDownload();
 
   const downloadHandler = () => {
-    console.log(dataDownload.audio);
-    console.log(dataDownload.transcript);
     // Download Transcription and Audio
     if (dataDownload.transcript && dataDownload.audio) {
       const blobTranscript = new Blob([dataDownload.transcript], {
