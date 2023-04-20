@@ -82,7 +82,7 @@ const speechToTextController = async (req, res) => {
       // Delete audio file after transcription
       fs.unlinkSync(filePath);
     } catch (error) {
-      if (filePath) {
+      if (filePath && fs.existsSync(filePath)) {
         fs.unlinkSync(filePath);
       }
       console.error(error);
@@ -178,10 +178,10 @@ const trimAudioController = async (req, res) => {
         });
       });
     } catch (error) {
-      if (filePath) {
+      if (filePath && fs.existsSync(filePath)) {
         fs.unlinkSync(filePath);
       }
-      if (outputFile) {
+      if (outputFile && fs.existsSync(outputFile)) {
         fs.unlinkSync(outputFile);
       }
       console.error(error.message);
