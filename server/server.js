@@ -35,7 +35,7 @@ app.use(cors());
 // Route end points
 routes(app);
 
-const root = path.join(process.cwd(), "../", "client", "build");
+const root = path.join(path.resolve(), "../", "client", "build");
 app.use(express.static(root));
 app.get("*", (req, res) => {
   res.sendFile("index.html", { root });

@@ -16,7 +16,7 @@ const ACCESS_TOKEN = process.env.REVAI_API_KEY;
 const client = new revai.RevAiApiClient(ACCESS_TOKEN);
 
 // Create a directory for storing the uploaded files
-const uploadDirectory = path.join(process.cwd(), "uploads");
+const uploadDirectory = path.join(path.resolve(), "uploads");
 if (!fs.existsSync(uploadDirectory)) {
   fs.mkdirSync(uploadDirectory);
 }
@@ -94,7 +94,7 @@ const speechToTextController = async (req, res) => {
 // Text-to-speech controller
 const textToSpeechController = (req, res) => {
   try {
-    const filePath = path.join(process.cwd(), "uploads/temp/tts.mp3");
+    const filePath = path.join(path.resolve(), "uploads/temp/tts.mp3");
     const text = req.body;
     // Voice is null to automatically set default voice as user's OS
     say.export(text, null, 1, filePath, (err) => {
@@ -160,7 +160,7 @@ const trimAudioController = async (req, res) => {
     const startTime = parseFloat(req.body.startTime);
     const endTime = parseFloat(req.body.endTime);
     const outputFile = path.join(
-      process.cwd(),
+      path.resolve(),
       `uploads/temp/removed_${Date.now()}.mp3`
     );
     // Trim audio file using startTime and endTime values
@@ -197,11 +197,11 @@ const trimAudioController = async (req, res) => {
 // Text-to-speech function
 const textToSpeech = async (text, outputFilePath) => {
   const trimmedOutputFilePath1 = path.join(
-    process.cwd(),
+    path.resolve(),
     "uploads/temp/trimmedtts.mp3"
   );
   const trimmedOutputFilePath2 = path.join(
-    process.cwd(),
+    path.resolve(),
     "uploads/temp/trimmedtts2.mp3"
   );
   return new Promise((resolve, reject) => {
@@ -272,12 +272,12 @@ const overdubController = async (req, res) => {
       return res.status(500).json({ message: "Error uploading file" });
     }
     const { path: filePath } = req.file;
-    const ttsFilePath = path.join(process.cwd(), "uploads/temp/tts-temp.mp3");
-    const part1FilePath = path.join(process.cwd(), "uploads/temp/part1.mp3");
-    const part2FilePath = path.join(process.cwd(), "uploads/temp/part2.mp3");
-    const outputFilePath = path.join(process.cwd(), "uploads/temp/output.mp3");
+    const ttsFilePath = path.join(path.resolve(), "uploads/temp/tts-temp.mp3");
+    const part1FilePath = path.join(path.resolve(), "uploads/temp/part1.mp3");
+    const part2FilePath = path.join(path.resolve(), "uploads/temp/part2.mp3");
+    const outputFilePath = path.join(path.resolve(), "uploads/temp/output.mp3");
     const trimmedFilePath = path.join(
-      process.cwd(),
+      path.resolve(),
       "uploads/temp/trimmed.mp3"
     );
     try {

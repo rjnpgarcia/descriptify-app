@@ -8,7 +8,7 @@ const fs = require("fs");
 const validationFileName = [check("name").trim().isEmpty().escape()];
 
 // Create a directory for storing the uploaded files
-const uploadDirectory = path.join(process.cwd(), "uploads/saveFiles");
+const uploadDirectory = path.join(path.resolve(), "uploads/saveFiles");
 if (!fs.existsSync(uploadDirectory)) {
   fs.mkdirSync(uploadDirectory);
 }
@@ -174,7 +174,7 @@ const getAudioController = async (req, res) => {
   const { id, type, audio } = req.params;
   try {
     const audioPath = path.join(
-      process.cwd(),
+      path.resolve(),
       `uploads/saveFiles/${audio + "-" + type + "-" + id}.mp3`
     );
     res.sendFile(audioPath);
