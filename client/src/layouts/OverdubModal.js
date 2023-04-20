@@ -42,6 +42,9 @@ const OverdubModal = ({ word, show, onHide, audio, setAudio, setChanges }) => {
         setChanges(true);
         setIsLoadingRemove(false);
         onHide();
+      } else {
+        setIsLoadingRemove(false);
+        onHide();
       }
     } catch (error) {
       setIsLoadingRemove(false);
