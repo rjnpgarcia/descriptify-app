@@ -1,9 +1,9 @@
 const revai = require("revai-node-sdk");
-const ffmpegPath = require("@ffmpeg-installer/ffmpeg").path;
-const ffprobePath = require("@ffprobe-installer/ffprobe").path;
-const ffmpeg = require("fluent-ffmpeg");
-ffmpeg.setFfmpegPath(ffmpegPath);
-ffmpeg.setFfprobePath(ffprobePath);
+// const ffmpegPath = require("@ffmpeg-installer/ffmpeg").path;
+// const ffprobePath = require("@ffprobe-installer/ffprobe").path;
+// const ffmpeg = require("fluent-ffmpeg");
+// ffmpeg.setFfmpegPath(ffmpegPath);
+// ffmpeg.setFfprobePath(ffprobePath);
 const { spawn } = require("child_process");
 const say = require("say");
 const multer = require("multer");
@@ -121,21 +121,24 @@ const textToSpeechController = (req, res) => {
 const trimAudio = (inputFilePath, startTime, endTime, outputFile) => {
   return new Promise((resolve, reject) => {
     // Create a command line to trim the audio and output to temporary file
-    const ffmpegCommand = ffmpeg(inputFilePath)
-      .audioFilter(
-        `aselect='not(between(t,${startTime},${
-          endTime !== null ? endTime : ""
-        }))',asetpts=N/SR/TB`
-      )
-      .output(outputFile)
-      .on("end", () => {
-        resolve();
-      })
-      .on("error", (err) => {
-        reject(new Error(`ffmpeg error: ${err.message}`));
-      });
-
-    const ffmpegProcess = spawn("ffmpeg", ffmpegCommand._getArguments());
+    // const ffmpegCommand = ffmpeg(inputFilePath)
+    //   .audioFilter(
+    //     `aselect='not(between(t,${startTime},${
+    //       endTime !== null ? endTime : ""
+    //     }))',asetpts=N/SR/TB`
+    //   )
+    //   .output(outputFile)
+    //   .on("end", () => {
+    //     resolve();
+    //   })
+    //   .on("error", (err) => {
+    //     reject(new Error(`ffmpeg error: ${err.message}`));
+    //   });
+    const ffmpegCommand = `ffmpeg -i ${inputFilePath} -af "aselect='not(between(t,${startTime},${
+      endTime !== null ? endTime : ""
+    }))',asetpts=N/SR/TB" ${outputFile}`;
+    const ffmpegProcess = spawn(ffmpegCommand, { shell: true });
+    // const ffmpegProcess = spawn(ffmpegPath, ffmpegCommand._getArguments());
 
     ffmpegProcess.on("close", (code) => {
       if (code !== 0) {
@@ -229,7 +232,7 @@ const textToSpeech = async (text, outputFilePath) => {
 // Get duration of audio
 const getAudioDuration = async (filePath) => {
   return new Promise((resolve, reject) => {
-    const ffprobeProcess = spawn(ffprobePath, [
+    const ffprobeProcess = spawn("ffprobe", [
       "-i",
       filePath,
       "-show_entries",
@@ -300,7 +303,7 @@ const overdubController = async (req, res) => {
 
       // Merge the audio files
       await new Promise((resolve, reject) => {
-        const concatProcess = spawn(ffmpegPath, [
+        const concatProcess = spawn("ffmpeg", [
           "-i",
           part1FilePath,
           "-i",
