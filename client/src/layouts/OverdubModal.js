@@ -45,6 +45,7 @@ const OverdubModal = ({ word, show, onHide, audio, setAudio, setChanges }) => {
       }
     } catch (error) {
       setIsLoadingRemove(false);
+      onHide();
     }
   };
 
@@ -69,9 +70,13 @@ const OverdubModal = ({ word, show, onHide, audio, setAudio, setChanges }) => {
         setChanges(true);
         setIsLoadingOverdub(false);
         onHide();
+      } else {
+        setIsLoadingOverdub(false);
+        onHide();
       }
     } catch (err) {
       setIsLoadingOverdub(false);
+      onHide();
     }
   };
 
