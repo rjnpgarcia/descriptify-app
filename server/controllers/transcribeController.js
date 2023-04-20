@@ -156,12 +156,12 @@ const trimAudioController = async (req, res) => {
     // const { startTime, endTime } = req.query;
     const startTime = parseFloat(req.body.startTime);
     const endTime = parseFloat(req.body.endTime);
+    const outputFile = path.join(
+      __dirname,
+      `../uploads/temp/removed_${Date.now()}.mp3`
+    );
     // Trim audio file using startTime and endTime values
     try {
-      const outputFile = path.join(
-        __dirname,
-        `../uploads/temp/removed_${Date.now()}.mp3`
-      );
       await trimAudio(filePath, startTime, endTime, outputFile);
 
       res.set({
@@ -411,6 +411,7 @@ const overdubController = async (req, res) => {
           }
         });
       }
+      console.error(err);
       res.status(500).send(`Error overdubbing audio`);
     }
   });
