@@ -137,6 +137,11 @@ const trimAudio = (inputFilePath, startTime, endTime, outputFile) => {
     const ffmpegProcess = spawn(ffmpegCommand, { shell: true });
     // const ffmpegProcess = spawn(ffmpegPath, ffmpegCommand._getArguments());
 
+    ffmpegProcess.on("error", (error) => {
+      console.error(`Error starting ffmpeg: ${error.message}`);
+      reject(error);
+    });
+
     ffmpegProcess.on("close", (code) => {
       if (code !== 0) {
         reject(new Error(`ffmpeg exited with code ${code}`));
