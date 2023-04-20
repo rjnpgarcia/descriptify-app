@@ -4,11 +4,13 @@ const User = require("../models/userModel");
 const path = require("path");
 const fs = require("fs");
 
+const SERVER_PATH = process.env.SERVER_PATH;
+
 // Sanitize request
 const validationFileName = [check("name").trim().isEmpty().escape()];
 
 // Create a directory for storing the uploaded files
-const uploadDirectory = path.join(path.resolve(), "uploads/saveFiles");
+const uploadDirectory = path.join(SERVER_PATH, "uploads/saveFiles");
 if (!fs.existsSync(uploadDirectory)) {
   fs.mkdirSync(uploadDirectory);
 }
@@ -174,7 +176,7 @@ const getAudioController = async (req, res) => {
   const { id, type, audio } = req.params;
   try {
     const audioPath = path.join(
-      path.resolve(),
+      SERVER_PATH,
       `uploads/saveFiles/${audio + "-" + type + "-" + id}.mp3`
     );
     res.sendFile(audioPath);
