@@ -11,6 +11,7 @@ const validationFileName = [check("name").trim().isEmpty().escape()];
 
 // Create a directory for storing the uploaded files
 const uploadDirectory = path.join(SERVER_PATH, "uploads/saveFiles");
+console.log(uploadDirectory);
 if (!fs.existsSync(uploadDirectory)) {
   fs.mkdirSync(uploadDirectory);
 }
