@@ -181,8 +181,8 @@ const trimAudioController = async (req, res) => {
       if (filePath) {
         fs.unlinkSync(filePath);
       }
-      if (outputPath) {
-        fs.unlinkSync(outputPath);
+      if (outputFile) {
+        fs.unlinkSync(outputFile);
       }
       console.error(error.message);
       res.status(500).json({ message: "Error trimming audio file" });
