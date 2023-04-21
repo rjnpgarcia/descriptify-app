@@ -135,6 +135,7 @@ const trimAudio = (inputFilePath, startTime, endTime, outputFile) => {
     const ffmpegCommand = `ffmpeg -i ${inputFilePath} -af "aselect='not(between(t,${startTime},${
       endTime !== null ? endTime : ""
     }))',asetpts=N/SR/TB" ${outputFile}`;
+    console.log(ffmpegCommand);
     const ffmpegProcess = spawn(ffmpegCommand, { shell: true });
     // const ffmpegProcess = spawn(ffmpegPath, ffmpegCommand._getArguments());
 
@@ -143,11 +144,8 @@ const trimAudio = (inputFilePath, startTime, endTime, outputFile) => {
       reject(error);
     });
 
-    ffmpegProcess.on("close", (err, code) => {
+    ffmpegProcess.on("close", (code) => {
       if (code !== 0) {
-        if (err) {
-          console.error(err);
-        }
         reject(new Error(`ffmpeg exited with code ${code}`));
       } else {
         resolve();
