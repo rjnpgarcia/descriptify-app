@@ -126,21 +126,6 @@ const textToSpeechController = async (req, res) => {
         });
       });
     });
-
-    // say.export(text, null, 1, filePath, (err) => {
-    //   if (err) {
-    //     return console.error(err);
-    //   }
-    //   res.set({
-    //     "Content-Type": "audio/mpeg",
-    //   });
-    //   res.sendFile(filePath, () => {
-    //     fs.unlink(filePath, (err) => {
-    //       if (err)
-    //         console.error(`Error deleting temporary file ${filePath}: ${err}`);
-    //     });
-    //   });
-    // });
   } catch (error) {
     console.error(error);
   }
@@ -151,27 +136,10 @@ const textToSpeechController = async (req, res) => {
 const trimAudio = (inputFilePath, startTime, endTime, outputFile) => {
   return new Promise((resolve, reject) => {
     // Create a command line to trim the audio and output to temporary file
-    // const ffmpegCommand = ffmpeg(inputFilePath)
-    //   .audioFilter(
-    //     `aselect='not(between(t,${startTime},${
-    //       endTime !== null ? endTime : ""
-    //     }))',asetpts=N/SR/TB`
-    //   )
-    //   .output(outputFile)
-    //   .on("end", () => {
-    //     resolve();
-    //   })
-    //   .on("error", (err) => {
-    //     reject(new Error(`ffmpeg error: ${err.message}`));
-    //   });
-    // console.log(inputFilePath, startTime, endTime, outputFile);
     const ffmpegCommand = `ffmpeg -i ${inputFilePath} -af "aselect='not(between(t,${startTime},${
       endTime !== null ? endTime : ""
     }))',asetpts=N/SR/TB" ${outputFile}`;
-    // console.log(ffmpegCommand);
     const ffmpegProcess = spawn(ffmpegCommand, { shell: true });
-    // const ffmpegProcess = spawn(ffmpegPath, ffmpegCommand._getArguments());
-
     ffmpegProcess.on("error", (error) => {
       console.error(`Error starting ffmpeg: ${error.message}`);
       reject(error);
@@ -233,37 +201,6 @@ const trimAudioController = async (req, res) => {
 ///// Trim audio controller for overdub
 // Text-to-speech function
 const textToSpeech = async (text, outputFilePath) => {
-  // const trimmedOutputFilePath1 = path.join(
-  //   SERVER_PATH,
-  //   "uploads/temp/trimmedtts.mp3"
-  // );
-  // const trimmedOutputFilePath2 = path.join(
-  //   SERVER_PATH,
-  //   "uploads/temp/trimmedtts2.mp3"
-  // );
-  // return new Promise((resolve, reject) => {
-  //   // Export the TTS
-  //   say.export(text, null, 1, outputFilePath, async (err) => {
-  //     if (err) {
-  //       reject(new Error(`Error exporting TTS audio ${err.message}`));
-  //     } else {
-  //       const duration = await getAudioDuration(outputFilePath);
-  //       const start = 0.08;
-  //       const endTime = 0.5;
-  //       await trimAudio(outputFilePath, 0, start, trimmedOutputFilePath1);
-  //       await trimAudio(
-  //         trimmedOutputFilePath1,
-  //         duration - endTime,
-  //         duration,
-  //         trimmedOutputFilePath2
-  //       );
-  //       fs.unlinkSync(outputFilePath);
-  //       fs.unlinkSync(trimmedOutputFilePath1);
-  //       fs.renameSync(trimmedOutputFilePath2, outputFilePath);
-  //       resolve();
-  //     }
-  //   });
-  // });
   // Using AWS Polly
   const params = {
     Text: text,
@@ -399,20 +336,18 @@ const overdubController = async (req, res) => {
       );
 
       // Trim the audio file to remove the part containing the word that will be replaced
-
       await trimAudio(filePath, startTime, endTime, trimmedFilePath);
 
       // Convert the overdub word to an audio file using the TTS
       await textToSpeech(overdubWord, ttsFilePath);
+
       // Split the trimmed audio file into two parts
       const part1Duration = startTime;
-
       await trimAudio(trimmedFilePath, 0, part1Duration, part2FilePath);
       console.log(part1Duration);
       const part2Duration = await getAudioDuration(trimmedFilePath).then(
         (duration) => duration - endTime
       );
-      console.log(part2Duration);
       await trimAudio(
         trimmedFilePath,
         startTime,

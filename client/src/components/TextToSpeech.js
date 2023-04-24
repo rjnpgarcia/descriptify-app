@@ -156,12 +156,12 @@ const TextToSpeech = () => {
   return (
     <Container>
       <Row>
-        <Col xs="5" className="align-self-center">
+        <Col xs="6" md="5" className="align-self-center">
           <h3 className="feature-title">
             <i className="fa-solid fa-feather-pointed"></i> Text to Speech
           </h3>
         </Col>
-        <Col xs="2">
+        <Col xs="6" md="2">
           <button
             className={
               canUndo ? "undo-redo-button" : "undo-redo-button text-secondary"
@@ -183,7 +183,7 @@ const TextToSpeech = () => {
         </Col>
       </Row>
       <Row className="justify-content-center mt-1">
-        <Col xs="6">
+        <Col xs="12" md="6">
           <textarea
             className="tts-textarea"
             rows="13"
@@ -193,7 +193,7 @@ const TextToSpeech = () => {
             onChange={(e) => setNewText(e.target.value)}
           />
         </Col>
-        <Col xs="6">
+        <Col xs="12" md="6">
           <div className="tts-output">
             <p className="tts-text-output">
               {words.current.map((word, index) => (

@@ -38,9 +38,9 @@
 /* End of Input file for import */
 
 /* Responsive */
-@media screen and (max-width: 842px) {
+@media screen and (max-width: 860px) {
   .main-container {
-    height: 850px;
+    height: 1000px;
   }
 }
 /* End of Main containers for Pages */

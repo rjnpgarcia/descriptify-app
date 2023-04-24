@@ -1,4 +1,5 @@
 const bcrypt = require("bcrypt");
+const fs = require("fs");
 // Schema Model
 const User = require("../models/userModel");
 // Validator
@@ -134,6 +135,24 @@ const updateUserController = async (req, res) => {
 // Delete user
 const deleteUserController = async (req, res) => {
   try {
+    const user = await User.findById(req.params.id);
+    const userData = user.toJSON();
+
+    // Delete user's files in uploads/saveFiles folder
+    userData.sttFiles.forEach((file) => {
+      const filePath = `uploads/saveFiles/${file.name}-stt-${userData._id}.mp3`;
+      if (filePath && fs.existsSync(filePath)) {
+        fs.unlinkSync(filePath);
+      }
+    });
+    userData.ttsFiles.forEach((file) => {
+      const filePath = `uploads/saveFiles/${file.name}-tts-${userData._id}.mp3`;
+      if (filePath && fs.existsSync(filePath)) {
+        fs.unlinkSync(filePath);
+      }
+    });
+
+    // Delete user from database
     await User.findByIdAndDelete(req.params.id);
     res.json({ success: "success" });
   } catch {

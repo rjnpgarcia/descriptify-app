@@ -136,4 +136,19 @@
 }
 /* End of TTS Output area */
 
+/* Responsive */
+@media screen and (max-width: 767px) {
+  .tts-output {
+    margin-top: 10px;
+    max-height: 270px;
+    overflow-y: auto;
+    height: 270px;
+  }
+  .tts-textarea {
+    max-height: 270px;
+    overflow-y: auto;
+    height: 270px;
+  }
+}
+
 /**** End of Text-to-Speech Control Buttons ****/

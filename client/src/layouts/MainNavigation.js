@@ -45,7 +45,7 @@ const MainNavigation = () => {
     <>
       <Container className="main-navigation-container">
         <Row className="align-items-center">
-          <Col>
+          <Col xs="4" sm>
             <Dropdown>
               <Dropdown.Toggle
                 id="dropdown-button-dark-example1"
@@ -83,7 +83,7 @@ const MainNavigation = () => {
               </Dropdown.Menu>
             </Dropdown>
           </Col>
-          <Col sm="6">
+          <Col xs="4" sm="6">
             <Nav
               className="main-navigation justify-content-center"
               variant="tabs"
@@ -111,7 +111,7 @@ const MainNavigation = () => {
               </Nav.Item>
             </Nav>
           </Col>
-          <Col>
+          <Col xs="4" sm>
             <DownloadFile />
           </Col>
         </Row>
