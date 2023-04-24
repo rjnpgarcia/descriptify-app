@@ -79,12 +79,14 @@ const TextToSpeech = () => {
   };
 
   // Handle audio player controls and output
+  const audioPlayer = document.querySelector("#tts-audio-player");
   const handlePlayOutput = () => {
     // Split the text into an array of words
     words.current = text.current.split(" ");
 
     const utterance = new SpeechSynthesisUtterance(text.current);
-    utterance.rate = 1;
+    utterance.rate = 1.2;
+    utterance.volume = 0;
 
     let currentWordIndex = 0;
     utterance.addEventListener("boundary", (e) => {
@@ -102,8 +104,10 @@ const TextToSpeech = () => {
     // Play audio handler
     if (window.speechSynthesis.paused) {
       window.speechSynthesis.resume();
+      audioPlayer.play();
     } else {
       window.speechSynthesis.speak(utterance);
+      audioPlayer.play();
     }
     setIsPlaying(true);
 
@@ -114,6 +118,7 @@ const TextToSpeech = () => {
 
   const handleStop = () => {
     window.speechSynthesis.cancel();
+    audioPlayer.stop();
     setIsPlaying(false);
   };
 

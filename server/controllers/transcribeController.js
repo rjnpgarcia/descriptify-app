@@ -1,9 +1,10 @@
 const revai = require("revai-node-sdk");
+const AWS = require("aws-sdk");
 const { spawn } = require("child_process");
-const say = require("say");
 const multer = require("multer");
 const fs = require("fs");
 const path = require("path");
+const stream = require("stream");
 require("dotenv").config();
 
 const SERVER_PATH = process.env.SERVER_PATH;
@@ -11,6 +12,11 @@ const SERVER_PATH = process.env.SERVER_PATH;
 // REV AI Config
 const ACCESS_TOKEN = process.env.REVAI_API_KEY;
 const client = new revai.RevAiApiClient(ACCESS_TOKEN);
+
+// AWS Config
+const polly = new AWS.Polly({
+  region: "ap-southeast-1",
+});
 
 // Create a directory for storing the uploaded files
 const uploadDirectory = path.join(SERVER_PATH, "uploads");
@@ -89,25 +95,52 @@ const speechToTextController = async (req, res) => {
 };
 
 // Text-to-speech controller
-const textToSpeechController = (req, res) => {
+const textToSpeechController = async (req, res) => {
   try {
     const filePath = path.join(SERVER_PATH, "uploads/temp/tts.mp3");
     const text = req.body;
     // Voice is null to automatically set default voice as user's OS
-    say.export(text, null, 1, filePath, (err) => {
-      if (err) {
-        return console.error(err);
-      }
+    // Using AWS Polly
+    const params = {
+      Text: text,
+      OutputFormat: "mp3",
+      VoiceId: "Joey",
+    };
+
+    // Synthesize speech with Polly
+    const { AudioStream } = await polly.synthesizeSpeech(params).promise();
+
+    // Save audio file to path
+    const audioReadableStream = stream.Readable.from(AudioStream);
+    const fileStream = fs.createWriteStream(filePath);
+    audioReadableStream.pipe(fileStream);
+    fileStream.on("close", () => {
       res.set({
         "Content-Type": "audio/mpeg",
       });
       res.sendFile(filePath, () => {
         fs.unlink(filePath, (err) => {
-          if (err)
+          if (err) {
             console.error(`Error deleting temporary file ${filePath}: ${err}`);
+          }
         });
       });
     });
+
+    // say.export(text, null, 1, filePath, (err) => {
+    //   if (err) {
+    //     return console.error(err);
+    //   }
+    //   res.set({
+    //     "Content-Type": "audio/mpeg",
+    //   });
+    //   res.sendFile(filePath, () => {
+    //     fs.unlink(filePath, (err) => {
+    //       if (err)
+    //         console.error(`Error deleting temporary file ${filePath}: ${err}`);
+    //     });
+    //   });
+    // });
   } catch (error) {
     console.error(error);
   }
@@ -131,11 +164,11 @@ const trimAudio = (inputFilePath, startTime, endTime, outputFile) => {
     //   .on("error", (err) => {
     //     reject(new Error(`ffmpeg error: ${err.message}`));
     //   });
-    console.log(inputFilePath, startTime, endTime, outputFile);
+    // console.log(inputFilePath, startTime, endTime, outputFile);
     const ffmpegCommand = `ffmpeg -i ${inputFilePath} -af "aselect='not(between(t,${startTime},${
       endTime !== null ? endTime : ""
     }))',asetpts=N/SR/TB" ${outputFile}`;
-    console.log(ffmpegCommand);
+    // console.log(ffmpegCommand);
     const ffmpegProcess = spawn(ffmpegCommand, { shell: true });
     // const ffmpegProcess = spawn(ffmpegPath, ffmpegCommand._getArguments());
 
@@ -200,35 +233,57 @@ const trimAudioController = async (req, res) => {
 ///// Trim audio controller for overdub
 // Text-to-speech function
 const textToSpeech = async (text, outputFilePath) => {
-  const trimmedOutputFilePath1 = path.join(
-    SERVER_PATH,
-    "uploads/temp/trimmedtts.mp3"
-  );
-  const trimmedOutputFilePath2 = path.join(
-    SERVER_PATH,
-    "uploads/temp/trimmedtts2.mp3"
-  );
+  // const trimmedOutputFilePath1 = path.join(
+  //   SERVER_PATH,
+  //   "uploads/temp/trimmedtts.mp3"
+  // );
+  // const trimmedOutputFilePath2 = path.join(
+  //   SERVER_PATH,
+  //   "uploads/temp/trimmedtts2.mp3"
+  // );
+  // return new Promise((resolve, reject) => {
+  //   // Export the TTS
+  //   say.export(text, null, 1, outputFilePath, async (err) => {
+  //     if (err) {
+  //       reject(new Error(`Error exporting TTS audio ${err.message}`));
+  //     } else {
+  //       const duration = await getAudioDuration(outputFilePath);
+  //       const start = 0.08;
+  //       const endTime = 0.5;
+  //       await trimAudio(outputFilePath, 0, start, trimmedOutputFilePath1);
+  //       await trimAudio(
+  //         trimmedOutputFilePath1,
+  //         duration - endTime,
+  //         duration,
+  //         trimmedOutputFilePath2
+  //       );
+  //       fs.unlinkSync(outputFilePath);
+  //       fs.unlinkSync(trimmedOutputFilePath1);
+  //       fs.renameSync(trimmedOutputFilePath2, outputFilePath);
+  //       resolve();
+  //     }
+  //   });
+  // });
+  // Using AWS Polly
+  const params = {
+    Text: text,
+    OutputFormat: "mp3",
+    VoiceId: "Joey",
+  };
+  console.log(params);
+  // Synthesize speech with Polly
+  const { AudioStream } = await polly.synthesizeSpeech(params).promise();
+
+  // Save audio file to path
   return new Promise((resolve, reject) => {
-    // Export the TTS
-    say.export(text, null, 1, outputFilePath, async (err) => {
+    const audioReadableStream = stream.Readable.from(AudioStream);
+    const fileStream = fs.createWriteStream(outputFilePath);
+    audioReadableStream.pipe(fileStream);
+    fileStream.on("close", (err) => {
       if (err) {
         reject(new Error(`Error exporting TTS audio ${err.message}`));
-      } else {
-        const duration = await getAudioDuration(outputFilePath);
-        const start = 0.08;
-        const endTime = 0.5;
-        await trimAudio(outputFilePath, 0, start, trimmedOutputFilePath1);
-        await trimAudio(
-          trimmedOutputFilePath1,
-          duration - endTime,
-          duration,
-          trimmedOutputFilePath2
-        );
-        fs.unlinkSync(outputFilePath);
-        fs.unlinkSync(trimmedOutputFilePath1);
-        fs.renameSync(trimmedOutputFilePath2, outputFilePath);
-        resolve();
       }
+      resolve();
     });
   });
 };
@@ -236,37 +291,85 @@ const textToSpeech = async (text, outputFilePath) => {
 // Get duration of audio
 const getAudioDuration = async (filePath) => {
   return new Promise((resolve, reject) => {
-    const ffprobeProcess = spawn("ffprobe", [
-      "-i",
-      filePath,
-      "-show_entries",
-      "format=duration",
-      "-v",
-      "quiet",
-      "-of",
-      "csv=p=0",
-    ]);
+    try {
+      const ffprobeProcess = spawn("ffprobe", [
+        "-i",
+        filePath,
+        "-show_entries",
+        "format=duration",
+        "-v",
+        "quiet",
+        "-of",
+        "csv=p=0",
+      ]);
 
-    let duration = "";
+      let duration = "";
 
-    ffprobeProcess.stdout.on("data", (data) => {
-      duration += data.toString();
-    });
+      ffprobeProcess.stdout.on("data", (data) => {
+        duration += data.toString();
+      });
 
-    ffprobeProcess.stderr.on("data", (data) => {
-      console.error(data.toString());
-      reject(new Error("Error getting audio duration"));
-    });
+      ffprobeProcess.stderr.on("data", (data) => {
+        console.error(data.toString());
+        reject(new Error("Error getting audio duration"));
+      });
 
-    ffprobeProcess.on("close", (code) => {
-      if (code === 0) {
-        duration = duration.trim();
-        resolve(parseFloat(duration));
-      } else {
-        reject(new Error(`ffprobe exited with code ${code}`));
+      ffprobeProcess.on("close", (code) => {
+        if (code === 0) {
+          duration = duration.trim();
+          resolve(parseFloat(duration));
+        } else {
+          reject(new Error(`ffprobe exited with code ${code}`));
+        }
+      });
+    } catch (err) {
+      console.error(err);
+    }
+  });
+};
+
+const cleanTemp = (
+  trimmedFilePath,
+  part1FilePath,
+  part2FilePath,
+  outputFilePath,
+  ttsFilePath
+) => {
+  if (trimmedFilePath && fs.existsSync(trimmedFilePath)) {
+    fs.unlink(trimmedFilePath, (err) => {
+      if (err) {
+        console.error(`Error deleting temporary files: ${err}`);
       }
     });
-  });
+  }
+  if (part1FilePath && fs.existsSync(part1FilePath)) {
+    fs.unlink(part1FilePath, (err) => {
+      if (err) {
+        console.error(`Error deleting temporary files: ${err}`);
+      }
+    });
+  }
+  if (part2FilePath && fs.existsSync(part2FilePath)) {
+    fs.unlink(part2FilePath, (err) => {
+      if (err) {
+        console.error(`Error deleting temporary files: ${err}`);
+      }
+    });
+  }
+  if (outputFilePath && fs.existsSync(outputFilePath)) {
+    fs.unlink(outputFilePath, (err) => {
+      if (err) {
+        console.error(`Error deleting temporary files: ${err}`);
+      }
+    });
+  }
+  if (ttsFilePath && fs.existsSync(ttsFilePath)) {
+    fs.unlink(ttsFilePath, (err) => {
+      if (err) {
+        console.error(`Error deleting temporary files: ${err}`);
+      }
+    });
+  }
 };
 
 // Overdub Controller
@@ -286,18 +389,30 @@ const overdubController = async (req, res) => {
       const endTime = parseFloat(req.body.endTime);
       const overdubWord = req.body.overdubWord;
 
+      // Clean temp folder
+      cleanTemp(
+        trimmedFilePath,
+        part1FilePath,
+        part2FilePath,
+        outputFilePath,
+        trimmedFilePath
+      );
+
       // Trim the audio file to remove the part containing the word that will be replaced
+
       await trimAudio(filePath, startTime, endTime, trimmedFilePath);
 
       // Convert the overdub word to an audio file using the TTS
       await textToSpeech(overdubWord, ttsFilePath);
       // Split the trimmed audio file into two parts
       const part1Duration = startTime;
-      await trimAudio(trimmedFilePath, 0, part1Duration, part2FilePath);
 
+      await trimAudio(trimmedFilePath, 0, part1Duration, part2FilePath);
+      console.log(part1Duration);
       const part2Duration = await getAudioDuration(trimmedFilePath).then(
         (duration) => duration - endTime
       );
+      console.log(part2Duration);
       await trimAudio(
         trimmedFilePath,
         startTime,
@@ -383,41 +498,13 @@ const overdubController = async (req, res) => {
           }
         });
       }
-      if (trimmedFilePath && fs.existsSync(trimmedFilePath)) {
-        fs.unlink(trimmedFilePath, (err) => {
-          if (err) {
-            console.error(`Error deleting temporary files: ${err}`);
-          }
-        });
-      }
-      if (ttsFilePath && fs.existsSync(ttsFilePath)) {
-        fs.unlink(ttsFilePath, (err) => {
-          if (err) {
-            console.error(`Error deleting temporary files: ${err}`);
-          }
-        });
-      }
-      if (part1FilePath && fs.existsSync(part1FilePath)) {
-        fs.unlink(part1FilePath, (err) => {
-          if (err) {
-            console.error(`Error deleting temporary files: ${err}`);
-          }
-        });
-      }
-      if (part2FilePath && fs.existsSync(part2FilePath)) {
-        fs.unlink(part2FilePath, (err) => {
-          if (err) {
-            console.error(`Error deleting temporary files: ${err}`);
-          }
-        });
-      }
-      if (outputFilePath && fs.existsSync(outputFilePath)) {
-        fs.unlink(outputFilePath, (err) => {
-          if (err) {
-            console.error(`Error deleting temporary files: ${err}`);
-          }
-        });
-      }
+      cleanTemp(
+        trimmedFilePath,
+        part1FilePath,
+        part2FilePath,
+        outputFilePath,
+        trimmedFilePath
+      );
       console.error(err);
       res.status(500).send(`Error overdubbing audio`);
     }

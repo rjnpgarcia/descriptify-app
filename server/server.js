@@ -1,7 +1,7 @@
 const express = require("express");
 const mongoose = require("mongoose");
 const bodyParser = require("body-parser");
-const cors = require("cors");
+// const cors = require("cors");
 const routes = require("./routes/router.js");
 const path = require("path");
 require("dotenv").config();
@@ -30,7 +30,7 @@ mongoose
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 app.use(bodyParser.text());
-app.use(cors());
+// app.use(cors());
 
 // Route end points
 routes(app);
