@@ -186,6 +186,24 @@ const getAudioController = async (req, res) => {
   }
 };
 
+const downloadDocsController = async (req, res) => {
+  const docsPath = path.join(SERVER_PATH, "docs/DescriptifyAppDocs.pdf");
+  if (fs.existsSync(docsPath)) {
+    const stat = fs.statSync(docsPath);
+    res.setHeader("Content-length", stat.size);
+    res.setHeader("Content-Type", "application/pdf");
+    res.setHeader(
+      "Content-Disposition",
+      "attachment; filename=DescriptifyAppDocs.pdf"
+    );
+
+    const fileStream = fs.createReadStream(docsPath);
+    fileStream.pipe(res);
+  } else {
+    res.status(404).send("File not found");
+  }
+};
+
 module.exports = {
   getAudioController,
   getOneFileController,
@@ -193,4 +211,5 @@ module.exports = {
   getFilesController,
   saveFileController,
   validationFileName,
+  downloadDocsController,
 };

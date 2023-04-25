@@ -9,6 +9,7 @@ import LogoutModal from "./LogoutModal";
 import UserMenu from "./UserMenu";
 // Context
 import { useAuth } from "../contexts/AuthHandler";
+// import DescriptifyAppDocs from "../../public/docs/DescriptifyAppDocs.pdf";
 
 const MainLayout = ({ children }) => {
   const [showLogout, setShowLogout] = useState(false);
@@ -20,6 +21,10 @@ const MainLayout = ({ children }) => {
   };
   const handleCloseLogout = () => {
     setShowLogout(false);
+  };
+
+  const handleDownloadDocs = () => {
+    window.location.href = "/api/downloaddocs";
   };
 
   return (
@@ -42,6 +47,9 @@ const MainLayout = ({ children }) => {
             ) : (
               ""
             )}
+            <button className="document-download" onClick={handleDownloadDocs}>
+              Document
+            </button>
           </Navbar>
         </header>
         {children}

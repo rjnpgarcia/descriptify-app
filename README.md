@@ -6,18 +6,26 @@ A Transcription app that has Speech-to-Text and Text-to-Speech feature <br />
 
 **Speech-to-Text**
 
-- Record Audio for Transcription
-- Downloadable transcription of the recorded audio
+- Record audio for transcription
 - Import audio file for transcription
-- Remove/Replace audio to start a new recording for transcription
+- Downloadable transcribed audio and text
+- Remove audio to start a new recording for transcription
+- Clickable Transcription texts and waveform regions to remove or overdub text and audio
+- Drag and click an empty waveform area to be able to remove or overdub a part of an audio.
+- Word highlights of the transcription as spoken.
+- Redo and undo functionality
+- Open, save, and overwrite files.
+- Automatically transcribe after every changes made.
+- Note: Recorded audio must be more than 2 seconds of length for transcription
 
 **Text-to-Speech**
 
 - Input text to convert into Speech transcription
 - Word highlights of the transcribed text as spoken
 - Redo and Undo text input
-- Downloadable Audio of the transcibed text
+- Downloadable transcribed text and audio
 - Import text file for Speech transcription
+- Open, save, and overwrite files
 
 **Login and Register User**
 
@@ -26,7 +34,7 @@ A Transcription app that has Speech-to-Text and Text-to-Speech feature <br />
 - Logged in user shown in app
 - Update user profile
 - Logout user
-- Delete account
+- Delete account with all the saved files
 
 ## Environment Variables
 
@@ -36,6 +44,7 @@ To run this project, you will need to add the following environment variables to
 `DB_USER`
 `DB_PASS`
 `PORT`
+and AWS credentials for AWS POLLY
 
 ## Run Locally
 
@@ -43,16 +52,6 @@ Install dependencies
 
 ```bash
   npm install
-```
-
-Start frontend
-
-```bash
-  cd client
-```
-
-```bash
-  npm start
 ```
 
 Start the server

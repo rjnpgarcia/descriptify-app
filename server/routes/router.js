@@ -21,6 +21,7 @@ const {
   getFilesController,
   getOneFileController,
   getAudioController,
+  downloadDocsController,
 } = require("../controllers/fileController");
 // Route end points
 const routes = (app) => {
@@ -75,6 +76,9 @@ const routes = (app) => {
 
   // Get audio
   app.route("/api/getaudio/:id/:type/:audio").get(getAudioController);
+
+  // Get documentation
+  app.route("/api/downloaddocs").get(downloadDocsController);
 };
 
 module.exports = routes;
