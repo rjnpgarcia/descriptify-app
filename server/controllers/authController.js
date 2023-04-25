@@ -62,7 +62,14 @@ const registerController = async (req, res) => {
     // Check for validation
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-      return res.json({ error: "Invalid user data input" });
+      const invalidFields = [];
+      errors.array().forEach((error) => {
+        invalidFields.push(error.param);
+      });
+      const errorMessage = `Invalid input value for: ${invalidFields.join(
+        ", "
+      )}`;
+      return res.json({ error: errorMessage });
     }
     // Check if user email exists
     const userExists = await User.findOne({ email });

@@ -18,7 +18,6 @@ const RegisterPage = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [errorMessage, setErrorMessage] = useState(null);
-  const [successMessage, setSuccessMessage] = useState(null);
   const [isLoading, setIsLoading] = useState("");
   const { setIsAuthenticated, tokenName } = useAuth();
   const navigate = useNavigate();
@@ -26,7 +25,6 @@ const RegisterPage = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setErrorMessage("");
-    setSuccessMessage("");
 
     // Validation for empty fields
     if (!name || !email || !password) {
@@ -45,7 +43,6 @@ const RegisterPage = () => {
     await registerUser(
       registerData,
       setErrorMessage,
-      setSuccessMessage,
       setIsAuthenticated,
       tokenName,
       navigate
@@ -60,17 +57,6 @@ const RegisterPage = () => {
           <Col xs>
             {errorMessage ? (
               <p className="validation-error">{errorMessage}</p>
-            ) : (
-              ""
-            )}
-            {successMessage ? (
-              <p className="validation-success">
-                {successMessage}
-                <br />
-                <NavLink to="/login" className="text-decoration-none">
-                  Login here
-                </NavLink>
-              </p>
             ) : (
               ""
             )}

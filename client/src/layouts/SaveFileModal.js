@@ -17,14 +17,62 @@ const SaveFileModal = ({ show, onHide }) => {
   const [fileName, setFileName] = useState("");
   const { saveAsFile, saveFile, setOverwriteFile } = useFile();
   const [errorMessage, setErrorMessage] = useState("");
+  const [collectFilename, setCollectFilename] = useState([]);
 
   useEffect(() => {
     setErrorMessage("");
     setFileName("");
-  }, [onHide]);
+    // Get all files of user
+    const fetchData = async () => {
+      try {
+        const response = await fetch(`/api/files/${id}`);
+        const data = await response.json();
+        let existingFile = [];
+        if (data.sttFiles && saveFile.stt) {
+          existingFile = [...existingFile, ...data.sttFiles];
+        }
+        if (data.ttsFiles && saveFile.tts) {
+          existingFile = [...existingFile, ...data.ttsFiles];
+        }
+        setCollectFilename(existingFile);
+      } catch (error) {
+        console.error(error);
+      }
+    };
+    fetchData();
+  }, [onHide, id, saveFile]);
 
   const handleSaveFile = async (e) => {
     e.preventDefault();
+    const filenameExists = collectFilename.some(
+      (file) => file.name === fileName
+    );
+
+    if (filenameExists) {
+      const confirmed = window.confirm(
+        "File name already exists. Do you want to overwrite file?"
+      );
+      if (!confirmed) {
+        return;
+      }
+    }
+    // if (collectFilename.length !== 0) {
+    //   for (let i = 0; collectFilename.length > i; i++) {
+    //     if (collectFilename[i].name === fileName) {
+    //       // Alert user to overwrite file
+    //       const confirmed = window.confirm(
+    //         "File name already exists. Do you want to overwrite file?"
+    //       );
+    //       if (!confirmed) {
+    //         return;
+    //       } else {
+    //         saveAsFile(fileName, id, onHide, setErrorMessage);
+    //       }
+    //       return;
+    //     }
+    //   }
+    // }
+
     await saveAsFile(fileName, id, onHide, setErrorMessage);
     setOverwriteFile({ name: fileName, id });
   };

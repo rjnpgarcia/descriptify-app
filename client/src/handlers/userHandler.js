@@ -4,7 +4,6 @@ import Cookies from "js-cookie";
 export const registerUser = async (
   registerData,
   setErrorMessage,
-  setSuccessMessage,
   setIsAuthenticated,
   tokenName,
   navigate
@@ -23,7 +22,6 @@ export const registerUser = async (
     if (data.error) {
       setErrorMessage(data.error);
     } else if (data.success) {
-      setSuccessMessage(data.success);
       setIsAuthenticated(true);
       Cookies.set(tokenName, JSON.stringify(data.token), { expires: 5 });
       navigate("/");

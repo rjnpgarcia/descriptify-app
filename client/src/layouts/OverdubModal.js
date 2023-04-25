@@ -104,7 +104,11 @@ const OverdubModal = ({ word, show, onHide, audio, setAudio, setChanges }) => {
         <Button variant="secondary" onClick={onHide}>
           Close
         </Button>
-        <Button variant="danger" onClick={handleDeleteWord}>
+        <Button
+          variant="danger"
+          onClick={handleDeleteWord}
+          disabled={isLoadingOverdub ? true : false}
+        >
           {isLoadingRemove ? (
             <Spinner
               as="span"
@@ -118,7 +122,11 @@ const OverdubModal = ({ word, show, onHide, audio, setAudio, setChanges }) => {
           )}
           Remove
         </Button>
-        <Button variant="primary" onClick={handleOverdub}>
+        <Button
+          variant="primary"
+          onClick={handleOverdub}
+          disabled={isLoadingRemove ? true : false}
+        >
           {isLoadingOverdub ? (
             <Spinner
               as="span"

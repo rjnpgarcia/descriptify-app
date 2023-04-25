@@ -42,7 +42,7 @@ const uploadAudio = multer({ storage: storage }).single("audioFile");
 const speechToTextController = async (req, res) => {
   uploadAudio(req, res, async (err) => {
     if (err) {
-      return res.status(500).json({ message: "Error uploading file" });
+      return res.json({ error: "Error uploading file" });
     }
     const { path: filePath } = req.file;
     const jobOptions = {
@@ -52,23 +52,18 @@ const speechToTextController = async (req, res) => {
       language: "en",
       mediaFormat: "mp3",
     };
-
     let job;
     try {
       // REV AI API Local file Handler
       job = await client.submitJobLocalFile(filePath, jobOptions);
-
       let jobDetails = await client.getJobDetails(job.id);
-
       // Checking: Poll job status
       while (jobDetails.status == revai.JobStatus.InProgress) {
-        await new Promise((resolve) => setTimeout(resolve, 5000));
+        await new Promise((resolve) => setTimeout(resolve, 3000));
         jobDetails = await client.getJobDetails(job.id);
       }
-
       // Get transcription by object
       const transcriptObject = await client.getTranscriptObject(job.id);
-
       const wordsWithTimestamps = transcriptObject.monologues.flatMap(
         (monologue) => {
           return monologue.elements.map((element) => {
@@ -80,8 +75,7 @@ const speechToTextController = async (req, res) => {
           });
         }
       );
-      res.json(wordsWithTimestamps);
-
+      res.json({ success: wordsWithTimestamps });
       // Delete audio file after transcription
       fs.unlinkSync(filePath);
     } catch (error) {
@@ -89,7 +83,15 @@ const speechToTextController = async (req, res) => {
         fs.unlinkSync(filePath);
       }
       console.error(error);
-      res.status(500).json({ error: "Transcription failed. Server issue." });
+      if (error.details.status == 409) {
+        return res.json({
+          error: "Audio insufficient length to transcribe. Please try again.",
+        });
+      } else {
+        return res.json({
+          error: "Transcription Failed. Network issue. Please try again.",
+        });
+      }
     }
   });
 };
@@ -101,14 +103,14 @@ const textToSpeechController = async (req, res) => {
     const text = req.body;
     // Voice is null to automatically set default voice as user's OS
     // Using AWS Polly
-    const params = {
+    const paramsAWS = {
       Text: text,
       OutputFormat: "mp3",
       VoiceId: "Joey",
     };
 
     // Synthesize speech with Polly
-    const { AudioStream } = await polly.synthesizeSpeech(params).promise();
+    const { AudioStream } = await polly.synthesizeSpeech(paramsAWS).promise();
 
     // Save audio file to path
     const audioReadableStream = stream.Readable.from(AudioStream);

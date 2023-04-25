@@ -5,7 +5,8 @@ import "./handlersCSS/transcriptHandler.css";
 export const transcribeSTT = async (
   audio,
   setIsLoading,
-  setTranscriptWithTS
+  setTranscriptWithTS,
+  setErrorMessage
 ) => {
   try {
     setIsLoading(true);
@@ -19,13 +20,16 @@ export const transcribeSTT = async (
     });
     const data = await response.json();
     // Transcription received by object
-    if (response.ok) {
-      const words = data;
+    if (data.success) {
+      const words = data.success;
       await setTranscriptWithTS(words);
+    } else if (data.error) {
+      setErrorMessage(data.error);
     }
     setIsLoading(false);
   } catch (error) {
     setIsLoading(false);
+    setErrorMessage("Transcription failed. Please try again.");
   }
 };
 

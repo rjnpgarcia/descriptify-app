@@ -43,6 +43,7 @@ const SpeechToText = () => {
   const [highlight, setHighlight] = useState("");
   const [selectedWord, setSelectedWord] = useState("");
   const [changes, setChanges] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
   const [
     audio,
     {
@@ -65,6 +66,14 @@ const SpeechToText = () => {
   ] = useUndo("");
 
   useEffect(() => {
+    if (errorMessage) {
+      setTimeout(() => {
+        setErrorMessage("");
+      }, 4000);
+    }
+  }, [errorMessage]);
+
+  useEffect(() => {
     setOverwriteFile({});
   }, [setOverwriteFile]);
 
@@ -72,7 +81,7 @@ const SpeechToText = () => {
     // For full screen loading
     if (changes) {
       setLoadingScreen(true);
-      transcribeSTT(audio, setIsLoading, setTranscriptWithTS)
+      transcribeSTT(audio, setIsLoading, setTranscriptWithTS, setErrorMessage)
         .then(() => setChanges(false))
         .then(() => setLoadingScreen(false));
       if (fileData.name && fileData.id) {
@@ -150,6 +159,8 @@ const SpeechToText = () => {
   // Set MediaRecorder API then start recording
   const handleStartRecording = async () => {
     setIsRecording(true);
+    fileInputRef.current.value = "";
+    // setAudio(null);
     await startRecording(mediaRecorder, setAudioChunks);
   };
 
@@ -164,10 +175,15 @@ const SpeechToText = () => {
   // Handle STT Transcription to server
   const handleTranscribe = async () => {
     setLoadingScreen(true);
-    await transcribeSTT(audio, setIsLoading, setTranscriptWithTS);
     if (fileInputRef.current) {
       fileInputRef.current.value = "";
     }
+    await transcribeSTT(
+      audio,
+      setIsLoading,
+      setTranscriptWithTS,
+      setErrorMessage
+    );
     if (fileData.name && fileData.id) {
       setOverwriteFile(fileData);
     }
@@ -200,6 +216,9 @@ const SpeechToText = () => {
 
   // Handle Remove/Replace recorded audio
   const handleRemoveAudioText = () => {
+    if (isPlaying) {
+      setIsPlaying(false);
+    }
     setAudio(null);
     setTranscriptWithTS("");
     fileInputRef.current.value = "";
@@ -260,6 +279,11 @@ const SpeechToText = () => {
             </button>
           </Col>
         </Row>
+        {errorMessage ? (
+          <p className="text-danger m-0 text-center">{errorMessage}</p>
+        ) : (
+          ""
+        )}
         <Row className="justify-content-center mt-2">
           <div id="transcription-output">
             {transcriptWithTS.present ? (

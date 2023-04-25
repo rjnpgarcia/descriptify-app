@@ -118,12 +118,18 @@ const TextToSpeech = () => {
 
   const handleStop = () => {
     window.speechSynthesis.cancel();
-    audioPlayer.stop();
+    audioPlayer.pause();
+    audioPlayer.currentTime = 0;
     setIsPlaying(false);
   };
 
   // Clear Audio transcription, Output and input text
   const handleClear = () => {
+    if (isPlaying) {
+      audioPlayer.pause();
+      audioPlayer.currentTime = 0;
+      setIsPlaying(false);
+    }
     setAudio(null);
     setNewText("");
     words.current = [];
