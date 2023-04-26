@@ -133,12 +133,6 @@ const TextToSpeech = () => {
         previousWordSpan.classList.remove("word-highlight");
       }
     };
-
-    if (words.current.length > 0) {
-      const initialSpan = document.querySelector(`span[data-index="0"]`);
-      initialSpan.classList.add("word-highlight");
-      previousWordSpan = initialSpan;
-    }
   };
 
   const handleStop = () => {
@@ -146,6 +140,10 @@ const TextToSpeech = () => {
     audioPlayer.pause();
     audioPlayer.currentTime = 0;
     setIsPlaying(false);
+
+    // Remove highlights
+    const highlightedSpan = document.querySelector(".word-highlight");
+    highlightedSpan.classList.remove("word-highlight");
   };
 
   // Clear Audio transcription, Output and input text
