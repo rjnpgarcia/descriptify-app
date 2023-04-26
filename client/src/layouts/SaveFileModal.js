@@ -56,22 +56,6 @@ const SaveFileModal = ({ show, onHide }) => {
         return;
       }
     }
-    // if (collectFilename.length !== 0) {
-    //   for (let i = 0; collectFilename.length > i; i++) {
-    //     if (collectFilename[i].name === fileName) {
-    //       // Alert user to overwrite file
-    //       const confirmed = window.confirm(
-    //         "File name already exists. Do you want to overwrite file?"
-    //       );
-    //       if (!confirmed) {
-    //         return;
-    //       } else {
-    //         saveAsFile(fileName, id, onHide, setErrorMessage);
-    //       }
-    //       return;
-    //     }
-    //   }
-    // }
 
     await saveAsFile(fileName, id, onHide, setErrorMessage);
     setOverwriteFile({ name: fileName, id });

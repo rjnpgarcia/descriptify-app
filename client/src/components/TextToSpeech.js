@@ -12,6 +12,7 @@ import { useDownload } from "../contexts/DownloadHandler";
 import { useFile } from "../contexts/FileHandler";
 // CSS
 import "./componentsCSS/TextToSpeech.css";
+import { useLoading } from "../contexts/ScreenLoaderHandler";
 
 const TextToSpeech = () => {
   const [audio, setAudio] = useState(null);
@@ -23,10 +24,18 @@ const TextToSpeech = () => {
   const text = useRef("");
   const fileInputTTSRef = useRef(null);
   const { setDataDownload } = useDownload();
+  const { setLoadingScreen } = useLoading();
   const { getFile, setSaveFile, setGetFile, setOverwriteFile } = useFile();
   const [
     newText,
-    { set: setNewText, undo: handleUndo, redo: handleRedo, canUndo, canRedo },
+    {
+      set: setNewText,
+      undo: handleUndo,
+      redo: handleRedo,
+      canUndo,
+      canRedo,
+      reset: resetNewText,
+    },
   ] = useUndo("");
 
   useEffect(() => {
@@ -57,25 +66,27 @@ const TextToSpeech = () => {
           setAudio(audioUrl);
         }
       };
-      setNewText(getFile.transcript);
+      resetNewText(getFile.transcript);
       words.current = [];
       text.current = getFile.transcript;
       getAudio(getFile.name, setAudio, getFile.id, getFile.type);
       setFileData({ name: getFile.name, id: getFile.id });
       setGetFile({});
     }
-  }, [getFile, setNewText, setGetFile]);
+  }, [getFile, resetNewText, setGetFile]);
 
   // Text-to-Speech Handler
   const handleTranscribe = async (e) => {
     e.preventDefault();
-    transcribeTTS(text, words, newText, setAudio, setIsLoading);
+    setLoadingScreen(true);
+    await transcribeTTS(text, words, newText, setAudio, setIsLoading);
     if (fileInputTTSRef.current) {
       fileInputTTSRef.current.value = "";
     }
     if (fileData.name && fileData.id) {
       setOverwriteFile(fileData);
     }
+    setLoadingScreen(false);
   };
 
   // Handle audio player controls and output

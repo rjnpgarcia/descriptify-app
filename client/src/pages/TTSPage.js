@@ -3,6 +3,7 @@ import TextToSpeech from "../components/TextToSpeech.js";
 // Components
 import SubLayout from "../layouts/SubLayout.js";
 import { useAuth } from "../contexts/AuthHandler.js";
+import { ScreenLoaderHandler } from "../contexts/ScreenLoaderHandler.js";
 
 const TTSPage = () => {
   const { pageStorageName } = useAuth();
@@ -13,7 +14,9 @@ const TTSPage = () => {
 
   return (
     <SubLayout>
-      <TextToSpeech />
+      <ScreenLoaderHandler>
+        <TextToSpeech />
+      </ScreenLoaderHandler>
     </SubLayout>
   );
 };

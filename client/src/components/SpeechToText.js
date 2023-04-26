@@ -52,6 +52,7 @@ const SpeechToText = () => {
       redo: handleRedoAudio,
       canUndo: canUndoAudio,
       canRedo: canRedoAudio,
+      reset: resetAudio,
     },
   ] = useUndo(null);
   const [
@@ -62,6 +63,7 @@ const SpeechToText = () => {
       redo: handleRedoTranscript,
       canUndo: canUndoTranscript,
       canRedo: canRedoTranscript,
+      reset: resetTranscript,
     },
   ] = useUndo("");
 
@@ -125,22 +127,22 @@ const SpeechToText = () => {
   useEffect(() => {
     if (getFile && getFile.name && getFile.id && getFile.type) {
       const transcriptOpen = JSON.parse(getFile.transcript);
-      const getAudio = async (audioFile, setAudio, id, type) => {
+      const getAudio = async (audioFile, resetAudio, id, type) => {
         const response = await fetch(
           `/api/getaudio/${id}/${type}/${audioFile}`
         );
         const data = await response.blob();
         if (response.ok) {
           const audioUrl = URL.createObjectURL(data);
-          setAudio(audioUrl);
+          resetAudio(audioUrl);
         }
       };
-      setTranscriptWithTS(transcriptOpen);
-      getAudio(getFile.name, setAudio, getFile.id, getFile.type);
+      resetTranscript(transcriptOpen);
+      getAudio(getFile.name, resetAudio, getFile.id, getFile.type);
       setFileData({ name: getFile.name, id: getFile.id });
       setGetFile({});
     }
-  }, [getFile, setTranscriptWithTS, setGetFile, setAudio]);
+  }, [getFile, resetTranscript, setGetFile, resetAudio]);
 
   // Handle Modal pop-up for recording audio
   const handleClose = () => setShowModal(false);
