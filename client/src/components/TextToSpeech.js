@@ -96,20 +96,25 @@ const TextToSpeech = () => {
     words.current = text.current.split(" ");
 
     const utterance = new SpeechSynthesisUtterance(text.current);
-    utterance.rate = 1.2;
+    utterance.rate = 1;
     utterance.volume = 0;
 
     let currentWordIndex = 0;
+    let previousWordSpan = null;
     utterance.addEventListener("boundary", (e) => {
       if (e.name === "word") {
         const wordIndex = currentWordIndex;
         currentWordIndex++;
-        const span = document.querySelector(`span[data-index="${wordIndex}"]`);
-        span.classList.add("word-highlight");
+        const currentWordSpan = document.querySelector(
+          `span[data-index="${wordIndex}"]`
+        );
 
-        setTimeout(() => {
-          span.classList.remove("word-highlight");
-        }, 300);
+        if (previousWordSpan) {
+          previousWordSpan.classList.remove("word-highlight");
+        }
+
+        currentWordSpan.classList.add("word-highlight");
+        previousWordSpan = currentWordSpan;
       }
     });
     // Play audio handler
@@ -124,7 +129,16 @@ const TextToSpeech = () => {
 
     utterance.onend = () => {
       setIsPlaying(false);
+      if (previousWordSpan) {
+        previousWordSpan.classList.remove("word-highlight");
+      }
     };
+
+    if (words.current.length > 0) {
+      const initialSpan = document.querySelector(`span[data-index="0"]`);
+      initialSpan.classList.add("word-highlight");
+      previousWordSpan = initialSpan;
+    }
   };
 
   const handleStop = () => {

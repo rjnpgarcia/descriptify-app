@@ -56,7 +56,6 @@ export const transcribeTTS = async (
     const audioBlob = await response.blob();
     if (response.ok) {
       const audioUrl = URL.createObjectURL(audioBlob);
-
       setAudio(audioUrl);
     }
     setIsLoading(false);
