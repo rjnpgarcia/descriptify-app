@@ -107,7 +107,12 @@ export const updateUser = async (
 };
 
 // Delete User
-export const deleteUser = async (id, setErrorMessage, tokenName) => {
+export const deleteUser = async (
+  id,
+  setErrorMessage,
+  tokenName,
+  pageStorageName
+) => {
   try {
     // Alert user to confirm delete
     const confirmed = window.confirm(
@@ -126,6 +131,7 @@ export const deleteUser = async (id, setErrorMessage, tokenName) => {
     const data = await response.json();
     if (data.success) {
       Cookies.remove(tokenName);
+      localStorage.removeItem(pageStorageName);
       window.location.href = "/login";
     } else if (data.error) {
       setErrorMessage(data.error);

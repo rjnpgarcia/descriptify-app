@@ -9,10 +9,16 @@ export const useAuth = () => {
 export const AuthHandler = ({ children }) => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const tokenName = "loggedInUser";
+  const pageStorageName = "lastVisitedPage";
 
   return (
     <AuthContext.Provider
-      value={{ isAuthenticated, setIsAuthenticated, tokenName }}
+      value={{
+        isAuthenticated,
+        setIsAuthenticated,
+        tokenName,
+        pageStorageName,
+      }}
     >
       {children}
     </AuthContext.Provider>

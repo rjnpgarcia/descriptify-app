@@ -18,16 +18,21 @@ const LoginPage = () => {
   const [password, setPassword] = useState("");
   const [errorMessage, setErrorMessage] = useState(null);
   const [isLoading, setIsLoading] = useState("");
-  const { setIsAuthenticated, tokenName } = useAuth();
+  const { setIsAuthenticated, tokenName, pageStorageName } = useAuth();
   const navigate = useNavigate();
 
   useEffect(() => {
     const userData = Cookies.get(tokenName);
+    const lastVisitedPage = localStorage.getItem(pageStorageName);
     if (userData) {
       setIsAuthenticated(true);
-      navigate("/");
+      if (lastVisitedPage) {
+        navigate(lastVisitedPage);
+      } else {
+        navigate("/");
+      }
     }
-  }, [setIsAuthenticated, navigate, tokenName]);
+  }, [setIsAuthenticated, navigate, tokenName, pageStorageName]);
 
   const handleSubmitLogin = async (e) => {
     e.preventDefault();

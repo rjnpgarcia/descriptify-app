@@ -209,7 +209,6 @@ const textToSpeech = async (text, outputFilePath) => {
     OutputFormat: "mp3",
     VoiceId: "Joey",
   };
-  console.log(params);
   // Synthesize speech with Polly
   const { AudioStream } = await polly.synthesizeSpeech(params).promise();
 

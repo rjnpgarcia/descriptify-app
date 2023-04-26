@@ -16,7 +16,7 @@ const ProfileModal = ({ show, onHide, userData }) => {
   const [newPassword, setNewPassword] = useState("");
   const [errorMessage, setErrorMessage] = useState(null);
   const [successMessage, setSuccessMessage] = useState(null);
-  const { tokenName } = useAuth();
+  const { tokenName, pageStorageName } = useAuth();
 
   useEffect(() => {
     setErrorMessage("");
@@ -64,7 +64,7 @@ const ProfileModal = ({ show, onHide, userData }) => {
   // Delete user from MongoDB
   const handleDelete = async () => {
     const { id } = userData;
-    await deleteUser(id, setErrorMessage, tokenName);
+    await deleteUser(id, setErrorMessage, tokenName, pageStorageName);
   };
 
   return (

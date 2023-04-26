@@ -101,7 +101,11 @@ const OverdubModal = ({ word, show, onHide, audio, setAudio, setChanges }) => {
         </Form>
       </Modal.Body>
       <Modal.Footer>
-        <Button variant="secondary" onClick={onHide}>
+        <Button
+          variant="secondary"
+          onClick={onHide}
+          disabled={isLoadingOverdub || isLoadingRemove ? true : false}
+        >
           Close
         </Button>
         <Button

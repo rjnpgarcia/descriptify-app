@@ -5,10 +5,11 @@ import { useAuth } from "../contexts/AuthHandler";
 import { logoutUser } from "../handlers/userHandler";
 
 function LogoutModal({ show, onHide }) {
-  const { setIsAuthenticated, tokenName } = useAuth();
+  const { setIsAuthenticated, tokenName, pageStorageName } = useAuth();
   // Logout User
   const handleLogout = () => {
     logoutUser(setIsAuthenticated, tokenName);
+    localStorage.removeItem(pageStorageName);
     onHide();
   };
 

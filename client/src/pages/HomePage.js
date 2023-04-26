@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 // Components
 import SubLayout from "../layouts/SubLayout";
 // Bootstrap
@@ -7,8 +7,15 @@ import Container from "react-bootstrap/esm/Container";
 import Row from "react-bootstrap/esm/Row";
 // CSS
 import "./pagesCSS/HomePage.css";
+import { useAuth } from "../contexts/AuthHandler";
 
 const HomePage = () => {
+  const { pageStorageName } = useAuth();
+  // To store if this is the last page visited. For browser refresh to stay in the page.
+  useEffect(() => {
+    localStorage.setItem(pageStorageName, "/");
+  }, [pageStorageName]);
+
   return (
     <SubLayout>
       <Container className="home-container">
