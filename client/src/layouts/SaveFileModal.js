@@ -5,6 +5,7 @@ import Modal from "react-bootstrap/Modal";
 import Form from "react-bootstrap/Form";
 import FloatingLabel from "react-bootstrap/esm/FloatingLabel";
 import Button from "react-bootstrap/esm/Button";
+import Spinner from "react-bootstrap/Spinner";
 // CSS
 import "./layoutsCSS/SaveFileModal.css";
 // Handlers
@@ -18,6 +19,7 @@ const SaveFileModal = ({ show, onHide }) => {
   const { saveAsFile, saveFile, setOverwriteFile } = useFile();
   const [errorMessage, setErrorMessage] = useState("");
   const [collectFilename, setCollectFilename] = useState([]);
+  const [isSaving, setIsSaving] = useState(false);
 
   useEffect(() => {
     setErrorMessage("");
@@ -56,14 +58,21 @@ const SaveFileModal = ({ show, onHide }) => {
         return;
       }
     }
-
+    setIsSaving(true);
     await saveAsFile(fileName, id, onHide, setErrorMessage);
     setOverwriteFile({ name: fileName, id });
+    setIsSaving(false);
   };
 
   return (
-    <Modal show={show} onHide={onHide} size="sm">
-      <Modal.Header closeButton>
+    <Modal
+      show={show}
+      onHide={onHide}
+      size="sm"
+      backdrop={isSaving ? "static" : ""}
+      keyboard={isSaving ? false : true}
+    >
+      <Modal.Header>
         <Modal.Title>Save file?</Modal.Title>
       </Modal.Header>
       <Modal.Body className="save-file-modal-body">
@@ -82,7 +91,11 @@ const SaveFileModal = ({ show, onHide }) => {
             />
           </FloatingLabel>
           <div className="save-file-modal-buttons">
-            <Button variant="secondary" onClick={onHide}>
+            <Button
+              variant="secondary"
+              onClick={onHide}
+              disabled={isSaving ? true : false}
+            >
               Cancel
             </Button>
             <Button
@@ -95,6 +108,17 @@ const SaveFileModal = ({ show, onHide }) => {
               }
               type="submit"
             >
+              {isSaving ? (
+                <Spinner
+                  as="span"
+                  animation="border"
+                  size="sm"
+                  role="status"
+                  aria-hidden="true"
+                />
+              ) : (
+                ""
+              )}
               Save file
             </Button>
           </div>

@@ -89,7 +89,14 @@ const OverdubModal = ({ word, show, onHide, audio, setAudio, setChanges }) => {
   };
 
   return (
-    <Modal show={show} onHide={onHide} size="sm" centered>
+    <Modal
+      show={show}
+      onHide={onHide}
+      size="sm"
+      centered
+      backdrop={isLoadingOverdub || isLoadingRemove ? "static" : ""}
+      keyboard={isLoadingOverdub || isLoadingRemove ? false : true}
+    >
       <Modal.Body>
         <Form onSubmit={handleSubmit}>
           <Form.Label>Overdub</Form.Label>
@@ -111,7 +118,7 @@ const OverdubModal = ({ word, show, onHide, audio, setAudio, setChanges }) => {
         <Button
           variant="danger"
           onClick={handleDeleteWord}
-          disabled={isLoadingOverdub ? true : false}
+          disabled={isLoadingOverdub || isLoadingRemove ? true : false}
         >
           {isLoadingRemove ? (
             <Spinner
@@ -129,7 +136,7 @@ const OverdubModal = ({ word, show, onHide, audio, setAudio, setChanges }) => {
         <Button
           variant="primary"
           onClick={handleOverdub}
-          disabled={isLoadingRemove ? true : false}
+          disabled={isLoadingOverdub || isLoadingRemove ? true : false}
         >
           {isLoadingOverdub ? (
             <Spinner
