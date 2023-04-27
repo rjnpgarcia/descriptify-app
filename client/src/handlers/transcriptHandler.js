@@ -39,7 +39,8 @@ export const transcribeTTS = async (
   words,
   newText,
   setAudio,
-  setIsLoading
+  setIsLoading,
+  setTextData
 ) => {
   try {
     setIsLoading(true);
@@ -57,6 +58,17 @@ export const transcribeTTS = async (
     if (response.ok) {
       const audioUrl = URL.createObjectURL(audioBlob);
       setAudio(audioUrl);
+      const response = await fetch("/api/texttospeechdata", {
+        method: "POST",
+        body: text.current,
+      });
+      const data = await response.json();
+      // Transcription received by object
+      if (data.success) {
+        const wordsWithTimestamp = data.success;
+
+        setTextData(wordsWithTimestamp);
+      }
     }
     setIsLoading(false);
   } catch (error) {

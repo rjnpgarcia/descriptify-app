@@ -4,6 +4,7 @@ const {
   textToSpeechController,
   trimAudioController,
   overdubController,
+  textToSpeechDataController,
 } = require("../controllers/transcribeController");
 const {
   loginController,
@@ -36,6 +37,9 @@ const routes = (app) => {
     .route("/api/texttospeech")
     // POST method TTS
     .post(textToSpeechController);
+
+  // Text-to-speech data retriever
+  app.route("/api/texttospeechdata").post(textToSpeechDataController);
 
   // User Login and Registration endpoints
   app

@@ -216,6 +216,17 @@ const SpeechToText = () => {
     pauseAudio(waveform, isPlaying, setIsPlaying);
   };
 
+  const handleStopAudio = () => {
+    // window.speechSynthesis.cancel();
+    waveform.stop();
+    // audioPlayer.currentTime = 0;
+    setIsPlaying(false);
+    setHighlight("");
+    // // Remove highlights
+    // const highlightedSpan = document.querySelector(".word-highlight");
+    // highlightedSpan.classList.remove("word-highlight");
+  };
+
   // Handle Remove/Replace recorded audio
   const handleRemoveAudioText = () => {
     if (isPlaying) {
@@ -331,6 +342,9 @@ const SpeechToText = () => {
                 play={handlePlayAudio}
                 pause={handlePauseAudio}
               />
+              <button onClick={handleStopAudio}>
+                <i className="fa-solid fa-stop"></i>
+              </button>
               <button className="record-button" onClick={handleShow}>
                 <i
                   className="fa-solid fa-microphone"

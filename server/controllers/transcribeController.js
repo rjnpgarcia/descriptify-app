@@ -106,7 +106,7 @@ const textToSpeechController = async (req, res) => {
     const paramsAWS = {
       Text: text,
       OutputFormat: "mp3",
-      VoiceId: "Joey",
+      VoiceId: "Matthew",
     };
 
     // Synthesize speech with Polly
@@ -127,6 +127,38 @@ const textToSpeechController = async (req, res) => {
           }
         });
       });
+    });
+  } catch (error) {
+    console.error(error);
+  }
+};
+
+// Text-to-speech get transcription data
+const textToSpeechDataController = async (req, res) => {
+  const text = req.body;
+  const params = {
+    OutputFormat: "json",
+    SpeechMarkTypes: ["word"],
+    Text: text,
+    VoiceId: "Matthew",
+  };
+  try {
+    polly.synthesizeSpeech(params, (err, data) => {
+      if (err) {
+        console.error(err);
+        return res.json({
+          error: "Transcription failed. Server issue. Please try again",
+        });
+      }
+
+      const audioData = data.AudioStream.toString("utf-8");
+
+      const lines = audioData.trim().split("\n");
+
+      const jsonArray = lines.map((line) => JSON.parse(line));
+      console.log(jsonArray);
+
+      res.json({ success: jsonArray });
     });
   } catch (error) {
     console.error(error);
@@ -452,4 +484,5 @@ module.exports = {
   textToSpeechController,
   trimAudioController,
   overdubController,
+  textToSpeechDataController,
 };

@@ -13,6 +13,7 @@ import { useFile } from "../contexts/FileHandler";
 // CSS
 import "./componentsCSS/TextToSpeech.css";
 import { useLoading } from "../contexts/ScreenLoaderHandler";
+import WaveformPlayer from "./WaveformPlayer";
 
 const TextToSpeech = () => {
   const [audio, setAudio] = useState(null);
@@ -22,9 +23,12 @@ const TextToSpeech = () => {
   const [fileData, setFileData] = useState({});
   const words = useRef([]);
   const text = useRef("");
+  const [textData, setTextData] = useState([]);
+  const [highlight, setHighlight] = useState("");
   const fileInputTTSRef = useRef(null);
   const { setDataDownload } = useDownload();
   const { setLoadingScreen } = useLoading();
+  const [audioPlayer, setAudioPlayer] = useState(null);
   const { getFile, setSaveFile, setGetFile, setOverwriteFile } = useFile();
   const [
     newText,
@@ -79,7 +83,14 @@ const TextToSpeech = () => {
   const handleTranscribe = async (e) => {
     e.preventDefault();
     setLoadingScreen(true);
-    await transcribeTTS(text, words, newText, setAudio, setIsLoading);
+    await transcribeTTS(
+      text,
+      words,
+      newText,
+      setAudio,
+      setIsLoading,
+      setTextData
+    );
     if (fileInputTTSRef.current) {
       fileInputTTSRef.current.value = "";
     }
@@ -90,60 +101,129 @@ const TextToSpeech = () => {
   };
 
   // Handle audio player controls and output
-  const audioPlayer = document.querySelector("#tts-audio-player");
+  // const audioPlayer = document.querySelector("#tts-audio-player");
+
   const handlePlayOutput = () => {
     // Split the text into an array of words
     words.current = text.current.split(" ");
 
-    const utterance = new SpeechSynthesisUtterance(text.current);
-    utterance.rate = 1;
-    utterance.volume = 0;
-
-    let currentWordIndex = 0;
-    let previousWordSpan = null;
-    utterance.addEventListener("boundary", (e) => {
-      if (e.name === "word") {
-        const wordIndex = currentWordIndex;
-        currentWordIndex++;
-        const currentWordSpan = document.querySelector(
-          `span[data-index="${wordIndex}"]`
-        );
-
-        if (previousWordSpan) {
-          previousWordSpan.classList.remove("word-highlight");
-        }
-
-        currentWordSpan.classList.add("word-highlight");
-        previousWordSpan = currentWordSpan;
-      }
-    });
-    // Play audio handler
-    if (window.speechSynthesis.paused) {
-      window.speechSynthesis.resume();
-      audioPlayer.play();
-    } else {
-      window.speechSynthesis.speak(utterance);
+    setIsPlaying(true);
+    if (audio) {
       audioPlayer.play();
     }
-    setIsPlaying(true);
+    audioPlayer.on("audioprocess", () => {
+      //   const currentTime = audioPlayer.getCurrentTime() * 1000;
+      //   const highlightedIndex = textData.findIndex((word) => {
+      //     return currentTime < word.time;
+      //   });
+      //   const currentWordIndex = Math.max(highlightedIndex - 1, 0);
+      //   const currentWord = words.current[currentWordIndex];
+      //   const previousWord = words.current[currentWordIndex - 1];
+      //   const wordToHighlight = currentWord !== "\n" ? currentWord : previousWord;
+      //   const wordIndexToHighlight = words.current.findIndex(
+      //     (word) => word === wordToHighlight
+      //   );
+      //   setHighlight(wordIndexToHighlight);
+      // });
+      // audioPlayer.on("finish", () => {
+      //   setIsPlaying(false);
+      //   setHighlight(-1);
+      // });
 
-    utterance.onend = () => {
+      //////////
+      const currentTime = audioPlayer.getCurrentTime() * 1000;
+      const highlightedIndex = textData.findIndex((word) => {
+        return currentTime < word.time;
+      });
+      setHighlight(
+        highlightedIndex >= 0 ? highlightedIndex - 1 : textData.length - 1
+      );
+    });
+    audioPlayer.on("finish", () => {
       setIsPlaying(false);
-      if (previousWordSpan) {
-        previousWordSpan.classList.remove("word-highlight");
-      }
-    };
+      setHighlight(-1);
+    });
+    ///////////
+    //   const currentTime = audioPlayer.getCurrentTime() * 1000;
+    //   const currentWordIndex = textData.findIndex(
+    //     (word) => currentTime < word.time
+    //   );
+    //   const currentWordSpan = document.querySelector(
+    //     `span[data-index="${currentWordIndex}"]`
+    //   );
+    //   if (currentWordSpan) {
+    //     const previousWordSpan = document.querySelector(".word-highlight");
+    //     if (previousWordSpan) {
+    //       previousWordSpan.classList.remove("word-highlight");
+    //     }
+    //     currentWordSpan.classList.add("word-highlight");
+    //   }
+    // });
+    // audioPlayer.on("finish", () => {
+    //   setIsPlaying(false);
+    //   const previousWordSpan = document.querySelector(".word-highlight");
+    //   if (previousWordSpan) {
+    //     previousWordSpan.classList.remove("word-highlight");
+    //   }
+    // });
+
+    // const utterance = new SpeechSynthesisUtterance(text.current);
+    // utterance.rate = 1;
+    // utterance.volume = 0;
+
+    // let currentWordIndex = 0;
+    // let previousWordSpan = null;
+    // utterance.addEventListener("boundary", (e) => {
+    //   if (e.name === "word") {
+    //     const wordIndex = currentWordIndex;
+    //     currentWordIndex++;
+    //     const currentWordSpan = document.querySelector(
+    //       `span[data-index="${wordIndex}"]`
+    //     );
+
+    //     if (previousWordSpan) {
+    //       previousWordSpan.classList.remove("word-highlight");
+    //     }
+
+    //     currentWordSpan.classList.add("word-highlight");
+    //     previousWordSpan = currentWordSpan;
+    //   }
+    // });
+    // // Play audio handler
+    // if (window.speechSynthesis.paused) {
+    //   window.speechSynthesis.resume();
+    //   audioPlayer.play();
+    // } else {
+    //   window.speechSynthesis.speak(utterance);
+    //   audioPlayer.play();
+    // }
+
+    // utterance.onend = () => {
+    //   setIsPlaying(false);
+    //   if (previousWordSpan) {
+    //     previousWordSpan.classList.remove("word-highlight");
+    //   }
+    // };
   };
 
-  const handleStop = () => {
-    window.speechSynthesis.cancel();
+  const handlePause = () => {
+    // window.speechSynthesis.cancel();
     audioPlayer.pause();
-    audioPlayer.currentTime = 0;
+    // audioPlayer.currentTime = 0;
     setIsPlaying(false);
-
-    // Remove highlights
-    const highlightedSpan = document.querySelector(".word-highlight");
-    highlightedSpan.classList.remove("word-highlight");
+    // // Remove highlights
+    // const highlightedSpan = document.querySelector(".word-highlight");
+    // highlightedSpan.classList.remove("word-highlight");
+  };
+  const handleStop = () => {
+    // window.speechSynthesis.cancel();
+    audioPlayer.stop();
+    // audioPlayer.currentTime = 0;
+    setIsPlaying(false);
+    setHighlight(-1);
+    // // Remove highlights
+    // const highlightedSpan = document.querySelector(".word-highlight");
+    // highlightedSpan.classList.remove("word-highlight");
   };
 
   // Clear Audio transcription, Output and input text
@@ -224,12 +304,24 @@ const TextToSpeech = () => {
         </Col>
         <Col xs="12" md="6">
           <div className="tts-output">
-            <p className="tts-text-output">
-              {words.current.map((word, index) => (
+            {/* <p className="tts-text-output">
+              {textData.map((word, index) => (
                 <span key={index} data-index={index}>
                   {word}{" "}
                 </span>
               ))}
+            </p> */}
+            <p className="tts-text-output">
+              {textData.map((word, index) => {
+                return (
+                  <span
+                    key={index}
+                    className={highlight === index ? "word-highlight" : ""}
+                  >
+                    {word.value}{" "}
+                  </span>
+                );
+              })}
             </p>
           </div>
         </Col>
@@ -237,7 +329,8 @@ const TextToSpeech = () => {
 
       <Row className="justify-content-center">
         <div className="tts-buttons-container">
-          <audio id="tts-audio-player" src={audio}></audio>
+          {/* <audio id="tts-audio-player" src={audio}></audio> */}
+          <WaveformPlayer audio={audio} setWaveform={setAudioPlayer} />
           <div className="tts-controls-container">
             {!isPlaying ? (
               <button
@@ -255,10 +348,13 @@ const TextToSpeech = () => {
                 )}
               </button>
             ) : (
-              <button onClick={handleStop}>
-                <i className="fa-solid fa-stop"></i>
+              <button onClick={handlePause}>
+                <i className="fa-solid fa-pause"></i>
               </button>
             )}
+            <button onClick={handleStop}>
+              <i className="fa-solid fa-stop"></i>
+            </button>
             <button onClick={handleShowDelete}>
               <i className="fa-solid fa-delete-left"></i>
             </button>
