@@ -239,6 +239,7 @@ const TextToSpeech = () => {
     if (fileInputTTSRef.current) {
       fileInputTTSRef.current.value = "";
     }
+    setTextData([]);
     setFileData({});
     setOverwriteFile({});
     setShowDeleteModal(false);
