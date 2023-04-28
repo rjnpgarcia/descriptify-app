@@ -26,8 +26,10 @@ export const FileHandler = ({ children }) => {
         transciptData = JSON.stringify(saveFile.transcript);
         formData.append("stt", saveFile.stt);
       } else if (saveFile.tts) {
+        const wordDataString = JSON.stringify(saveFile.wordData);
         transciptData = saveFile.transcript;
         formData.append("tts", saveFile.tts);
+        formData.append("wordData", wordDataString);
       }
       formData.append(
         "audioFile",

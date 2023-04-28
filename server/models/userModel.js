@@ -22,6 +22,9 @@ const ttsFileSchema = new mongoose.Schema({
   audioFile: {
     type: String,
   },
+  wordData: {
+    type: String,
+  },
 });
 
 const userSchema = new mongoose.Schema({

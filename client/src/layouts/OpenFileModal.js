@@ -46,13 +46,24 @@ const OpenFileModal = ({ show, onHide }) => {
         method: "GET",
       });
       const data = await response.json();
-      const dataGet = {
-        id,
-        type,
-        name: fileName,
-        transcript: data,
-      };
-      setGetFile(dataGet);
+      if (type === "tts") {
+        const dataGet = {
+          id,
+          type,
+          name: fileName,
+          transcript: data.transcript,
+          wordData: data.wordData,
+        };
+        setGetFile(dataGet);
+      } else {
+        const dataGet = {
+          id,
+          type,
+          name: fileName,
+          transcript: data,
+        };
+        setGetFile(dataGet);
+      }
       if (type === "stt") {
         navigate("/speechtotext");
       } else if (type === "tts") {

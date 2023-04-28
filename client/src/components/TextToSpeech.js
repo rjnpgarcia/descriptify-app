@@ -51,15 +51,17 @@ const TextToSpeech = () => {
       tts: true,
       audio: audio,
       transcript: newText.present,
+      wordData: textData,
     });
     setDataDownload({
       audio: audio,
       transcript: newText.present,
     });
-  }, [audio, newText.present, setSaveFile, setDataDownload]);
+  }, [audio, newText.present, setSaveFile, setDataDownload, textData]);
 
   useEffect(() => {
     if (getFile && getFile.name && getFile.id && getFile.type) {
+      const wordDataOpen = JSON.parse(getFile.wordData);
       const getAudio = async (audioFile, setAudio, id, type) => {
         const response = await fetch(
           `/api/getaudio/${id}/${type}/${audioFile}`
@@ -71,13 +73,14 @@ const TextToSpeech = () => {
         }
       };
       resetNewText(getFile.transcript);
+      setTextData(wordDataOpen);
       words.current = [];
       text.current = getFile.transcript;
       getAudio(getFile.name, setAudio, getFile.id, getFile.type);
       setFileData({ name: getFile.name, id: getFile.id });
       setGetFile({});
     }
-  }, [getFile, resetNewText, setGetFile]);
+  }, [getFile, resetNewText, setGetFile, setTextData]);
 
   // Text-to-Speech Handler
   const handleTranscribe = async (e) => {

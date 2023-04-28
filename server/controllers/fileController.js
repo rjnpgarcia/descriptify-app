@@ -57,10 +57,16 @@ const saveFileController = async (req, res) => {
         return res.json({ error: `Please enter a file name` });
       }
 
-      const fileData = {
+      const fileDataStt = {
         name: req.body.name,
         transcript: req.body.transcript,
         audioFile: filePath,
+      };
+      const fileDataTts = {
+        name: req.body.name,
+        transcript: req.body.transcript,
+        audioFile: filePath,
+        wordData: req.body.wordData,
       };
       if (req.body.stt) {
         // Check if file name already exists in STT
@@ -68,10 +74,10 @@ const saveFileController = async (req, res) => {
           (file) => file.name === req.body.name
         );
         if (existingFileIndex !== -1) {
-          user.sttFiles[existingFileIndex] = fileData;
+          user.sttFiles[existingFileIndex] = fileDataStt;
         } else {
           // Save STT data
-          user.sttFiles.push(fileData);
+          user.sttFiles.push(fileDataStt);
         }
       } else if (req.body.tts) {
         // Check if file name already exists in TTS
@@ -79,10 +85,10 @@ const saveFileController = async (req, res) => {
           (file) => file.name === req.body.name
         );
         if (existingFileIndex !== -1) {
-          user.ttsFiles[existingFileIndex] = fileData;
+          user.ttsFiles[existingFileIndex] = fileDataTts;
         } else {
           // Save TTS data
-          user.ttsFiles.push(fileData);
+          user.ttsFiles.push(fileDataTts);
         }
       } else {
         // No data to save
@@ -164,8 +170,11 @@ const getOneFileController = async (req, res) => {
     const fileList = type === "stt" ? user.sttFiles : user.ttsFiles;
 
     const files = fileList.find((file) => file.name === fileName);
-
-    res.json(files.transcript);
+    if (type === "tts") {
+      res.json({ transcript: files.transcript, wordData: files.wordData });
+    } else {
+      res.json(files.transcript);
+    }
   } catch (error) {
     console.error(error);
     res.json({ error: `Open "${fileName}" failed. Please try again` });
